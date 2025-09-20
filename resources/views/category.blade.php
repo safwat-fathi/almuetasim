@@ -61,19 +61,6 @@
         @endif
     </div>
 
-    <!-- Newsletter -->
-    <div class="bg-base-200 py-16">
-        <div class="container mx-auto px-4 text-center">
-            <h2 class="text-3xl font-bold mb-4">ابقوا على اطلاع</h2>
-            <p class="text-lg mb-8">
-                اشتركوا في نشرتنا البريدية للحصول على أحدث العروض والمنتجات الجديدة
-            </p>
-            <div class="max-w-md mx-auto">
-                <div class="join w-full">
-                    <input class="input input-bordered join-item w-full" placeholder="أدخل بريدك الإلكتروني" />
-                    <button class="btn btn-primary join-item">اشتراك</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- Contact Form -->
+    <x-contact-form />
 @endsection

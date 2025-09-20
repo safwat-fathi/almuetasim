@@ -43,7 +43,7 @@ class LoginController extends Controller
             $request->session()->regenerate();
             
             // Redirect to dashboard after successful login
-            return redirect()->intended('/dashboard');
+            return redirect()->intended('/admin/dashboard');
         }
 
         return back()->withErrors([

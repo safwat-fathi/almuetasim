@@ -1,4 +1,4 @@
-{{-- @extends('layouts.auth') --}}
+@extends('layouts.auth')
 
 @section('title', 'تسجيل دخول المسؤول')
 
@@ -46,10 +46,10 @@
                 </div>
 
                 <div class="flex items-center justify-between">
-                    <div class="flex items-center">
+                    <div class="flex items-center gap-2">
                         <input id="remember" name="remember" type="checkbox" class="checkbox checkbox-primary"
                             {{ old('remember') ? 'checked' : '' }}>
-                        <label for="remember" class="ml-2 block text-sm text-base-content">
+                        <label for="remember" class="block text-sm text-base-content">
 														تذكرني
                         </label>
                     </div>

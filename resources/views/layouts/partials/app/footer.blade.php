@@ -33,7 +33,8 @@
                 </a>
             </div>
         </nav>
-        {{-- <aside>
-            <p>حقوق النشر © 2024 - جميع الحقوق محفوظة المعتصم لفلاتر المياه</p>
-        </aside> --}}
+        <aside>
+            {{-- <p>حقوق النشر © 2024 - جميع الحقوق محفوظة المعتصم لفلاتر المياه</p> --}}
+						<img src="{{ asset('images/ALMUETASIM-300x212.png') }}" class="w-40 h-28" alt="Al-Muetasim">
+        </aside>
     </footer>

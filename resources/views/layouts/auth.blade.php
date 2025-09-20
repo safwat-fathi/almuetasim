@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="{{ app()->getLocale() == 'ar' ? 'rtl' : 'ltr' }}">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', config('app.name'))</title>
+    <title>@yield('title', __('app.name'))</title>
 
     <!-- Vite styles -->
     @vite(['resources/css/app.css'])
@@ -13,13 +13,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
 </head>
 
-<body class="font-tajawal min-h-screen bg-base-100">
-
+<body class="font-tajawal bg-base-100">
+    <!-- Main Content -->
     <main class="min-h-screen">
         @yield('content')
     </main>
-
-
     <!-- Vite scripts -->
     @vite('resources/js/app.js')
 </body>

@@ -1,3 +1,7 @@
+@php
+    $categories = \App\Models\Category::limit(4)->get();
+@endphp
+
 <nav class="navbar bg-base-100 shadow-lg sticky top-0 z-50">
         <div class="navbar-start">
             <div class="dropdown">
@@ -9,21 +13,19 @@
                     </svg>
                 </div>
                 <ul tabindex="0" class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow">
-                    <li><a>إلكترونيات</a></li>
-                    <li><a>ملابس</a></li>
-                    <li><a>منزل وحديقة</a></li>
-                    <li><a>رياضة</a></li>
+                    @foreach($categories as $category)
+                        <li><a href="{{ url('/category/' . $category->slug) }}">{{ $category->name }}</a></li>
+                    @endforeach
                 </ul>
             </div>
-            <a class="btn btn-ghost text-xl font-bold">مودرن شوب</a>
+            <a href="{{ url('/') }}" class="btn btn-ghost text-xl font-bold">مودرن شوب</a>
         </div>
 
         <div class="navbar-center hidden lg:flex">
             <ul class="menu menu-horizontal px-1">
-                <li><a class="hover:text-primary">إلكترونيات</a></li>
-                <li><a class="hover:text-primary">ملابس</a></li>
-                <li><a class="hover:text-primary">منزل وحديقة</a></li>
-                <li><a class="hover:text-primary">رياضة</a></li>
+                @foreach($categories as $category)
+                    <li><a href="{{ url('/category/' . $category->slug) }}" class="hover:text-primary">{{ $category->name }}</a></li>
+                @endforeach
             </ul>
         </div>
 

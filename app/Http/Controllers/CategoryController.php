@@ -11,13 +11,13 @@ class CategoryController extends Controller
     /**
      * Display products filtered by category.
      *
-     * @param  string  $categoryName
+     * @param  string  $categorySlug
      * @return \Illuminate\View\View
      */
-    public function show($categoryName)
+    public function show($categorySlug)
     {
-        // Find the category by name
-        $category = Category::where('name', $categoryName)->firstOrFail();
+        // Find the category by slug
+        $category = Category::where('slug', $categorySlug)->firstOrFail();
         
         // Get products for this category
         $products = Product::where('category_id', $category->id)->with('category')->paginate(12);

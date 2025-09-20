@@ -1,0 +1,72 @@
+@extends('layouts.app')
+
+@section('content')
+    <section class="hero bg-gradient-to-r from-primary to-secondary text-white min-h-[calc(100vh-65px)]">
+        <h1 class="text-4xl font-bold text-white">مرحبا بكم في متجر مودرن شوب</h1>
+    </section>
+
+    <!-- Featured Categories -->
+    <div class="container mx-auto px-4 py-16">
+        <h2 class="text-3xl font-bold text-center mb-12">التصنيفات المميزة</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            @foreach($categories as $category)
+                <x-featured-category-card 
+                    icon="box" 
+                    title="{{ $category->name }}" 
+                    description="{{ $category->description ?? 'تصنيف منتجات مميزة' }}" />
+            @endforeach
+        </div>
+    </div>
+
+    <!-- Products Section -->
+    <div class="container mx-auto px-4 py-16">
+        <div class="flex flex-col md:flex-row justify-between items-center mb-8">
+            <h2 class="text-3xl font-bold mb-4 md:mb-0">المنتجات المميزة</h2>
+            <div class="flex gap-2">
+                <select class="select select-bordered">
+                    <option>ترتيب حسب: التميز</option>
+                    <option>السعر: من الأقل إلى الأعلى</option>
+                    <option>السعر: من الأعلى إلى الأقل</option>
+                    <option>الأحدث أولاً</option>
+                </select>
+                <div class="join">
+                    <button class="btn join-item btn-active">
+                        <i data-lucide="grid-3x3"></i>
+                    </button>
+                    <button class="btn join-item">
+                        <i data-lucide="list"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="products-grid">
+            <!-- Sample Products -->
+            @foreach($products as $product)
+                <x-product-card 
+                    id="{{ $product->id }}"
+                    image="{{ $product->images ? $product->images[0] : 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop&crop=center' }}"
+                    title="{{ $product->title }}"
+                    price="{{ $product->price }}"
+                    original-price="{{ $product->price * 1.2 }}"
+                    on-sale="true" />
+            @endforeach
+        </div>
+    </div>
+
+    <!-- Newsletter -->
+    <div class="bg-base-200 py-16">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-3xl font-bold mb-4">ابقوا على اطلاع</h2>
+            <p class="text-lg mb-8">
+                اشتركوا في نشرتنا البريدية للحصول على أحدث العروض والمنتجات الجديدة
+            </p>
+            <div class="max-w-md mx-auto">
+                <div class="join w-full">
+                    <input class="input input-bordered join-item w-full" placeholder="أدخل بريدك الإلكتروني" />
+                    <button class="btn btn-primary join-item">اشتراك</button>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection

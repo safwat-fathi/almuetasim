@@ -1,8 +1,12 @@
 @extends('layouts.app')
 
+{{-- @section('title', "متجر المعتصم") --}}
+
+@section('description', "متجر المعتصم لفلاتر المياه")
+
 @section('content')
     <section class="hero bg-gradient-to-r from-primary to-secondary text-white min-h-[calc(100vh-65px)]">
-        <h1 class="text-4xl font-bold text-white">مرحبا بكم في متجر مودرن شوب</h1>
+        <h1 class="text-4xl font-bold text-white">مرحبا بكم في متجر المعتصم لفلاتر المياه</h1>
     </section>
 
     <!-- Featured Categories -->
@@ -11,7 +15,8 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             @foreach($categories as $category)
                 <x-featured-category-card 
-                    icon="box" 
+                    icon="box"
+										slug="{{ $category->slug }}" 
                     title="{{ $category->name }}" 
                     description="{{ $category->description ?? 'تصنيف منتجات مميزة' }}" />
             @endforeach

@@ -1,5 +1,9 @@
 @extends('layouts.app')
 
+@section('title', $category->name)
+
+@section('description', $category->description)
+
 @section('content')
     <!-- Category Header -->
     <div class="bg-gradient-to-r from-primary to-secondary text-white py-16">

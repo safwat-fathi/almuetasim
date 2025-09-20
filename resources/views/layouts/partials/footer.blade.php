@@ -2,8 +2,8 @@
         <nav class="grid grid-flow-col gap-4">
             <a class="link link-hover">معلومات عنا</a>
             <a class="link link-hover">اتصل بنا</a>
-            <a class="link link-hover">الوظائف</a>
-            <a class="link link-hover">مجموعة الصحافة</a>
+            {{-- <a class="link link-hover">الوظائف</a> --}}
+            {{-- <a class="link link-hover">مجموعة الصحافة</a> --}}
         </nav>
         <nav>
             <div class="grid grid-flow-col gap-4">
@@ -33,7 +33,7 @@
                 </a>
             </div>
         </nav>
-        <aside>
-            <p>حقوق النشر © 2024 - جميع الحقوق محفوظة لمودرن شوب</p>
-        </aside>
+        {{-- <aside>
+            <p>حقوق النشر © 2024 - جميع الحقوق محفوظة المعتصم لفلاتر المياه</p>
+        </aside> --}}
     </footer>

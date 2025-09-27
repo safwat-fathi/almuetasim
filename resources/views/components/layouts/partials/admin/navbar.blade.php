@@ -10,7 +10,7 @@
     <div class="flex-none gap-2">
         <div class="dropdown dropdown-end">
             <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
-                <div class="w-10 rounded-full bg-primary text-primary-content flex items-center justify-center">
+                <div class="w-10 rounded-full bg-primary text-primary-content !flex items-center justify-center">
                     <i data-lucide="user" class="w-5 h-5"></i>
                 </div>
             </div>
@@ -20,7 +20,7 @@
                 <li>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <button type="submit">Logout</button>
+                        <button type="submit">تسجيل الخروج</button>
                     </form>
                 </li>
             </ul>

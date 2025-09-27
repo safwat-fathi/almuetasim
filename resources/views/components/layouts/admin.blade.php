@@ -7,17 +7,28 @@
     <title>@yield('title', __('app.name'))</title>
 
     <!-- Vite styles -->
-    @vite(['resources/css/app.css'])
+    @vite(['resources/css/app.css', 'resources/css/admin.css'])
 
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
 </head>
 
-<body class="font-tajawal bg-base-100">
-    <!-- Main Content -->
-    <main class="min-h-screen">
-        @yield('content')
-    </main>
+<body class="font-tajawal min-h-screen bg-base-100">
+
+    {{-- Navbar --}}
+		<x-layouts.partials.admin.navbar />
+
+    <div class="drawer lg:drawer-open">
+        <input id="drawer-toggle" type="checkbox" class="drawer-toggle" />
+
+        <!-- Main Content -->
+        <div class="drawer-content flex flex-col">
+            {{ $slot }}
+        </div>
+
+        <x-layouts.partials.admin.sidebar />
+    </div>
+
     <!-- Vite scripts -->
     @vite('resources/js/app.js')
 </body>

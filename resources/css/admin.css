@@ -1,0 +1,24 @@
+.hero-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+.image-zoom {
+    transition: transform 0.3s ease;
+}
+.image-zoom:hover {
+    transform: scale(1.1);
+}
+.tab-content {
+    display: none;
+}
+.tab-content.active {
+    display: block;
+}
+.thumbnail {
+    transition: all 0.3s ease;
+}
+.thumbnail:hover {
+    transform: scale(1.05);
+}
+.thumbnail.active {
+    border: 2px solid oklch(var(--p));
+}

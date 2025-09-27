@@ -19,6 +19,7 @@ class Product extends Model
 			'is_part' => 'boolean',
 			'price' => 'decimal:2',
 			'warranty_months' => 'integer',
+			'type' => 'string',
 		];
 	}
 
@@ -27,7 +28,68 @@ class Product extends Model
 		return $this->belongsTo(Category::class);
 	}
 
-	protected $fillable = ['sku', 'title', 'slug', 'description', 'specs', 'price', 'stock', 'is_part', 'warranty_months', 'images', 'category_id'];
+	/**
+	 * Define the many-to-many relationship for related products
+	 */
+	public function relatedProducts()
+	{
+		return $this->belongsToMany(
+			self::class, 
+			'product_related_products', 
+			'product_id', 
+			'related_product_id'
+		);
+	}
+
+	/**
+	 * Define the inverse relationship for products that have this product as related
+	 */
+	public function relatedToProducts()
+	{
+		return $this->belongsToMany(
+			self::class, 
+			'product_related_products', 
+			'related_product_id', 
+			'product_id'
+		);
+	}
+
+	/**
+	 * Get all related products (both directions)
+	 * This includes both products related to this product and products this product is related to
+	 */
+	public function getAllRelatedProducts($limit = 8)
+	{
+		// Get products related to this product (where this product is the source)
+		$directlyRelatedIds = $this->relatedProducts()->pluck('product_related_products.related_product_id');
+		
+		// Get products this product is related to (where this product is the target)
+		$relatedToThisIds = $this->relatedToProducts()->pluck('product_related_products.product_id');
+		
+		// Combine the IDs and remove duplicates including the current product's ID
+		$allRelatedIds = collect($directlyRelatedIds)->merge($relatedToThisIds)->unique()->filter(function ($id) {
+			return $id != $this->id;
+		});
+		
+		// Return the related products with category information
+		if ($allRelatedIds->count() > 0) {
+			return self::whereIn('id', $allRelatedIds)->with('category')->limit($limit)->get();
+		}
+		
+		return collect(); // Return an empty collection if no related products
+	}
+
+	/**
+	 * Scope to get related products with category information
+	 */
+	public function scopeWithRelatedProducts($query, $limit = 8)
+	{
+		return $query->with(['relatedProducts' => function($query) use ($limit) {
+			$query->with('category')->limit($limit);
+		}]);
+	}
+
+	protected $fillable = ['sku', 'title', 'slug', 'description', 'specs', 'price', 'stock', 'is_part', 'warranty_months', 'images', 'category_id', 'type'];
 
 	/**
 	 * Boot the model.

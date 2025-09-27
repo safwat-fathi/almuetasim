@@ -1,10 +1,10 @@
-@extends('layouts.app')
+
 
 @section('title', $category->name)
 
 @section('description', $category->description)
 
-@section('content')
+<x-layouts.app>
     <!-- Category Header -->
     <div class="bg-gradient-to-r from-primary to-secondary text-white py-16">
         <div class="container mx-auto px-4 text-center">
@@ -41,10 +41,12 @@
                     <x-product-card 
                         id="{{ $product->id }}"
                         image="{{ $product->images ? $product->images[0] : 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop&crop=center' }}"
+												slug="{{ $product->slug }}"
                         title="{{ $product->title }}"
                         price="{{ $product->price }}"
                         original-price="{{ $product->price * 1.2 }}"
-                        on-sale="true" />
+                        type="{{ $product->type }}" />
+
                 @endforeach
             </div>
 
@@ -63,4 +65,4 @@
 
     <!-- Contact Form -->
     <x-contact-form />
-@endsection
+</x-layouts.app>

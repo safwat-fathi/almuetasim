@@ -9,18 +9,18 @@
                 <span class="text-xl font-bold">متجر المعتصم</span>
             </div>
         </div>
-        <ul class="menu p-4 space-y-2">
+        <ul class="menu p-4 space-y-2 w-full">
             <li>
-                <a class="active">
+                <a href="{{ route('dashboard') }}" @if(request()->routeIs('dashboard')) class="active" @endif>
                     <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
-										الرئيسية
+					الرئيسية
                 </a>
             </li>
             <li>
-                <a>
+                <a href="{{ route('admin.products.index') }}" @if(request()->routeIs('admin.products.*')) class="active" @endif>
                     <i data-lucide="package" class="w-5 h-5"></i>
                     المنتجات
-                    <span class="badge badge-primary">156</span>
+                    <span class="badge badge-primary">{{ \App\Models\Product::count() }}</span>
                 </a>
             </li>
             {{-- <li>
@@ -42,13 +42,13 @@
                 </a>
             </li> --}}
             <li>
-                <a>
+                <a href="{{ route('admin.categories.index') }}" @if(request()->routeIs('admin.categories.*')) class="active" @endif>
                     <i data-lucide="tag" class="w-5 h-5"></i>
                     الفئات
                 </a>
             </li>
             <li>
-                <a href="{{ route('admin.messages.index') }}">
+                <a href="{{ route('admin.messages.index') }}" @if(request()->routeIs('admin.messages.*')) class="active" @endif>
                     <i data-lucide="mail" class="w-5 h-5"></i>
                     الرسائل
                     <span class="badge badge-primary"

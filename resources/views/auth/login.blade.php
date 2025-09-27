@@ -1,8 +1,8 @@
-@extends('layouts.auth')
+
 
 @section('title', 'تسجيل دخول المسؤول')
 
-@section('content')
+<x-layouts.auth>
     <div class="min-h-screen flex items-center justify-center bg-base-200 py-12 px-4 sm:px-6 lg:px-8">
         <div class="max-w-md w-full space-y-8 bg-base-100 p-8 rounded-lg shadow-lg">
             <div dir="rtl">
@@ -63,4 +63,4 @@
             </form>
         </div>
     </div>
-@endsection
+	</x-layouts.auth>

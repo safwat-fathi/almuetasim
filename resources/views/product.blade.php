@@ -1,3 +1,7 @@
+@php
+    use Illuminate\Support\Str;
+@endphp
+
 @section('title', $product->title)
 
 @section('description', $product->description)
@@ -22,8 +26,17 @@
             <div class="space-y-4">
                 @php
                     $images = $product->images ?? [];
-                    $mainImage = !empty($images)
-                        ? $images[0]
+                    // Convert stored images to proper URLs if needed
+                    $processedImages = [];
+                    foreach ($images as $image) {
+                        if (Str::startsWith($image, ['http://', 'https://', '/'])) {
+                            $processedImages[] = $image;
+                        } else {
+                            $processedImages[] = Storage::url($image);
+                        }
+                    }
+                    $mainImage = !empty($processedImages)
+                        ? $processedImages[0]
                         : 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&h=600&fit=crop&crop=center';
                 @endphp
                 <div class="relative overflow-hidden rounded-lg bg-base-200 aspect-square">
@@ -38,9 +51,9 @@
                 </div>
 
                 <!-- Thumbnail Images -->
-                @if (count($images) > 1)
+                @if (count($processedImages) > 1)
                     <div class="grid grid-cols-4 gap-2">
-                        @foreach ($images as $index => $image)
+                        @foreach ($processedImages as $index => $image)
                             <div class="thumbnail {{ $index === 0 ? 'active' : '' }} aspect-square rounded-lg overflow-hidden cursor-pointer"
                                 onclick="changeImage('{{ $image }}', this)">
                                 <img src="{{ $image }}" alt="View {{ $index + 1 }}"
@@ -558,10 +571,23 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     @if($relatedProducts && $relatedProducts->count() > 0)
                         @foreach($relatedProducts as $relatedProduct)
+                            @php
+                                $relatedProductImage = null;
+                                if (isset($relatedProduct->images[0])) {
+                                    $image = $relatedProduct->images[0];
+                                    if (Str::startsWith($image, ['http://', 'https://', '/'])) {
+                                        $relatedProductImage = $image;
+                                    } else {
+                                        $relatedProductImage = Storage::url($image);
+                                    }
+                                } else {
+                                    $relatedProductImage = 'https://placehold.co/300x300';
+                                }
+                            @endphp
                             <x-product-card 
                                 :id="$relatedProduct->id" 
                                 :slug="$relatedProduct->slug"
-                                :image="isset($relatedProduct->images[0]) ? $relatedProduct->images[0] : 'https://placehold.co/300x300'" 
+                                :image="$relatedProductImage"
                                 :title="$relatedProduct->title" 
                                 :price="$relatedProduct->price"
                                 :category="$relatedProduct->category->name ?? 'Uncategorized'"
@@ -571,7 +597,7 @@
 																 />
                         @endforeach
                     @else
-                        <p class="text-center col-span-full text-base-content/70">No related products found.</p>
+                        <p class="text-center col-span-full text-base-content/70 mb-4">لا يوجد منتجات مرتبطة بهذا المنتج.</p>
                     @endif
                 </div>
             </div>

@@ -1,8 +1,5 @@
-{{-- @extends('layouts.app') --}}
-
 @section('description', 'متجر المعتصم لفلاتر المياه')
 
-{{-- @section('content') --}}
 <x-layouts.app>
     <section class="hero bg-gradient-to-r from-primary to-secondary text-white min-h-[calc(100vh-65px)]">
         <div class="bg-white/40 flex flex-col items-center justify-center gap-4 p-20 rounded-2xl">
@@ -61,4 +58,4 @@
     <!-- Contact Form -->
     <x-contact-form />
 </x-layouts.app>
-{{-- @endsection --}}
+

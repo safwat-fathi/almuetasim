@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', __('app.name'))</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- Vite styles -->
     @vite(['resources/css/app.css', 'resources/css/admin.css'])
@@ -16,7 +17,7 @@
 <body class="font-tajawal min-h-screen bg-base-100">
 
     {{-- Navbar --}}
-		<x-layouts.partials.admin.navbar />
+    <x-layouts.partials.admin.navbar />
 
     <div class="drawer lg:drawer-open">
         <input id="drawer-toggle" type="checkbox" class="drawer-toggle" />
@@ -31,6 +32,8 @@
 
     <!-- Vite scripts -->
     @vite('resources/js/app.js')
+
+    {{ $scripts ?? '' }}
 </body>
 
 </html>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\Category;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
 
@@ -47,7 +48,7 @@ class ProductController extends Controller
 	 */
 	public function store(Request $request)
 	{
-		$request->validate([
+		$validator = Validator::make($request->all(), [
 			'sku' => 'required|string|max:255|unique:products',
 			'title' => 'required|string|max:255',
 			'description' => 'required|string',
@@ -56,16 +57,50 @@ class ProductController extends Controller
 			'stock' => 'required|integer|min:0',
 			'is_part' => 'required|boolean',
 			'warranty_months' => 'required|integer|min:0',
-			'images' => 'nullable|json',
+			'images' => 'nullable|array|max:5', // Up to 5 images
+			'images.*' => 'nullable|file|mimes:jpeg,png,jpg,webp|max:5120', // 5MB max size per image
 			'category_id' => 'nullable|exists:categories,id',
 			'type' => 'required|in:product,service',
 		]);
 
+		if ($validator->fails()) {
+			if ($request->wantsJson()) {
+				return response()->json([
+					'message' => 'Validation failed',
+					'errors' => $validator->errors()
+				], 422);
+			}
+			return redirect()->back()->withErrors($validator)->withInput();
+		}
+
 		$data = $request->all();
 		$data['specs'] = json_decode($request->specs ?? '[]', true);
-		$data['images'] = json_decode($request->images ?? '[]', true);
+		$data['images'] = [];
 
-		Product::create($data);
+		// Handle file uploads if provided
+		if ($request->hasFile('images')) {
+			$uploadedImages = [];
+			$files = $request->file('images');
+
+			foreach ($files as $file) {
+				if ($file) {
+					$filename = time() . '_' . uniqid() . '_' . $file->getClientOriginalName();
+					$path = $file->storeAs('uploads', $filename, 'public');
+					$uploadedImages[] = $path;
+				}
+			}
+
+			$data['images'] = $uploadedImages;
+		}
+
+		$product = Product::create($data);
+
+		if ($request->wantsJson()) {
+			return response()->json([
+				'message' => 'Product created successfully',
+				'product' => $product
+			], 201);
+		}
 
 		return redirect()->route('admin.products.index')->with('success', 'Product created successfully!');
 	}

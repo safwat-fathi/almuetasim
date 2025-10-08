@@ -14,7 +14,7 @@ use App\Http\Controllers\DashboardController;
 
 Route::get('/', [HomeController::class, 'index']);
 
-Route::get('/category/{categorySlug}', [CategoryController::class, 'show'])->name('category.show');
+Route::get('/category/{categorySlug}', [CategoryController::class, 'showPublic'])->name('category.show');
 
 Route::get('/product/{productSlug}', [ProductController::class, 'show'])->name('product.show');
 
@@ -73,6 +73,9 @@ Route::middleware(['auth'])->group(function () {
 			'update' => 'admin.categories.update',
 			'destroy' => 'admin.categories.destroy',
 		]);
+		
+	// API route for showing a category by ID (for admin modal)
+	Route::get('/admin/categories/{id}', [CategoryController::class, 'show'])->name('admin.categories.show');
 });
 
 // Admin messages routes

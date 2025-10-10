@@ -7,6 +7,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\MessagesController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\SettingController;
 
 // Route::get('/', function () {
 //     return view('welcome');
@@ -83,4 +84,10 @@ Route::middleware(['auth'])->group(function () {
 	Route::get('/admin/messages', [MessagesController::class, 'index'])->name('admin.messages.index');
 	Route::get('/admin/messages/{message}', [MessagesController::class, 'show'])->name('admin.messages.show');
 	Route::patch('/admin/messages/{message}/read', [MessagesController::class, 'markAsRead'])->name('admin.messages.markAsRead');
+});
+
+// Admin settings routes
+Route::middleware(['auth'])->prefix('admin')->group(function () {
+    Route::get('/settings', [SettingController::class, 'index'])->name('admin.settings.index');
+    Route::post('/settings', [SettingController::class, 'store'])->name('admin.settings.store');
 });

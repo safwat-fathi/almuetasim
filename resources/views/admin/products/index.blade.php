@@ -58,7 +58,7 @@
                                     </tr>
                                 </thead>
                                 <tbody id="products-table-body">
-                                    @foreach ($products as $product)
+                                    @forelse ($products as $product)
                                         <tr>
                                             <td>
                                                 <div class="flex items-center space-x-3">
@@ -102,7 +102,13 @@
                                                 </div>
                                             </td>
                                         </tr>
-                                    @endforeach
+                                    @empty
+                                        <tr>
+                                            <td colspan="6" class="text-center py-8">
+                                                <p class="text-lg">لا توجد منتجات لعرضها حاليا</p>
+                                            </td>
+                                        </tr>
+                                    @endforelse
                                 </tbody>
                             </table>
                         </div>

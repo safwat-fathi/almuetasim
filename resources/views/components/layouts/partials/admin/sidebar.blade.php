@@ -55,12 +55,12 @@
                         id="messages-count">{{ \App\Models\Message::where('read', false)->count() }}</span>
                 </a>
             </li>
-            {{-- <li>
-                <a>
+            <li>
+                <a href="{{ route('admin.settings.index') }}" @if(request()->routeIs('admin.settings.*')) class="active" @endif>
                     <i data-lucide="settings" class="w-5 h-5"></i>
-                    Settings
+                    الإعدادات
                 </a>
-            </li> --}}
+            </li>
         </ul>
     </aside>
 </div>

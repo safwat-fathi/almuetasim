@@ -56,7 +56,7 @@
                                     </tr>
                                 </thead>
                                 <tbody id="categories-table-body">
-                                    @foreach ($categories as $category)
+                                    @forelse ($categories as $category)
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
                                             <td>
@@ -77,13 +77,19 @@
                                                     <ul tabindex="0"
                                                         class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
                                                         <li><a href="{{ route('category.show', $category->slug) }}"><i data-lucide="eye" class="w-4 h-4 mr-2"></i> عرض</a></li>
-                                                        <li><a @click="editCategory({{ $category->id }})"><i data-lucide="edit" class="w-4 h-4 mr-2"></i> تعديل</a></li>
-                                                        <li><a @click="deleteCategory({{ $category->id }})" class="text-error"><i data-lucide="trash-2" class="w-4 h-4 mr-2"></i> حذف</a></li>
+                                                        <li><a href="#" onclick="event.preventDefault(); editCategory({{ $category->id }})"><i data-lucide="edit" class="w-4 h-4 mr-2"></i> تعديل</a></li>
+                                                        <li><a href="#" onclick="event.preventDefault(); deleteCategory({{ $category->id }})" class="text-error"><i data-lucide="trash-2" class="w-4 h-4 mr-2"></i> حذف</a></li>
                                                     </ul>
                                                 </div>
                                             </td>
                                         </tr>
-                                    @endforeach
+                                    @empty
+                                        <tr>
+                                            <td colspan="6" class="text-center py-8">
+                                                <p class="text-lg">لا توجد فئات لعرضها حاليا</p>
+                                            </td>
+                                        </tr>
+                                    @endforelse
                                 </tbody>
                             </table>
                         </div>
@@ -106,12 +112,12 @@
             <button type="button" class="btn btn-sm btn-circle btn-ghost absolute left-2 top-2" @click="closeModal()">✕</button>
 
             <div class="space-y-4 pt-4">
-                <div class="form-control">
+                <div class="form-control flex flex-col w-full">
                     <label class="label">
                         <span class="label-text">اسم الفئة <span class="text-red-500">*</span></span>
                     </label>
                     <input type="text" 
-                           class="input input-bordered" 
+                           class="input input-bordered w-full" 
                            :class="{ 'input-error': errors.name }" 
                            x-model="formData.name" 
                            placeholder="أدخل اسم الفئة" />
@@ -141,236 +147,253 @@
             <button @click="closeModal()">إلغاء</button>
         </form>
     </dialog>
-</x-layouts.admin>
 
-<x-slot:scripts>
-    <script>
-        document.addEventListener('alpine:init', () => {
-            Alpine.data('categoryModal', () => ({
-                isOpen: false,
-                isSubmitting: false,
-                isEditing: false,
-                categoryId: null,
-                formData: {
-                    name: '', description: ''
-                },
-                errors: {},
-                
-                openModal() {
-                    this.isOpen = true;
-                    this.errors = {};
-                },
-                
-                closeModal() {
-                    this.isOpen = false;
-                },
-                
-                resetForm() {
-                    this.formData = {
+    <x-slot:scripts>
+        <script>
+            function getCategoryModalComponent() {
+                return document.getElementById('add_category_modal').__x;
+            }
+
+            function editCategory(id) {
+                getCategoryModalComponent().editCategory(id);
+            }
+
+            function deleteCategory(id) {
+                getCategoryModalComponent().deleteCategory(id);
+            }
+
+            document.addEventListener('alpine:init', () => {
+                Alpine.data('categoryModal', () => ({
+                    isOpen: false,
+                    isSubmitting: false,
+                    isEditing: false,
+                    categoryId: null,
+                    formData: {
                         name: '', description: ''
-                    };
-                    this.errors = {};
-                    this.isSubmitting = false;
-                    this.isEditing = false;
-                    this.categoryId = null;
-                },
-                
-                async saveCategory() {
-                    // Clear any previous errors
-                    this.errors = {};
+                    },
+                    errors: {},
                     
-                    // Validate required fields
-                    if (!this.formData.name) this.errors.name = 'اسم الفئة مطلوب';
+                    openModal() {
+                        this.isOpen = true;
+                        this.errors = {};
+                        // Reset form when opening for a new category
+                        if (!this.isEditing) {
+                            this.resetForm();
+                        }
+                    },
                     
-                    // If there are validation errors, don't submit
-                    if (Object.keys(this.errors).length > 0) {
-                        return;
-                    }
+                    closeModal() {
+                        this.isOpen = false;
+                        this.resetForm();
+                    },
                     
-                    this.isSubmitting = true;
-                    
-                    try {
-                        // Prepare form data
-                        const data = {
-                            name: this.formData.name,
-                            description: this.formData.description
+                    resetForm() {
+                        this.formData = {
+                            name: '', description: ''
                         };
-                        
-                        // Determine the URL and method based on whether we're editing
-                        let url, method;
-                        if (this.isEditing) {
-                            url = `/admin/categories/${this.categoryId}`;
-                            method = 'PUT';
-                            // Add CSRF token and method override for PUT
-                            data._token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-                            data._method = 'PUT';
-                        } else {
-                            url = '/admin/categories';
-                            method = 'POST';
-                        }
-                        
-                        // Make the actual API request
-                        const response = await fetch(url, {
-                            method: method,
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                            },
-                            body: JSON.stringify(data)
-                        });
-                        
-                        if (response.ok) {
-                            // Success - show success toast
-                            this.showToast('تم حفظ الفئة بنجاح!', 'success');
-                            this.closeModal();
-                            location.reload();
-                        } else {
-                            // Handle validation errors or other issues
-                            const result = await response.json();
-                            if (result.message && result.errors) {
-                                this.errors = result.errors;
-                            } else {
-                                this.showToast('حدث خطأ أثناء حفظ الفئة', 'error');
-                            }
-                        }
-                    } catch (error) {
-                        console.error('Error saving category:', error);
-                        this.showToast('حدث خطأ أثناء حفظ الفئة', 'error');
-                    } finally {
+                        this.errors = {};
                         this.isSubmitting = false;
-                    }
-                },
-                
-                async editCategory(id) {
-                    // Fetch category data
-                    try {
-                        const response = await fetch(`/admin/categories/${id}`);
-                        if (response.ok) {
-                            const category = await response.json();
-                            this.formData.name = category.name;
-                            this.formData.description = category.description;
-                            this.categoryId = id;
-                            this.isEditing = true;
-                            this.openModal();
-                        } else {
+                        this.isEditing = false;
+                        this.categoryId = null;
+                    },
+                    
+                    async saveCategory() {
+                        // Clear any previous errors
+                        this.errors = {};
+                        
+                        // Validate required fields
+                        if (!this.formData.name) this.errors.name = 'اسم الفئة مطلوب';
+                        
+                        // If there are validation errors, don't submit
+                        if (Object.keys(this.errors).length > 0) {
+                            return;
+                        }
+                        
+                        this.isSubmitting = true;
+                        
+                        try {
+                            // Prepare form data
+                            const data = {
+                                name: this.formData.name,
+                                description: this.formData.description
+                            };
+                            
+                            // Determine the URL and method based on whether we're editing
+                            let url, method;
+                            if (this.isEditing) {
+                                url = `/admin/categories/${this.categoryId}`;
+                                method = 'PUT';
+                            } else {
+                                url = '/admin/categories';
+                                method = 'POST';
+                            }
+                            
+                            // Make the actual API request
+                            const response = await fetch(url, {
+                                method: method,
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                    'Accept': 'application/json',
+                                },
+                                body: JSON.stringify(data)
+                            });
+                            
+                            if (response.ok) {
+                                // Success - show success toast
+                                this.showToast(this.isEditing ? 'تم تحديث الفئة بنجاح!' : 'تمت إضافة الفئة بنجاح!', 'success');
+                                this.closeModal();
+                                location.reload();
+                            } else {
+                                // Handle validation errors or other issues
+                                const result = await response.json();
+                                if (result.message && result.errors) {
+                                    this.errors = result.errors;
+                                } else {
+                                    this.showToast('حدث خطأ أثناء حفظ الفئة', 'error');
+                                }
+                            }
+                        } catch (error) {
+                            console.error('Error saving category:', error);
+                            this.showToast('حدث خطأ أثناء حفظ الفئة', 'error');
+                        } finally {
+                            this.isSubmitting = false;
+                        }
+                    },
+                    
+                    async editCategory(id) {
+                        this.resetForm();
+                        this.isEditing = true;
+                        this.categoryId = id;
+                        
+                        // Fetch category data
+                        try {
+                            const response = await fetch(`/admin/categories/${id}/edit`);
+                            if (response.ok) {
+                                const category = await response.json();
+                                this.formData.name = category.name;
+                                this.formData.description = category.description;
+                                this.openModal();
+                            } else {
+                                this.showToast('حدث خطأ أثناء جلب بيانات الفئة', 'error');
+                            }
+                        } catch (error) {
+                            console.error('Error fetching category:', error);
                             this.showToast('حدث خطأ أثناء جلب بيانات الفئة', 'error');
                         }
-                    } catch (error) {
-                        console.error('Error fetching category:', error);
-                        this.showToast('حدث خطأ أثناء جلب بيانات الفئة', 'error');
-                    }
-                },
-                
-                async deleteCategory(id) {
-                    if (!confirm('هل أنت متأكد أنك تريد حذف هذه الفئة؟ لا يمكن التراجع عن هذا الإجراء.')) {
-                        return;
-                    }
+                    },
                     
-                    try {
-                        const response = await fetch(`/admin/categories/${id}`, {
-                            method: 'DELETE',
-                            headers: {
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                            }
-                        });
+                    async deleteCategory(id) {
+                        if (!confirm('هل أنت متأكد أنك تريد حذف هذه الفئة؟ لا يمكن التراجع عن هذا الإجراء.')) {
+                            return;
+                        }
                         
-                        if (response.ok) {
-                            this.showToast('تم حذف الفئة بنجاح!', 'success');
-                            location.reload();
-                        } else {
-                            const result = await response.json();
-                            this.showToast(result.message || 'حدث خطأ أثناء حذف الفئة', 'error');
+                        try {
+                            const response = await fetch(`/admin/categories/${id}`, {
+                                method: 'DELETE',
+                                headers: {
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                                }
+                            });
+                            
+                            if (response.ok) {
+                                this.showToast('تم حذف الفئة بنجاح!', 'success');
+                                location.reload();
+                            } else {
+                                const result = await response.json();
+                                this.showToast(result.message || 'حدث خطأ أثناء حذف الفئة', 'error');
+                            }
+                        } catch (error) {
+                            console.error('Error deleting category:', error);
+                            this.showToast('حدث خطأ أثناء حذف الفئة', 'error');
                         }
-                    } catch (error) {
-                        console.error('Error deleting category:', error);
-                        this.showToast('حدث خطأ أثناء حذف الفئة', 'error');
-                    }
-                },
-                
-                showToast(message, type = 'info') {
-                    // Remove any existing toast
-                    const existingToast = document.getElementById('toast-container');
-                    if (existingToast) {
-                        existingToast.remove();
-                    }
+                    },
                     
-                    // Create toast container
-                    const toastContainer = document.createElement('div');
-                    toastContainer.id = 'toast-container';
-                    toastContainer.className = 'toast toast-top toast-center';
-                    toastContainer.style.zIndex = '9999';
-                    
-                    // Determine toast classes based on type
-                    let toastClasses = 'alert ';
-                    switch(type) {
-                        case 'success':
-                            toastClasses += 'alert-success';
-                            break;
-                        case 'error':
-                            toastClasses += 'alert-error';
-                            break;
-                        case 'warning':
-                            toastClasses += 'alert-warning';
-                            break;
-                        default:
-                            toastClasses += 'alert-info';
-                            break;
-                    }
-                    
-                    // Create toast element
-                    toastContainer.innerHTML = `
-                        <div class="${toastClasses}">
-                            <span>${message}</span>
-                        </div>
-                    `;
-                    
-                    // Add to page
-                    document.body.appendChild(toastContainer);
-                    
-                    // Remove after 5 seconds
-                    setTimeout(() => {
-                        if (toastContainer.parentNode) {
-                            toastContainer.parentNode.removeChild(toastContainer);
+                    showToast(message, type = 'info') {
+                        // Remove any existing toast
+                        const existingToast = document.getElementById('toast-container');
+                        if (existingToast) {
+                            existingToast.remove();
                         }
-                    }, 5000);
-                }
-            }));
-        });
-        
-        function handleSearchKeyPress(event) {
-            if (event.key === 'Enter') {
-                applyFilters();
-            }
-        }
-
-        // Apply filters function
-        function applyFilters() {
-            const searchTerm = document.getElementById("search-input").value;
-            const dateFilter = document.getElementById("date-filter").value;
-
-            // Build URL with parameters
-            const url = new URL(window.location);
-            url.searchParams.set('search', searchTerm);
-            url.searchParams.set('date_filter', dateFilter);
-
-            // Remove empty parameters
-            for (const [key, value] of url.searchParams.entries()) {
-                if (!value) {
-                    url.searchParams.delete(key);
+                        
+                        // Create toast container
+                        const toastContainer = document.createElement('div');
+                        toastContainer.id = 'toast-container';
+                        toastContainer.className = 'toast toast-top toast-center';
+                        toastContainer.style.zIndex = '9999';
+                        
+                        // Determine toast classes based on type
+                        let toastClasses = 'alert ';
+                        switch(type) {
+                            case 'success':
+                                toastClasses += 'alert-success';
+                                break;
+                            case 'error':
+                                toastClasses += 'alert-error';
+                                break;
+                            case 'warning':
+                                toastClasses += 'alert-warning';
+                                break;
+                            default:
+                                toastClasses += 'alert-info';
+                                break;
+                        }
+                        
+                        // Create toast element
+                        toastContainer.innerHTML = `
+                            <div class="${toastClasses}">
+                                <span>${message}</span>
+                            </div>
+                        `;
+                        
+                        // Add to page
+                        document.body.appendChild(toastContainer);
+                        
+                        // Remove after 5 seconds
+                        setTimeout(() => {
+                            if (toastContainer.parentNode) {
+                                toastContainer.parentNode.removeChild(toastContainer);
+                            }
+                        }, 5000);
+                    }
+                }));
+            });
+            
+            function handleSearchKeyPress(event) {
+                if (event.key === 'Enter') {
+                    applyFilters();
                 }
             }
 
-            // Reload the page with new parameters
-            window.location = url;
-        }
+            // Apply filters function
+            function applyFilters() {
+                const searchTerm = document.getElementById("search-input").value;
+                const dateFilter = document.getElementById("date-filter").value;
 
-        // Add event listeners for search and filters
-        document.getElementById("search-input").addEventListener("input", function() {
-            // Debounce the search to avoid too many requests
-            clearTimeout(this.searchTimeout);
-            this.searchTimeout = setTimeout(applyFilters, 500);
-        });
+                // Build URL with parameters
+                const url = new URL(window.location);
+                url.searchParams.set('search', searchTerm);
+                url.searchParams.set('date_filter', dateFilter);
 
-        document.getElementById("date-filter").addEventListener("change", applyFilters);
-    </script>
-</x-slot:scripts>
+                // Remove empty parameters
+                for (const [key, value] of url.searchParams.entries()) {
+                    if (!value) {
+                        url.searchParams.delete(key);
+                    }
+                }
+
+                // Reload the page with new parameters
+                window.location = url;
+            }
+
+            // Add event listeners for search and filters
+            document.getElementById("search-input").addEventListener("input", function() {
+                // Debounce the search to avoid too many requests
+                clearTimeout(this.searchTimeout);
+                this.searchTimeout = setTimeout(applyFilters, 500);
+            });
+
+            document.getElementById("date-filter").addEventListener("change", applyFilters);
+        </script>
+    </x-slot:scripts>
+</x-layouts.admin>

@@ -13,10 +13,42 @@ class ProductController extends Controller
 	/**
 	 * Display a listing of the resource.
 	 */
-	public function index(): View
+	public function index(Request $request): View
 	{
-		$products = Product::with('category')->orderBy('created_at', 'desc')->paginate(10);
+		$query = Product::with('category');
+		
+		// Handle search
+		if ($request->has('search') && $request->search) {
+			$searchTerm = $request->search;
+			$query->where(function($q) use ($searchTerm) {
+				$q->where('title', 'LIKE', "%{$searchTerm}%")
+				  ->orWhere('sku', 'LIKE', "%{$searchTerm}%");
+			});
+		}
+		
+		// Handle category filter
+		if ($request->has('category') && $request->category) {
+			$query->where('category_id', $request->category);
+		}
+		
+		// Handle status filter
+		if ($request->has('status') && $request->status) {
+			switch ($request->status) {
+				case 'active':
+					$query->where('stock', '>', 0);
+					break;
+				case 'inactive':
+					$query->where('stock', 0);
+					break;
+				case 'low-stock':
+					$query->where('stock', '>', 0)->where('stock', '<=', 10);
+					break;
+			}
+		}
+		
+		$products = $query->orderBy('created_at', 'desc')->paginate(10);
 		$categories = Category::all();
+		
 		return view('admin.products.index', compact('products', 'categories'));
 	}
 
@@ -156,16 +188,13 @@ class ProductController extends Controller
 	}
 
 	/**
-	 * Search products
+	 * Search products (legacy method)
 	 */
 	public function search(Request $request)
 	{
-		$query = $request->input('q');
-		$products = Product::where('title', 'LIKE', "%{$query}%")
-			->orWhere('sku', 'LIKE', "%{$query}%")
-			->with('category')
-			->paginate(10);
-
-		return view('admin.products.index', compact('products'));
+		// Redirect to index with parameters for consistency
+		return redirect()->route('admin.products.index', [
+			'search' => $request->input('q'),
+		]);
 	}
 }

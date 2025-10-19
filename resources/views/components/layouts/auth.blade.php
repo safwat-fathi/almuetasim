@@ -7,7 +7,7 @@
     <title>@yield('title', __('app.name'))</title>
 
     <!-- Vite styles -->
-    @vite(['resources/css/app.css', 'resources/css/admin.css'])
+    @vite(['resources/css/app.css'])
 
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">

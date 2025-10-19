@@ -20,10 +20,7 @@ class ProductController extends Controller
 		// Handle search
 		if ($request->has('search') && $request->search) {
 			$searchTerm = $request->search;
-			$query->where(function($q) use ($searchTerm) {
-				$q->where('title', 'LIKE', "%{$searchTerm}%")
-				  ->orWhere('sku', 'LIKE', "%{$searchTerm}%");
-			});
+			$query->where('title', 'LIKE', "%{$searchTerm}%");
 		}
 		
 		// Handle category filter
@@ -81,7 +78,6 @@ class ProductController extends Controller
 	public function store(Request $request)
 	{
 		$validator = Validator::make($request->all(), [
-			'sku' => 'required|string|max:255|unique:products',
 			'title' => 'required|string|max:255',
 			'description' => 'required|string',
 			'specs' => 'nullable|json',
@@ -153,7 +149,6 @@ class ProductController extends Controller
 	public function update(Request $request, $id)
 	{
 		$request->validate([
-			'sku' => 'required|string|max:255|unique:products,sku,' . $id,
 			'title' => 'required|string|max:255',
 			'description' => 'required|string',
 			'specs' => 'nullable|json',

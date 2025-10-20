@@ -59,7 +59,7 @@
                                 </thead>
                                 <tbody id="products-table-body">
                                     @forelse ($products as $product)
-                                        <tr>
+                                        <tr data-product-id="{{ $product->id }}" data-product='@json($product)'>
                                             <td>
                                                 <div class="flex items-center space-x-3">
                                                     <div class="avatar">
@@ -70,7 +70,6 @@
                                                     </div>
                                                     <div>
                                                         <div class="font-bold">{{ $product->title }}</div>
-                                                        <div class="text-sm opacity-50">{{ $product->sku }}</div>
                                                     </div>
                                                 </div>
                                             </td>
@@ -123,11 +122,12 @@
 
 
     <dialog id="add_product_modal" class="modal" 
-            x-data="productModal" 
-            @open-product-modal.window="openModal()" 
-            :class="{ 'modal-open': isOpen }">
+        x-data="productModal" 
+        @open-product-modal.window="openModal()" 
+        @open-edit-product.window="openForEdit($event.detail)"
+        :class="{ 'modal-open': isOpen }">
         <div class="modal-box w-11/12 max-w-2xl">
-            <h3 class="font-bold text-lg mb-4">إضافة منتج جديد</h3>
+            <h3 class="font-bold text-lg mb-4" x-text="isEditing ? 'تعديل المنتج' : 'إضافة منتج جديد'"></h3>
             <button type="button" class="btn btn-sm btn-circle btn-ghost absolute left-2 top-2" @click="closeModal()">✕</button>
 
             <div class="space-y-4 pt-4">
@@ -136,11 +136,6 @@
                         
                         <input type="text" class="input input-bordered" :class="{ 'input-error': errors.name }" x-model="formData.name" placeholder="اسم المنتج" />
                         <label class="label"><span class="label-text-alt text-error" x-show="errors.name" x-text="errors.name"></span></label>
-                    </div>
-                    <div class="form-control">
-                        
-                        <input type="text" class="input input-bordered" :class="{ 'input-error': errors.sku }" x-model="formData.sku" placeholder="SKU رمز المنتج" />
-                        <label class="label"><span class="label-text-alt text-error" x-show="errors.sku" x-text="errors.sku"></span></label>
                     </div>
                 </div>
 
@@ -218,9 +213,9 @@
 
             <div class="modal-action">
                 <button type="button" class="btn btn-ghost" @click="closeModal()">إلغاء</button>
-                <button type="button" class="btn btn-primary" @click="addProduct" :disabled="isSubmitting">
+                <button type="button" class="btn btn-primary" @click="isEditing ? updateProduct() : addProduct()" :disabled="isSubmitting">
                     <span x-show="isSubmitting" class="loading loading-spinner"></span>
-                    <span x-text="isSubmitting ? 'جاري الحفظ...' : 'أضف المنتج'"></span>
+                    <span x-text="isSubmitting ? 'جاري الحفظ...' : (isEditing ? 'حفظ التعديلات' : 'أضف المنتج')"></span>
                 </button>
             </div>
         </div>
@@ -238,10 +233,11 @@
                 Alpine.data('productModal', () => ({
                     isOpen: false,
                     isSubmitting: false,
+                    isEditing: false,
                     imageFile: null, // Add image file property
                     imageFiles: [], // Array to store multiple files
                     formData: {
-                        name: '', sku: '', description: '', price: '', stock: '',
+                        name: '', description: '', price: '', stock: '',
                         category_id: '', active: true
                     },
                     errors: {},
@@ -250,14 +246,16 @@
                         this.errors = {};
                         this.imageFile = null; // Reset image file when opening
                         this.imageFiles = []; // Reset image files array
+                        this.isEditing = false;
+                        this.resetForm();
                     },
                     closeModal() {
                         this.isOpen = false;
-                        // No need to call resetForm() here, the backdrop form closes the dialog naturally.
+                        this.resetForm();
                     },
                     resetForm() {
                         this.formData = {
-                            name: '', sku: '', description: '', price: '', stock: '',
+                            name: '', description: '', price: '', stock: '',
                             category_id: '', active: true
                         };
                         this.imageFile = null; // Also reset image file
@@ -317,6 +315,27 @@
                         // Add files to the array
                         this.imageFiles = [...this.imageFiles, ...files];
                     },
+                    
+                    openForEdit(product) {
+                        // product can be passed as a JS object or JSON string
+                        if (typeof product === 'string') {
+                            product = JSON.parse(product);
+                        }
+                        this.isEditing = true;
+                        this.isOpen = true;
+                        this.errors = {};
+                        this.imageFiles = [];
+                        // Map product fields to formData
+                        this.formData = {
+                            name: product.title || '',
+                            description: product.description || '',
+                            price: product.price ?? '',
+                            stock: product.stock ?? '',
+                            category_id: product.category_id ?? '',
+                            active: product.active ?? true,
+                            id: product.id || null,
+                        };
+                    },
                     removeImageFile(index) {
                         this.imageFiles.splice(index, 1);
                     },
@@ -326,7 +345,6 @@
                         
                         // Validate required fields
                         if (!this.formData.name) this.errors.name = 'Product name is required';
-                        if (!this.formData.sku) this.errors.sku = 'SKU is required';
                         if (!this.formData.price) this.errors.price = 'Price is required';
                         if (!this.formData.stock) this.errors.stock = 'Stock quantity is required';
                         if (!this.formData.category_id) this.errors.category_id = 'Category is required';
@@ -342,7 +360,6 @@
                             // Create FormData object to handle file uploads
                             const formData = new FormData();
                             formData.append('title', this.formData.name);  // Backend expects 'title' not 'name'
-                            formData.append('sku', this.formData.sku);
                             formData.append('description', this.formData.description);
                             formData.append('price', this.formData.price);
                             formData.append('stock', this.formData.stock);
@@ -364,27 +381,108 @@
                                 method: 'POST',
                                 body: formData,
                                 headers: {
-                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                    'Accept': 'application/json',
+                                    'X-Requested-With': 'XMLHttpRequest'
                                 }
                             });
-                            
-                            if (response.ok) {
-                                // Success - show success toast
+
+                            // Try to parse JSON only when server returned JSON
+                            const contentType = response.headers.get('content-type') || '';
+                            if (response.ok && contentType.includes('application/json')) {
+                                const result = await response.json();
+                                // Success - update table DOM
                                 this.showToast('Product added successfully!', 'success');
                                 this.closeModal();
-                                location.reload();
-                            } else {
-                                // Handle validation errors or other issues
+                                addOrReplaceRow(result.product, { prepend: true });
+                            } else if (!response.ok && contentType.includes('application/json')) {
                                 const result = await response.json();
                                 if (result.message && result.errors) {
                                     this.errors = result.errors;
                                 } else {
                                     this.showToast('An error occurred while adding the product', 'error');
                                 }
+                            } else {
+                                // Non-JSON response (probably a redirect or HTML) — log for debugging
+                                const text = await response.text();
+                                console.error('Add product: expected JSON but got:', text);
+                                this.showToast('Unexpected server response when adding product', 'error');
                             }
                         } catch (error) {
                             console.error('Error adding product:', error);
                             this.showToast('An error occurred while adding the product', 'error');
+                        } finally {
+                            this.isSubmitting = false;
+                        }
+                    },
+                    async updateProduct() {
+                        // Clear errors
+                        this.errors = {};
+
+                        if (!this.formData.id) {
+                            this.showToast('Invalid product ID', 'error');
+                            return;
+                        }
+
+                        // Basic validation
+                        if (!this.formData.name) this.errors.name = 'Product name is required';
+                        if (!this.formData.price) this.errors.price = 'Price is required';
+                        if (!this.formData.stock) this.errors.stock = 'Stock quantity is required';
+                        if (!this.formData.category_id) this.errors.category_id = 'Category is required';
+
+                        if (Object.keys(this.errors).length > 0) return;
+
+                        this.isSubmitting = true;
+
+                        try {
+                            const formData = new FormData();
+                            formData.append('title', this.formData.name);
+                            formData.append('description', this.formData.description);
+                            formData.append('price', this.formData.price);
+                            formData.append('stock', this.formData.stock);
+                            formData.append('category_id', this.formData.category_id);
+                            formData.append('type', 'product');
+                            formData.append('specs', '[]');
+                            formData.append('warranty_months', '0');
+                            formData.append('is_part', '0');
+                            formData.append('active', this.formData.active ? 1 : 0);
+
+                            // Append files if any
+                            this.imageFiles.forEach((file) => {
+                                formData.append('images[]', file);
+                            });
+
+                            // Add method override for servers that expect _method
+                            formData.append('_method', 'PUT');
+
+                            const response = await fetch(`/admin/products/${this.formData.id}`, {
+                                method: 'POST', // use POST with _method=PUT (widely compatible)
+                                body: formData,
+                                headers: {
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                    'Accept': 'application/json',
+                                    'X-Requested-With': 'XMLHttpRequest'
+                                }
+                            });
+
+                            const contentType2 = response.headers.get('content-type') || '';
+                            if (response.ok && contentType2.includes('application/json')) {
+                                const result = await response.json();
+                                this.showToast('Product updated successfully!', 'success');
+                                this.closeModal();
+                                addOrReplaceRow(result.product, { replaceId: result.product.id });
+                            } else if (!response.ok && contentType2.includes('application/json')) {
+                                const result = await response.json();
+                                if (result.errors) this.errors = result.errors;
+                                else this.showToast('An error occurred while updating the product', 'error');
+                            } else {
+                                const text = await response.text();
+                                console.error('Update product: expected JSON but got:', text);
+                                this.showToast('Unexpected server response when updating product', 'error');
+                            }
+                        } catch (error) {
+                            console.error('Error updating product:', error);
+                            this.showToast('An error occurred while updating the product', 'error');
                         } finally {
                             this.isSubmitting = false;
                         }
@@ -454,21 +552,39 @@
                 const categoryFilter = document.getElementById("category-filter").value;
                 const statusFilter = document.getElementById("status-filter").value;
 
-                // Build URL with parameters
-                const url = new URL(window.location);
-                url.searchParams.set('search', searchTerm);
-                url.searchParams.set('category', categoryFilter);
-                url.searchParams.set('status', statusFilter);
+                // Build query string
+                const params = new URLSearchParams();
+                if (searchTerm) params.set('search', searchTerm);
+                if (categoryFilter) params.set('category', categoryFilter);
+                if (statusFilter) params.set('status', statusFilter);
 
-                // Remove empty parameters
-                for (const [key, value] of url.searchParams.entries()) {
-                    if (!value) {
-                        url.searchParams.delete(key);
+                const fetchUrl = `/admin/products?${params.toString()}`;
+
+                // Fetch via AJAX and update the table
+                fetch(fetchUrl, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
                     }
-                }
-
-                // Reload the page with new parameters
-                window.location = url;
+                }).then(async (res) => {
+                    const ct = res.headers.get('content-type') || '';
+                    if (res.ok && ct.includes('application/json')) {
+                        const data = await res.json();
+                        // Clear table body and insert returned products
+                        const tbody = document.getElementById('products-table-body');
+                        tbody.innerHTML = '';
+                        for (const p of data.products) {
+                            addOrReplaceRow(p, { prepend: false });
+                        }
+                        // TODO: update pagination UI if needed using data.pagination
+                    } else {
+                        // Fallback to full navigation if server returns HTML
+                        window.location = fetchUrl;
+                    }
+                }).catch((err) => {
+                    console.error('Filter fetch failed', err);
+                    window.location = `/admin/products?${params.toString()}`;
+                });
             }
 
 						// Add event listeners for search and filters
@@ -479,6 +595,134 @@
             });
 
             document.getElementById("category-filter").addEventListener("change", applyFilters);
+
+            // Global helper to open edit modal with product data
+            function editProduct(id) {
+                const row = document.querySelector(`[data-product-id="${id}"]`);
+                if (!row) return;
+                const product = row.getAttribute('data-product');
+                window.dispatchEvent(new CustomEvent('open-edit-product', { detail: product }));
+            }
+
+            // Global helper to delete a product
+            async function deleteProduct(id) {
+                if (!confirm('هل أنت متأكد من حذف هذا المنتج؟')) return;
+
+                try {
+                    // Try DELETE first
+                    let response = await fetch(`/admin/products/${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+
+                    // Some servers / setups disallow DELETE with a body — fallback to POST + _method=DELETE
+                    if (response.status === 405) {
+                        response = await fetch(`/admin/products/${id}`, {
+                            method: 'POST',
+                            body: new URLSearchParams({'_method': 'DELETE'}),
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Content-Type': 'application/x-www-form-urlencoded'
+                            }
+                        });
+                    }
+
+                    const contentType = response.headers.get('content-type') || '';
+                    if (response.ok && contentType.includes('application/json')) {
+                        const result = await response.json();
+                        const row = document.querySelector(`[data-product-id="${id}"]`);
+                        if (row) row.remove();
+                        // use toast instead of alert for smoother UX
+                        const existingToast = document.getElementById('toast-container'); if (existingToast) existingToast.remove();
+                        const toast = document.createElement('div'); toast.className = 'alert alert-success'; toast.style.zIndex = 9999; toast.textContent = result.message || 'تم حذف المنتج بنجاح'; document.body.appendChild(toast);
+                        setTimeout(()=> toast.remove(), 3000);
+                    } else if (!response.ok && contentType.includes('application/json')) {
+                        const result = await response.json();
+                        console.error('Delete failed:', result);
+                        alert(result.message || 'حدث خطأ أثناء حذف المنتج');
+                    } else {
+                        const text = await response.text();
+                        console.error('Delete product: expected JSON but got:', text);
+                        alert('Unexpected server response when deleting product');
+                    }
+                } catch (error) {
+                    console.error('Delete error:', error);
+                    alert('حدث خطأ أثناء حذف المنتج');
+                }
+            }
+
+            // Insert or replace product row in the table
+            function addOrReplaceRow(product, options = {}) {
+                // Build category name safely
+                const categoryName = (product.category && product.category.name) ? product.category.name : 'Uncategorized';
+
+                const rowHtml = `
+                    <tr data-product-id="${product.id}" data-product='${JSON.stringify(product).replace(/'/g, "\\'")}'>
+                        <td>
+                            <div class="flex items-center space-x-3">
+                                <div class="avatar">
+                                    <div class="mask mask-squircle w-12 h-12">
+                                        <img src="${(product.images && product.images[0]) ? ('/storage/' + product.images[0]) : 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=100&h=100&fit=crop'}" alt="${escapeHtml(product.title)}" />
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="font-bold">${escapeHtml(product.title)}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="badge badge-ghost">${escapeHtml(categoryName)}</span></td>
+                        <td>$${Number(product.price).toFixed(2)}</td>
+                        <td>${product.stock}</td>
+                        <td>${product.stock > 10 ? '<span class="badge badge-success">متاح</span>' : (product.stock > 0 ? '<span class="badge badge-warning">مخزون قليل</span>' : '<span class="badge badge-error">غير متاح</span>')}</td>
+                        <td>
+                            <div class="dropdown dropdown-end">
+                                <div tabindex="0" role="button" class="btn btn-ghost btn-xs">
+                                    <i data-lucide="more-horizontal" class="w-4 h-4"></i>
+                                </div>
+                                <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+                                    <li><a href="/product/${encodeURIComponent(product.slug)}"><i data-lucide="eye" class="w-4 h-4 mr-2"></i> عرض</a></li>
+                                    <li><a onclick="editProduct(${product.id})"><i data-lucide="edit" class="w-4 h-4 mr-2"></i> تعديل</a></li>
+                                    <li><a onclick="deleteProduct(${product.id})" class="text-error"><i data-lucide="trash-2" class="w-4 h-4 mr-2"></i> حذف</a></li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+
+                // Replace if replaceId provided
+                if (options.replaceId) {
+                    const existing = document.querySelector(`[data-product-id="${options.replaceId}"]`);
+                    if (existing) {
+                        existing.outerHTML = rowHtml;
+                        return;
+                    }
+                }
+
+                // Prepend if requested
+                if (options.prepend) {
+                    const tbody = document.getElementById('products-table-body');
+                    tbody.insertAdjacentHTML('afterbegin', rowHtml);
+                    return;
+                }
+
+                // Default append
+                document.getElementById('products-table-body').insertAdjacentHTML('beforeend', rowHtml);
+            }
+
+            function escapeHtml(unsafe) {
+                return (unsafe || '')
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#039;');
+            }
             document.getElementById("status-filter").addEventListener("change", applyFilters);
         </script>
     </x-slot:scripts>

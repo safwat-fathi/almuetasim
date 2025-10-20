@@ -2,7 +2,7 @@
     $categories = \App\Models\Category::limit(4)->get();
 @endphp
 
-<nav class="navbar bg-base-100 shadow-lg sticky top-0 z-50">
+<nav class="navbar shadow-lg sticky top-0 z-50" style="background-color: #f8fafc;">
     <div class="navbar-start">
         <div class="dropdown">
             <div tabindex="0" role="button" class="btn btn-ghost lg:hidden">
@@ -28,10 +28,14 @@
             @foreach ($categories as $category)
                 <li><a href="{{ route('category.show', $category) }}"
                         @class([
-                            'hover:bg-primary hover:text-white' => request()->route()->parameter('categorySlug') != $category->slug,
-                            'bg-primary text-white' =>
+                            'hover:text-white' => request()->route()->parameter('categorySlug') != $category->slug,
+                            'text-white' =>
                                 request()->route()->parameter('categorySlug') == $category->slug,
-                        ])>{{ $category->name }}</a></li>
+                        ])
+                        style="background-color: {{ request()->route()->parameter('categorySlug') == $category->slug ? '#2d3b61' : 'transparent' }};"
+                        onmouseover="this.style.backgroundColor='#2d3b61'; this.style.color='white';"
+                        onmouseout="this.style.backgroundColor='{{ request()->route()->parameter('categorySlug') == $category->slug ? '#2d3b61' : 'transparent' }}'; this.style.color='{{ request()->route()->parameter('categorySlug') == $category->slug ? 'white' : 'inherit' }}';"
+                        >{{ $category->name }}</a></li>
             @endforeach
         </ul>
     </div>
@@ -45,7 +49,7 @@
             <div tabindex="0" role="button" class="btn btn-ghost btn-circle">
                 <div class="indicator">
                     <i data-lucide="shopping-cart"></i>
-                    <span class="badge badge-sm indicator-item badge-primary" id="cart-count">0</span>
+                    <span class="badge badge-sm indicator-item text-white" id="cart-count" style="background-color: #2d3b61;">0</span>
                 </div>
             </div>
             <div tabindex="0" class="card card-compact dropdown-content bg-base-100 z-[1] mt-3 w-80 shadow-xl">
@@ -55,7 +59,7 @@
                         <p class="text-base-content/70">سلة التسوق فارغة</p>
                     </div>
                     <div class="card-actions">
-                        <button class="btn btn-primary btn-block">عرض السلة</button>
+                        <button class="btn btn-block text-white" style="background-color: #2d3b61; border-color: #2d3b61;">عرض السلة</button>
                     </div>
                 </div>
             </div>

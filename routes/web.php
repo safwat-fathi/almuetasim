@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProductController;
@@ -8,6 +9,7 @@ use App\Http\Controllers\MessagesController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\AboutController;
 
 // Route::get('/', function () {
 //     return view('welcome');
@@ -15,9 +17,14 @@ use App\Http\Controllers\SettingController;
 
 Route::get('/', [HomeController::class, 'index']);
 
+Route::get('/about', [AboutController::class, 'index'])->name('about');
+
 Route::get('/category/{categorySlug}', [CategoryController::class, 'showPublic'])->name('category.show');
 
 Route::get('/product/{productSlug}', [ProductController::class, 'show'])->name('product.show');
+
+// Public products endpoint (for AJAX search/filter on homepage)
+Route::get('/products', [ProductController::class, 'publicIndex'])->name('products.public.index');
 
 // Wishlist routes
 Route::post('/wishlist/add/{productId}', function ($productId) {

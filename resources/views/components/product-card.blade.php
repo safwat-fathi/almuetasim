@@ -18,14 +18,15 @@
         </figure>
         <div class="card-body">
             <h3 class="card-title text-sm">{{ $title }}</h3>
-            <div class="flex items-center gap-2 mb-4">
-                <span class="text-lg font-bold text-primary">{{ number_format($price, 2) }} EGP</span>
+            <div class="price-actions mb-4">
+                <div class="price">
+                    <span class="text-lg font-bold text-primary">{{ number_format($price, 2) }} EGP</span>
+                </div>
                 @if ($onSale ?? false)
                     @php
                         $displayOriginalPrice = $originalPrice ?? ($price * 1.2); // Default to 20% higher if not provided
                     @endphp
-                    <span
-                        class="text-sm line-through text-base-content/50">{{ number_format($displayOriginalPrice, 2) }} EGP</span>
+                    <div class="original-price text-sm line-through text-base-content/50">{{ number_format($displayOriginalPrice, 2) }} EGP</div>
                 @endif
             </div>
             @if(isset($category))

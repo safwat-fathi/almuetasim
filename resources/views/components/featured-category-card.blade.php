@@ -3,52 +3,32 @@
 	$iconGuess = $icon ?? null;
 	if (empty($iconGuess)) {
 		$text = mb_strtolower($title . ' ' . ($slug ?? ''));
-
-		// Keyword => icon mapping (ordered). Add Arabic and English keywords.
-		$mapping = [
-			['keywords' => ['فلتر','فلاتر','filter','filters','مرشح'], 'icon' => 'filter'],
-			['keywords' => ['ماء','مياه','محطات','water','pump','pumps'], 'icon' => 'droplet'],
-			['keywords' => ['قطع غيار','قطع','parts','spare','spares'], 'icon' => 'package'],
-			['keywords' => ['خدمة','صيانة','service','installation','install'], 'icon' => 'settings'],
-			['keywords' => ['مواسير','وصلات','pipes','pipe','hose'], 'icon' => 'share-2'],
-			['keywords' => ['مضخة','pump','pumpstation','مضخات'], 'icon' => 'cpu'],
-			['keywords' => ['ترشيح','فلترة','purify'], 'icon' => 'wind'],
-			['keywords' => ['محطة','station','stations'], 'icon' => 'map-pin'],
-			['keywords' => ['توصيل','شحن','delivery','truck'], 'icon' => 'truck'],
-			['keywords' => ['تخفيض','عرض','sale','discount'], 'icon' => 'tag'],
-		];
-
-		$found = false;
-		foreach ($mapping as $map) {
-			foreach ($map['keywords'] as $kw) {
-				if (mb_stripos($text, $kw) !== false) {
-					$iconGuess = $map['icon'];
-					$found = true;
-					break 2;
-				}
+		// Arabic keyword mapping
+		if (str_contains($text, 'فلتر') || str_contains($text, 'فلاتر') || str_contains($text, 'مرشح')) {
+			$iconGuess = 'filter';
+		} elseif (str_contains($text, 'ماء') || str_contains($text, 'محطات') || str_contains($text, 'فلترة') || str_contains($text, 'مياه')) {
+			$iconGuess = 'droplet';
+		} elseif (str_contains($text, 'قطع') || str_contains($text, 'قطع غيار') || str_contains($text, 'اسطمبة') || str_contains($text, 'قطع')) {
+			$iconGuess = 'package';
+		} elseif (str_contains($text, 'تركيب') || str_contains($text, 'خدمة') || str_contains($text, 'صيانة')) {
+			$iconGuess = 'settings';
+		} elseif (str_contains($text, 'مواسير') || str_contains($text, 'وصلات')) {
+			$iconGuess = 'share-2';
+		} elseif (str_contains($text, 'مضخة') || str_contains($text, 'pump')) {
+			$iconGuess = 'cpu';
+		} else {
+			// English keyword fallback
+			if (str_contains($text, 'filter')) {
+				$iconGuess = 'filter';
+			} elseif (str_contains($text, 'water')) {
+				$iconGuess = 'droplet';
+			} elseif (str_contains($text, 'parts') || str_contains($text, 'spare')) {
+				$iconGuess = 'package';
+			} elseif (str_contains($text, 'service') || str_contains($text, 'installation')) {
+				$iconGuess = 'settings';
+			} else {
+				$iconGuess = 'box';
 			}
-		}
-
-		if (!$found) {
-			// Try a simple fallback heuristics by slug segments
-			if (!empty($slug)) {
-				$parts = preg_split('/[-_\/]+/', $slug);
-				foreach ($parts as $p) {
-					foreach ($mapping as $map) {
-						foreach ($map['keywords'] as $kw) {
-							if (mb_stripos($p, $kw) !== false) {
-								$iconGuess = $map['icon'];
-								$found = true;
-								break 3;
-							}
-						}
-					}
-				}
-			}
-		}
-
-		if (!$found) {
-			$iconGuess = 'tag';
 		}
 	}
 @endphp

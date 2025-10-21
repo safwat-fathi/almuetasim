@@ -22,6 +22,10 @@ class SettingController extends Controller
             'contact_phone' => '',
             'contact_address' => '',
             'about_us_content' => '',
+            'store_name' => '',
+            'business_type' => '',
+            'opening_date' => '',
+            'location_link' => '',
         ];
         
         // Merge default settings with existing settings
@@ -41,6 +45,10 @@ class SettingController extends Controller
             'contact_phone' => 'nullable|string',
             'contact_address' => 'nullable|string',
             'about_us_content' => 'nullable|string',
+            'store_name' => 'nullable|string',
+            'business_type' => 'nullable|string',
+            'opening_date' => 'nullable|string',
+            'location_link' => 'nullable|url',
         ];
 
         $validator = Validator::make($request->all(), $settingKeys);

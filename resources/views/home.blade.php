@@ -1,11 +1,11 @@
-@section('description', 'متجر المعتصم لفلاتر المياه')
+@section('description', $settings['store_name'] ?? 'متجر المعتصم لفلاتر المياه')
 
 <x-layouts.app>
     <section class="hero hero-gradient text-white min-h-[calc(30vh-65px)]">
         <div class="bg-white/40 flex flex-col items-center justify-center gap-4 p-20 rounded-2xl">
             <img src="{{ asset('images/ALMUETASIM-300x212.png') }}" alt="المعتصم لفلاتر المياه" loading="lazy"
                 class="drop-shadow-lg size-[20vh]">
-            <h1 class="text-5xl font-bold text-white drop-shadow-lg text-center">المعتصم للفلاتر ومحطات المياه</h1>
+            <h1 class="text-5xl font-bold text-white drop-shadow-lg text-center">{{ $settings['store_name'] ?? 'المعتصم للفلاتر ومحطات المياه' }}</h1>
         </div>
     </section>
 

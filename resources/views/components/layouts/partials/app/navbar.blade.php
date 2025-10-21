@@ -249,8 +249,6 @@
                     for (const p of data.products) {
                         grid.insertAdjacentHTML('beforeend', renderProductCard(p));
                     }
-                    // Re-initialize lucide icons for any newly injected content
-                    try { if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons(); } catch(e) { console.warn('lucide reinit failed', e); }
                 }
                 if (grid) grid.removeAttribute('data-loading');
             } catch (err) {

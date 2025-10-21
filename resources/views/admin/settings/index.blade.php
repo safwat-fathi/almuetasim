@@ -83,6 +83,36 @@
                         </div>
 
                         <div>
+                            <h3 class="text-lg font-semibold mb-4 pb-2">معلومات المتجر</h3>
+                            <div class="space-y-4 grid grid-cols-2 gap-4">
+                                <div class="form-control w-full">
+                                    <label class="label">
+                                        <span class="label-text">اسم المتجر</span>
+                                    </label>
+                                    <input type="text" name="store_name" value="{{ old('store_name', $settings['store_name'] ?? '') }}" class="input input-bordered w-full" placeholder="اسم المتجر">
+                                </div>
+                                <div class="form-control w-full">
+                                    <label class="label">
+                                        <span class="label-text">نوع العمل</span>
+                                    </label>
+                                    <input type="text" name="business_type" value="{{ old('business_type', $settings['business_type'] ?? '') }}" class="input input-bordered w-full" placeholder="مثال: متجر متخصص في فلاتر المياه">
+                                </div>
+                                <div class="form-control w-full">
+                                    <label class="label">
+                                        <span class="label-text">تاريخ الافتتاح</span>
+                                    </label>
+                                    <input type="text" name="opening_date" value="{{ old('opening_date', $settings['opening_date'] ?? '') }}" class="input input-bordered w-full" placeholder="مثال: 2020">
+                                </div>
+                                <div class="form-control w-full">
+                                    <label class="label">
+                                        <span class="label-text">رابط الموقع (خريطة)</span>
+                                    </label>
+                                    <input type="url" name="location_link" value="{{ old('location_link', $settings['location_link'] ?? '') }}" class="input input-bordered w-full" placeholder="https://maps.google.com/...">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
                             <h3 class="text-lg font-semibold mb-4 pb-2">من نحن</h3>
                             <div class="form-control flex flex-col">
                                 <label class="label">

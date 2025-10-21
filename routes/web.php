@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProductController;
@@ -8,12 +9,15 @@ use App\Http\Controllers\MessagesController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\AboutController;
 
 // Route::get('/', function () {
 //     return view('welcome');
 // });
 
 Route::get('/', [HomeController::class, 'index']);
+
+Route::get('/about', [AboutController::class, 'index'])->name('about');
 
 Route::get('/category/{categorySlug}', [CategoryController::class, 'showPublic'])->name('category.show');
 

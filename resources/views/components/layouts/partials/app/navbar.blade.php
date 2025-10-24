@@ -14,7 +14,12 @@
             </div>
             <ul tabindex="0" class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow">
                 @foreach ($categories as $category)
-                    <li><a href="{{ route('category.show', $category) }}">{{ $category->name }}</a></li>
+                        <li>
+                            <a href="{{ route('category.show', $category) }}" class="flex items-center gap-2">
+                                <i data-lucide="{{ $category->icon ?? 'box' }}" class="w-4 h-4"></i>
+                                {{ $category->name }}
+                            </a>
+                        </li>
                 @endforeach
             </ul>
         </div>
@@ -35,7 +40,10 @@
                         style="background-color: {{ request()->route()->parameter('categorySlug') == $category->slug ? '#2d3b61' : 'transparent' }};"
                         onmouseover="this.style.backgroundColor='#2d3b61'; this.style.color='white';"
                         onmouseout="this.style.backgroundColor='{{ request()->route()->parameter('categorySlug') == $category->slug ? '#2d3b61' : 'transparent' }}'; this.style.color='{{ request()->route()->parameter('categorySlug') == $category->slug ? 'white' : 'inherit' }}';"
-                        >{{ $category->name }}</a></li>
+                        >
+                        <i data-lucide="{{ $category->icon ?? 'box' }}" class="w-4 h-4"></i>
+                        {{ $category->name }}
+                    </a></li>
             @endforeach
         </ul>
     </div>
@@ -46,7 +54,7 @@
             <div class="form-control">
                 <div class="input-group hidden lg:flex">
                     <input id="global-search-input" type="text" placeholder="ابحث عن منتج..." class="input input-bordered w-80" autocomplete="off" />
-                    <button id="global-search-btn" class="btn btn-primary text-white" type="button">بحث</button>
+  
                 </div>
             </div>
 
@@ -56,7 +64,10 @@
                     <!-- Populated dynamically with up to 4 items -->
                 </div>
                 <div class="mt-2 text-right">
-                    <a id="global-search-see-all" href="#" class="text-sm text-primary">عرض كل النتائج</a>
+                    <a id="global-search-see-all" href="#" class="text-sm text-primary flex items-center gap-1 justify-end">
+                        <i data-lucide="arrow-left" class="w-3 h-3"></i>
+                        عرض كل النتائج
+                    </a>
                 </div>
             </div>
         </div>
@@ -75,7 +86,10 @@
                         <p class="text-base-content/70">سلة التسوق فارغة</p>
                     </div>
                     <div class="card-actions">
-                        <button class="btn btn-block text-white" style="background-color: #2d3b61; border-color: #2d3b61;">عرض السلة</button>
+                        <button class="btn btn-block text-white" style="background-color: #2d3b61; border-color: #2d3b61;">
+                            <i data-lucide="shopping-cart" class="w-4 h-4"></i>
+                            عرض السلة
+                        </button>
                     </div>
                 </div>
             </div>
@@ -318,7 +332,10 @@
                     <img src="${image}" alt="${title}" class="w-12 h-10 object-cover rounded" />
                     <div class="flex-1">
                         <div class="text-sm font-semibold">${title}</div>
-                        <div class="text-xs text-base-content/70">${price} EGP</div>
+                        <div class="text-xs text-base-content/70 flex items-center gap-1">
+                            <i data-lucide="dollar-sign" class="w-3 h-3"></i>
+                            ${price} EGP
+                        </div>
                     </div>
                 </a>
             `;
@@ -358,6 +375,8 @@
             input.addEventListener('input', function(e){
                 clearTimeout(navTimeout);
                 navTimeout = setTimeout(()=> fetchTop(input.value), 300);
+                // Update see all link immediately
+                if(seeAll) seeAll.setAttribute('href', '/products?search=' + encodeURIComponent(input.value));
             });
 
             input.addEventListener('focus', function(){ if(input.value) fetchTop(input.value); });

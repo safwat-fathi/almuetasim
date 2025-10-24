@@ -222,7 +222,7 @@ class ProductController extends Controller
 	}
 
 	/**
-	 * Public products endpoint for AJAX on the homepage.
+	 * Public products endpoint for AJAX on the homepage and search results page.
 	 */
 	public function publicIndex(Request $request)
 	{
@@ -257,10 +257,36 @@ class ProductController extends Controller
 				break;
 		}
 
-		$products = $query->limit(20)->get();
+		// Use limit if specified (for navbar dropdown), otherwise paginate
+		$limit = $request->get('limit');
+		if ($limit) {
+			$products = $query->limit($limit)->get();
+		} else {
+			$products = $query->paginate(20);
+		}
 
 		if ($request->wantsJson()) {
-			return response()->json(['products' => $products]);
+			if ($limit) {
+				return response()->json(['products' => $products]);
+			} else {
+				return response()->json([
+					'products' => $products->items(),
+					'pagination' => [
+						'current_page' => $products->currentPage(),
+						'last_page' => $products->lastPage(),
+						'per_page' => $products->perPage(),
+						'total' => $products->total(),
+					]
+				]);
+			}
+		}
+
+		// If there's a search query, show search results page, otherwise show home page
+		if ($request->has('search') && $request->search) {
+			return view('search-results', [
+				'products' => $products,
+				'categories' => Category::all(),
+			]);
 		}
 
 		return view('home', [

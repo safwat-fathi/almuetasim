@@ -1,129 +1,169 @@
-<x-layouts.admin title="Products Management">
+<x-layouts.admin title="نتائج البحث - المنتجات">
 
-    <div class="drawer lg:drawer-open">
-        <input id="drawer-toggle" type="checkbox" class="drawer-toggle" />
+    <div class="min-h-screen bg-base-100">
+        <div class="container mx-auto px-4 py-8">
+            <!-- Header Section -->
+            <div class="bg-white rounded-2xl shadow-xl p-8 mb-8 border border-gray-200">
+                <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center">
+                                <i data-lucide="search" class="w-6 h-6 text-white"></i>
+                            </div>
+                            <h1 class="text-3xl font-bold text-gray-800">نتائج البحث</h1>
+                        </div>
+                        <p class="text-gray-600 text-lg">
+                            @if(request('search'))
+                                تم العثور على <span class="font-semibold text-blue-600">{{ $products->total() }}</span> نتيجة للبحث عن: <span class="font-medium text-gray-800">"{{ request('search') }}"</span>
+                            @else
+                                عرض جميع المنتجات
+                            @endif
+                        </p>
+                    </div>
 
-        <div class="drawer-content flex flex-col">
-            <div class="flex-1 p-6">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-                    <h2 class="card-title text-2xl">إدارة المخزون</h2>
-                    <button class="btn btn-primary" x-data @click="$dispatch('open-product-modal')">
-                        <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
-                        إضافة منتج
-                    </button>
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <a href="{{ route('admin.products.index') }}" class="btn btn-outline btn-lg border-2 hover:bg-gray-50">
+                            <i data-lucide="arrow-left" class="w-5 h-5 mr-2"></i>
+                            العودة لإدارة المخزون
+                        </a>
+                        <button class="btn btn-primary btn-lg bg-blue-600 hover:bg-blue-700 border-0" x-data @click="$dispatch('open-product-modal')">
+                            <i data-lucide="plus" class="w-5 h-5 mr-2"></i>
+                            إضافة منتج جديد
+                        </button>
+                    </div>
                 </div>
+            </div>
 
-                <div class="flex flex-col sm:flex-row gap-4 mb-6">
-                    <div class="form-control flex-1">
+            <!-- Search and Filters Section -->
+            <div class="bg-white rounded-2xl shadow-lg p-6 mb-8 border border-gray-200">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text font-semibold text-gray-700">البحث في المنتجات</span>
+                        </label>
                         <div class="input-group">
-                            <input type="text" placeholder="بحث عن منتج..." class="input input-bordered flex-1"
+                            <input type="text" placeholder="اكتب اسم المنتج..." class="input input-bordered input-lg flex-1 focus:input-primary"
                                 id="search-input" value="{{ request('search') }}"
                                 onkeypress="handleSearchKeyPress(event)" />
-                            <button class="btn btn-square" onclick="applyFilters()">
-                                <i data-lucide="search" class="w-4 h-4"></i>
+                            <button class="btn btn-primary btn-lg" onclick="applyFilters()">
+                                <i data-lucide="search" class="w-5 h-5"></i>
                             </button>
                         </div>
                     </div>
-                    <select class="select select-bordered w-full sm:w-auto" id="category-filter" onchange="applyFilters()">
-                        <option value="">كل الفئات</option>
-                        @foreach ($categories as $category)
-                            <option value="{{ $category->id }}"
-                                {{ request('category') == $category->id ? 'selected' : '' }}>
-                                {{ $category->name }}</option>
-                        @endforeach
-                    </select>
-                    <select class="select select-bordered w-full sm:w-auto" id="status-filter" onchange="applyFilters()">
-                        <option value="">جميع الحالات</option>
-                        <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>متاح
-                        </option>
-                        <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>غير
-                            متاح</option>
-                        <option value="low-stock" {{ request('status') == 'low-stock' ? 'selected' : '' }}>
-                            مخزون قليل</option>
-                    </select>
-                </div>
 
-                <div class="card bg-base-100 shadow-lg">
-                    <div class="card-body">
-                        <div id="search-results-header" style="display: {{ request('search') ? 'block' : 'none' }};">
-                            <h3 class="text-lg font-semibold mb-4">نتائج البحث</h3>
-                        </div>
-                        <div class="overflow-x-auto">
-                            <table class="table table-zebra">
-                                <thead>
-                                    <tr>
-                                        <th>المنتج</th>
-                                        <th>الفئة</th>
-                                        <th>السعر</th>
-                                        <th>الكمية</th>
-                                        <th>الحالة</th>
-                                        <th>الإجراءات</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="products-table-body">
-                                    @forelse ($products as $product)
-                                        <tr data-product-id="{{ $product->id }}" data-product='@json($product)'>
-                                            <td>
-                                                <div class="flex items-center space-x-3">
-                                                    <div class="avatar">
-                                                        <div class="mask mask-squircle w-12 h-12">
-                                                            <img src="{{ $product->images ? (Storage::url($product->images[0]) ?? asset('storage/' . $product->images[0])) : 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=100&h=100&fit=crop' }}"
-                                                                alt="{{ $product->title }}" />
-                                                        </div>
-                                                    </div>
-                                                    <div>
-                                                        <div class="font-bold">{{ $product->title }}</div>
-                                                    </div>
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text font-semibold text-gray-700">الفئة</span>
+                        </label>
+                        <select class="select select-bordered select-lg focus:select-primary" id="category-filter" onchange="applyFilters()">
+                            <option value="">جميع الفئات</option>
+                            @foreach ($categories as $category)
+                                <option value="{{ $category->id }}"
+                                    {{ request('category') == $category->id ? 'selected' : '' }}>
+                                    {{ $category->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text font-semibold text-gray-700">حالة المنتج</span>
+                        </label>
+                        <select class="select select-bordered select-lg focus:select-primary" id="status-filter" onchange="applyFilters()">
+                            <option value="">جميع الحالات</option>
+                            <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>متاح</option>
+                            <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>غير متاح</option>
+                            <option value="low-stock" {{ request('status') == 'low-stock' ? 'selected' : '' }}>مخزون قليل</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div class="bg-white rounded-2xl shadow-xl border border-gray-200">
+                <div class="p-8">
+                    @if($products->count() > 0)
+                        <!-- Results Grid -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+                            @foreach ($products as $product)
+                                <div class="card bg-white shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-200 hover:border-blue-300" data-product-id="{{ $product->id }}" data-product='@json($product)'>
+                                    <figure class="px-6 pt-6">
+                                        <img src="{{ $product->images ? (Storage::url($product->images[0]) ?? asset('storage/' . $product->images[0])) : 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=300&h=200&fit=crop' }}"
+                                             alt="{{ $product->title }}"
+                                             class="rounded-xl w-full h-48 object-cover shadow-md" />
+                                    </figure>
+                                    <div class="card-body p-6">
+                                        <h3 class="card-title text-lg font-bold text-gray-800 mb-2">{{ Str::limit($product->title, 30) }}</h3>
+
+                                        <div class="flex items-center gap-2 mb-3">
+                                            <span class="badge badge-primary badge-lg">{{ $product->category->name ?? 'Uncategorized' }}</span>
+                                            @if ($product->stock > 10)
+                                                <span class="badge badge-success badge-lg">متاح</span>
+                                            @elseif($product->stock > 0)
+                                                <span class="badge badge-warning badge-lg">مخزون قليل</span>
+                                            @else
+                                                <span class="badge badge-error badge-lg">غير متاح</span>
+                                            @endif
+                                        </div>
+
+                                        <div class="flex justify-between items-center mb-4">
+                                            <div class="text-2xl font-bold text-blue-600">${{ number_format($product->price, 2) }}</div>
+                                            <div class="text-sm text-gray-600">الكمية: {{ $product->stock }}</div>
+                                        </div>
+
+                                        <div class="card-actions justify-end">
+                                            <div class="dropdown dropdown-end">
+                                                <div tabindex="0" role="button" class="btn btn-circle btn-ghost btn-sm hover:bg-blue-100">
+                                                    <i data-lucide="more-vertical" class="w-5 h-5"></i>
                                                 </div>
-                                            </td>
-                                            <td>
-                                                <span class="badge badge-ghost">{{ $product->category->name ?? 'Uncategorized' }}</span>
-                                            </td>
-                                            <td>${{ number_format($product->price, 2) }}</td>
-                                            <td>{{ $product->stock }}</td>
-                                            <td>
-                                                @if ($product->stock > 10)
-                                                    <span class="badge badge-success">متاح</span>
-                                                @elseif($product->stock > 0)
-                                                    <span class="badge badge-warning">مخزون قليل</span>
-                                                @else
-                                                    <span class="badge badge-error">غير متاح</span>
-                                                @endif
-                                            </td>
-                                            <td>
-                                                <div class="dropdown dropdown-end">
-                                                    <div tabindex="0" role="button" class="btn btn-ghost btn-xs">
-                                                        <i data-lucide="more-horizontal" class="w-4 h-4"></i>
-                                                    </div>
-                                                    <ul tabindex="0"
-                                                        class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
-                                                        <li><a href="{{ route('product.show', $product->slug) }}"><i data-lucide="eye" class="w-4 h-4 mr-2"></i> عرض</a></li>
-                                                        <li><a onclick="editProduct({{ $product->id }})"><i data-lucide="edit" class="w-4 h-4 mr-2"></i> تعديل</a></li>
-                                                        <li><a onclick="deleteProduct({{ $product->id }})" class="text-error"><i data-lucide="trash-2" class="w-4 h-4 mr-2"></i> حذف</a></li>
-                                                    </ul>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="6" class="text-center py-8">
-                                                <p class="text-lg">لا توجد منتجات لعرضها حاليا</p>
-                                            </td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
+                                                <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow-xl bg-white rounded-box w-48 border border-gray-200">
+                                                    <li><a href="{{ route('product.show', $product->slug) }}" class="text-blue-600 hover:bg-blue-50">
+                                                        <i data-lucide="eye" class="w-4 h-4 mr-2"></i> عرض المنتج
+                                                    </a></li>
+                                                    <li><a onclick="editProduct({{ $product->id }})" class="text-orange-600 hover:bg-orange-50">
+                                                        <i data-lucide="edit" class="w-4 h-4 mr-2"></i> تعديل
+                                                    </a></li>
+                                                    <li><a onclick="deleteProduct({{ $product->id }})" class="text-red-600 hover:bg-red-50">
+                                                        <i data-lucide="trash-2" class="w-4 h-4 mr-2"></i> حذف
+                                                    </a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
                         </div>
-                        <div class="mt-6">
+
+                        <!-- Pagination -->
+                        <div class="flex justify-center">
                             {{ $products->links() }}
                         </div>
-                    </div>
+                    @else
+                        <!-- No Results -->
+                        <div class="text-center py-16">
+                            <div class="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <i data-lucide="search-x" class="w-12 h-12 text-blue-500"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold text-gray-800 mb-4">لا توجد نتائج</h3>
+                            <p class="text-gray-600 text-lg mb-8">لم نتمكن من العثور على أي منتجات تطابق معايير البحث الخاصة بك</p>
+                            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                                <a href="{{ route('admin.products.index') }}" class="btn btn-primary btn-lg">
+                                    <i data-lucide="package" class="w-5 h-5 mr-2"></i>
+                                    عرض جميع المنتجات
+                                </a>
+                                <button class="btn btn-outline btn-lg" onclick="clearFilters()">
+                                    <i data-lucide="x" class="w-5 h-5 mr-2"></i>
+                                    مسح المرشحات
+                                </button>
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
     </div>
 
-
+    <!-- Product Modal (same as before) -->
     <dialog id="add_product_modal" class="modal"
         x-data="productModal"
         @open-product-modal.window="openModal()"
@@ -136,30 +176,25 @@
             <div class="space-y-4 pt-4">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="form-control">
-
                         <input type="text" class="input input-bordered" :class="{ 'input-error': errors.name }" x-model="formData.name" placeholder="اسم المنتج" />
                         <label class="label"><span class="label-text-alt text-error" x-show="errors.name" x-text="errors.name"></span></label>
                     </div>
                 </div>
 
                 <div class="form-control flex flex-col w-full">
-
                     <textarea class="textarea textarea-bordered h-24 resize-none w-full" x-model="formData.description" placeholder="وصف المنتج"></textarea>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div class="form-control">
-
                         <input type="number" step="0.01" class="input input-bordered" :class="{ 'input-error': errors.price }" x-model="formData.price" placeholder="السعر" />
                         <label class="label"><span class="label-text-alt text-error" x-show="errors.price" x-text="errors.price"></span></label>
                     </div>
                     <div class="form-control">
-
                         <input type="number" class="input input-bordered" :class="{ 'input-error': errors.stock }" x-model="formData.stock" placeholder="الكمية" />
                         <label class="label"><span class="label-text-alt text-error" x-show="errors.stock" x-text="errors.stock"></span></label>
                     </div>
                     <div class="form-control">
-
                         <select class="select select-bordered" x-model="formData.category_id" :class="{ 'select-error': errors.category_id }">
                             <option value="">اختر الفئة</option>
                             @foreach ($categories as $category)
@@ -243,17 +278,15 @@
         </form>
     </dialog>
 
-
     <x-slot:scripts>
         <script>
-            // This script block is correct and requires no changes.
+            // Alpine.js data and functions (same as before)
             document.addEventListener('alpine:init', () => {
                 Alpine.data('productModal', () => ({
                     isOpen: false,
                     isSubmitting: false,
                     isEditing: false,
-                    imageFile: null, // Add image file property
-                    imageFiles: [], // Array to store multiple files
+                    imageFiles: [],
                     formData: {
                         name: '', description: '', price: '', stock: '',
                         category_id: '', active: true
@@ -262,8 +295,7 @@
                     openModal() {
                         this.isOpen = true;
                         this.errors = {};
-                        this.imageFile = null; // Reset image file when opening
-                        this.imageFiles = []; // Reset image files array
+                        this.imageFiles = [];
                         this.isEditing = false;
                         this.resetForm();
                     },
@@ -276,66 +308,28 @@
                             name: '', description: '', price: '', stock: '',
                             category_id: '', active: true
                         };
-                        this.imageFile = null; // Also reset image file
-                        this.imageFiles = []; // Reset image files array
+                        this.imageFiles = [];
                         this.errors = {};
                         this.isSubmitting = false;
                     },
-                    updateImageFile(event) {
-                        const file = event.target.files[0];
-
-                        // Clear any previous image error
-                        delete this.errors.image;
-
-                        if (file) {
-                            // Validate file type
-                            const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-                            if (!validTypes.includes(file.type)) {
-                                this.errors.image = 'Please select a valid image file (JPEG, JPG, PNG, or WEBP)';
-                                this.imageFile = null;
-                                return;
-                            }
-
-                            // Validate file size (5MB = 5 * 1024 * 1024 bytes)
-                            const maxSize = 5 * 1024 * 1024;
-                            if (file.size > maxSize) {
-                                this.errors.image = 'File size exceeds 5MB limit';
-                                this.imageFile = null;
-                                return;
-                            }
-
-                            this.imageFile = file;
-                        }
-                    },
                     updateImageFiles(event) {
-                        // Clear any previous image error
                         delete this.errors.image;
-
                         const files = Array.from(event.target.files);
-
-                        // Validate each file
                         for (const file of files) {
-                            // Validate file type
                             const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
                             if (!validTypes.includes(file.type)) {
                                 this.errors.image = 'Please select valid image files (JPEG, JPG, PNG, or WEBP)';
                                 return;
                             }
-
-                            // Validate file size (5MB = 5 * 1024 * 1024 bytes)
                             const maxSize = 5 * 1024 * 1024;
                             if (file.size > maxSize) {
                                 this.errors.image = 'File size exceeds 5MB limit';
                                 return;
                             }
                         }
-
-                        // Add files to the array
                         this.imageFiles = [...this.imageFiles, ...files];
                     },
-
                     openForEdit(product) {
-                        // product can be passed as a JS object or JSON string
                         if (typeof product === 'string') {
                             product = JSON.parse(product);
                         }
@@ -343,7 +337,6 @@
                         this.isOpen = true;
                         this.errors = {};
                         this.imageFiles = [];
-                        // Map product fields to formData
                         this.formData = {
                             name: product.title || '',
                             description: product.description || '',
@@ -358,43 +351,30 @@
                         this.imageFiles.splice(index, 1);
                     },
                     async addProduct() {
-                        // Clear any previous errors
                         this.errors = {};
-
-                        // Validate required fields
                         if (!this.formData.name) this.errors.name = 'Product name is required';
                         if (!this.formData.price) this.errors.price = 'Price is required';
                         if (!this.formData.stock) this.errors.stock = 'Stock quantity is required';
                         if (!this.formData.category_id) this.errors.category_id = 'Category is required';
-
-                        // If there are validation errors, don't submit
-                        if (Object.keys(this.errors).length > 0) {
-                            return;
-                        }
+                        if (Object.keys(this.errors).length > 0) return;
 
                         this.isSubmitting = true;
-
                         try {
-                            // Create FormData object to handle file uploads
                             const formData = new FormData();
-                            formData.append('title', this.formData.name);  // Backend expects 'title' not 'name'
+                            formData.append('title', this.formData.name);
                             formData.append('description', this.formData.description);
                             formData.append('price', this.formData.price);
                             formData.append('stock', this.formData.stock);
                             formData.append('category_id', this.formData.category_id);
-                            formData.append('type', 'product');  // Default type
-                            formData.append('specs', '[]');  // Default empty specs
-                            formData.append('warranty_months', '0');  // Default warranty
-                            formData.append('is_part', '0');  // Default is_part as false
-
-                            // Append multiple images
+                            formData.append('type', 'product');
+                            formData.append('specs', '[]');
+                            formData.append('warranty_months', '0');
+                            formData.append('is_part', '0');
                             this.imageFiles.forEach((file, index) => {
                                 formData.append('images[]', file);
                             });
-
                             formData.append('active', this.formData.active ? 1 : 0);
 
-                            // Make the actual API request
                             const response = await fetch('/admin/products', {
                                 method: 'POST',
                                 body: formData,
@@ -405,14 +385,12 @@
                                 }
                             });
 
-                            // Try to parse JSON only when server returned JSON
                             const contentType = response.headers.get('content-type') || '';
                             if (response.ok && contentType.includes('application/json')) {
                                 const result = await response.json();
-                                // Success - update table DOM
                                 this.showToast('Product added successfully!', 'success');
                                 this.closeModal();
-                                addOrReplaceRow(result.product, { prepend: true });
+                                location.reload();
                             } else if (!response.ok && contentType.includes('application/json')) {
                                 const result = await response.json();
                                 if (result.message && result.errors) {
@@ -421,7 +399,6 @@
                                     this.showToast('An error occurred while adding the product', 'error');
                                 }
                             } else {
-                                // Non-JSON response (probably a redirect or HTML) — log for debugging
                                 const text = await response.text();
                                 console.error('Add product: expected JSON but got:', text);
                                 this.showToast('Unexpected server response when adding product', 'error');
@@ -434,24 +411,18 @@
                         }
                     },
                     async updateProduct() {
-                        // Clear errors
                         this.errors = {};
-
                         if (!this.formData.id) {
                             this.showToast('Invalid product ID', 'error');
                             return;
                         }
-
-                        // Basic validation
                         if (!this.formData.name) this.errors.name = 'Product name is required';
                         if (!this.formData.price) this.errors.price = 'Price is required';
                         if (!this.formData.stock) this.errors.stock = 'Stock quantity is required';
                         if (!this.formData.category_id) this.errors.category_id = 'Category is required';
-
                         if (Object.keys(this.errors).length > 0) return;
 
                         this.isSubmitting = true;
-
                         try {
                             const formData = new FormData();
                             formData.append('title', this.formData.name);
@@ -464,17 +435,13 @@
                             formData.append('warranty_months', '0');
                             formData.append('is_part', '0');
                             formData.append('active', this.formData.active ? 1 : 0);
-
-                            // Append files if any
                             this.imageFiles.forEach((file) => {
                                 formData.append('images[]', file);
                             });
-
-                            // Add method override for servers that expect _method
                             formData.append('_method', 'PUT');
 
                             const response = await fetch(`/admin/products/${this.formData.id}`, {
-                                method: 'POST', // use POST with _method=PUT (widely compatible)
+                                method: 'POST',
                                 body: formData,
                                 headers: {
                                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
@@ -488,7 +455,7 @@
                                 const result = await response.json();
                                 this.showToast('Product updated successfully!', 'success');
                                 this.closeModal();
-                                addOrReplaceRow(result.product, { replaceId: result.product.id });
+                                location.reload();
                             } else if (!response.ok && contentType2.includes('application/json')) {
                                 const result = await response.json();
                                 if (result.errors) this.errors = result.errors;
@@ -506,51 +473,22 @@
                         }
                     },
                     showToast(message, type = 'info') {
-                        // Remove any existing toast
                         const existingToast = document.getElementById('toast-container');
-                        if (existingToast) {
-                            existingToast.remove();
-                        }
-
-                        // Create toast container
+                        if (existingToast) existingToast.remove();
                         const toastContainer = document.createElement('div');
                         toastContainer.id = 'toast-container';
                         toastContainer.className = 'toast toast-top toast-center';
                         toastContainer.style.zIndex = '9999';
-
-                        // Determine toast classes based on type
                         let toastClasses = 'alert ';
                         switch(type) {
-                            case 'success':
-                                toastClasses += 'alert-success';
-                                break;
-                            case 'error':
-                                toastClasses += 'alert-error';
-                                break;
-                            case 'warning':
-                                toastClasses += 'alert-warning';
-                                break;
-                            default:
-                                toastClasses += 'alert-info';
-                                break;
+                            case 'success': toastClasses += 'alert-success'; break;
+                            case 'error': toastClasses += 'alert-error'; break;
+                            case 'warning': toastClasses += 'alert-warning'; break;
+                            default: toastClasses += 'alert-info'; break;
                         }
-
-                        // Create toast element
-                        toastContainer.innerHTML = `
-                            <div class="${toastClasses}">
-                                <span>${message}</span>
-                            </div>
-                        `;
-
-                        // Add to page
+                        toastContainer.innerHTML = `<div class="${toastClasses}"><span>${message}</span></div>`;
                         document.body.appendChild(toastContainer);
-
-                        // Remove after 5 seconds
-                        setTimeout(() => {
-                            if (toastContainer.parentNode) {
-                                toastContainer.parentNode.removeChild(toastContainer);
-                            }
-                        }, 5000);
+                        setTimeout(() => { if (toastContainer.parentNode) toastContainer.parentNode.removeChild(toastContainer); }, 5000);
                     }
                 }));
 
@@ -573,8 +511,6 @@
                 }));
             });
 
-
-
             // Handle Enter key press in search input
             function handleSearchKeyPress(event) {
                 if (event.key === 'Enter') {
@@ -588,68 +524,34 @@
                 const categoryFilter = document.getElementById("category-filter").value;
                 const statusFilter = document.getElementById("status-filter").value;
 
-                // Build query string
                 const params = new URLSearchParams();
                 if (searchTerm) params.set('search', searchTerm);
                 if (categoryFilter) params.set('category', categoryFilter);
                 if (statusFilter) params.set('status', statusFilter);
 
-                const fetchUrl = `/admin/products?${params.toString()}`;
-
-                // Fetch via AJAX and update the table
-                fetch(fetchUrl, {
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                }).then(async (res) => {
-                    const ct = res.headers.get('content-type') || '';
-                    if (res.ok && ct.includes('application/json')) {
-                        const data = await res.json();
-                        // Clear table body and insert returned products
-                        const tbody = document.getElementById('products-table-body');
-                        tbody.innerHTML = '';
-                        for (const p of data.products) {
-                            addOrReplaceRow(p, { prepend: false });
-                        }
-                        // TODO: update pagination UI if needed using data.pagination
-                    } else {
-                        // Fallback to full navigation if server returns HTML
-                        window.location = fetchUrl;
-                    }
-                }).catch((err) => {
-                    console.error('Filter fetch failed', err);
-                    window.location = `/admin/products?${params.toString()}`;
-                });
+                const fetchUrl = `/admin/products/search-results?${params.toString()}`;
+                window.location = fetchUrl;
             }
 
-						// Add event listeners for search and filters
-            document.getElementById("search-input").addEventListener("input", function() {
-                // Debounce the search to avoid too many requests
-                clearTimeout(this.searchTimeout);
-                this.searchTimeout = setTimeout(applyFilters, 500);
-            });
+            // Clear filters function
+            function clearFilters() {
+                window.location = '/admin/products/search-results';
+            }
 
-            document.getElementById("category-filter").addEventListener("change", applyFilters);
-
-            // Global helper to open edit modal with product data
+            // Global helper functions
             function editProduct(id) {
-                const row = document.querySelector(`[data-product-id="${id}"]`);
-                if (!row) return;
-                const product = row.getAttribute('data-product');
-                window.dispatchEvent(new CustomEvent('open-edit-product', { detail: product }));
+                const productCard = document.querySelector(`[data-product-id="${id}"]`);
+                if (!productCard) return;
+                const productData = productCard.getAttribute('data-product');
+                window.dispatchEvent(new CustomEvent('open-edit-product', { detail: productData }));
             }
 
-            // Global helper to delete a product
             async function deleteProduct(id) {
-                // Open the delete confirmation modal instead of browser confirm
                 window.dispatchEvent(new CustomEvent('open-delete-modal', { detail: id }));
             }
 
-            // Function to perform the actual delete after confirmation
             async function deleteProductConfirmed(id) {
                 try {
-                    // Try DELETE first
                     let response = await fetch(`/admin/products/${id}`, {
                         method: 'DELETE',
                         headers: {
@@ -659,7 +561,6 @@
                         }
                     });
 
-                    // Some servers / setups disallow DELETE with a body — fallback to POST + _method=DELETE
                     if (response.status === 405) {
                         response = await fetch(`/admin/products/${id}`, {
                             method: 'POST',
@@ -676,94 +577,42 @@
                     const contentType = response.headers.get('content-type') || '';
                     if (response.ok && contentType.includes('application/json')) {
                         const result = await response.json();
-                        const row = document.querySelector(`[data-product-id="${id}"]`);
-                        if (row) row.remove();
-                        // use toast instead of alert for smoother UX
-                        const existingToast = document.getElementById('toast-container'); if (existingToast) existingToast.remove();
-                        const toast = document.createElement('div'); toast.className = 'alert alert-success'; toast.style.zIndex = 9999; toast.textContent = result.message || 'تم حذف المنتج بنجاح'; document.body.appendChild(toast);
-                        setTimeout(()=> toast.remove(), 3000);
+                        const productCard = document.querySelector(`[data-product-id="${id}"]`);
+                        if (productCard) productCard.remove();
+                        showToast(result.message || 'تم حذف المنتج بنجاح', 'success');
                     } else if (!response.ok && contentType.includes('application/json')) {
                         const result = await response.json();
                         console.error('Delete failed:', result);
-                        alert(result.message || 'حدث خطأ أثناء حذف المنتج');
+                        showToast(result.message || 'حدث خطأ أثناء حذف المنتج', 'error');
                     } else {
                         const text = await response.text();
                         console.error('Delete product: expected JSON but got:', text);
-                        alert('Unexpected server response when deleting product');
+                        showToast('Unexpected server response when deleting product', 'error');
                     }
                 } catch (error) {
                     console.error('Delete error:', error);
-                    alert('حدث خطأ أثناء حذف المنتج');
+                    showToast('حدث خطأ أثناء حذف المنتج', 'error');
                 }
             }
 
-            // Insert or replace product row in the table
-            function addOrReplaceRow(product, options = {}) {
-                // Build category name safely
-                const categoryName = (product.category && product.category.name) ? product.category.name : 'Uncategorized';
-
-                const rowHtml = `
-                    <tr data-product-id="${product.id}" data-product='${JSON.stringify(product).replace(/'/g, "\\'")}'>
-                        <td>
-                            <div class="flex items-center space-x-3">
-                                <div class="avatar">
-                                    <div class="mask mask-squircle w-12 h-12">
-                                        <img src="${(product.images && product.images[0]) ? ('/storage/' + product.images[0]) : 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=100&h=100&fit=crop'}" alt="${escapeHtml(product.title)}" />
-                                    </div>
-                                </div>
-                                <div>
-                                    <div class="font-bold">${escapeHtml(product.title)}</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td><span class="badge badge-ghost">${escapeHtml(categoryName)}</span></td>
-                        <td>$${Number(product.price).toFixed(2)}</td>
-                        <td>${product.stock}</td>
-                        <td>${product.stock > 10 ? '<span class="badge badge-success">متاح</span>' : (product.stock > 0 ? '<span class="badge badge-warning">مخزون قليل</span>' : '<span class="badge badge-error">غير متاح</span>')}</td>
-                        <td>
-                            <div class="dropdown dropdown-end">
-                                <div tabindex="0" role="button" class="btn btn-ghost btn-xs">
-                                    <i data-lucide="more-horizontal" class="w-4 h-4"></i>
-                                </div>
-                                <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
-                                    <li><a href="/product/${encodeURIComponent(product.slug)}"><i data-lucide="eye" class="w-4 h-4 mr-2"></i> عرض</a></li>
-                                    <li><a onclick="editProduct(${product.id})"><i data-lucide="edit" class="w-4 h-4 mr-2"></i> تعديل</a></li>
-                                    <li><a onclick="deleteProduct(${product.id})" class="text-error"><i data-lucide="trash-2" class="w-4 h-4 mr-2"></i> حذف</a></li>
-                                </ul>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-
-                // Replace if replaceId provided
-                if (options.replaceId) {
-                    const existing = document.querySelector(`[data-product-id="${options.replaceId}"]`);
-                    if (existing) {
-                        existing.outerHTML = rowHtml;
-                        return;
-                    }
+            function showToast(message, type = 'info') {
+                const existingToast = document.getElementById('toast-container');
+                if (existingToast) existingToast.remove();
+                const toastContainer = document.createElement('div');
+                toastContainer.id = 'toast-container';
+                toastContainer.className = 'toast toast-top toast-center';
+                toastContainer.style.zIndex = '9999';
+                let toastClasses = 'alert ';
+                switch(type) {
+                    case 'success': toastClasses += 'alert-success'; break;
+                    case 'error': toastClasses += 'alert-error'; break;
+                    case 'warning': toastClasses += 'alert-warning'; break;
+                    default: toastClasses += 'alert-info'; break;
                 }
-
-                // Prepend if requested
-                if (options.prepend) {
-                    const tbody = document.getElementById('products-table-body');
-                    tbody.insertAdjacentHTML('afterbegin', rowHtml);
-                    return;
-                }
-
-                // Default append
-                document.getElementById('products-table-body').insertAdjacentHTML('beforeend', rowHtml);
+                toastContainer.innerHTML = `<div class="${toastClasses}"><span>${message}</span></div>`;
+                document.body.appendChild(toastContainer);
+                setTimeout(() => { if (toastContainer.parentNode) toastContainer.parentNode.removeChild(toastContainer); }, 5000);
             }
-
-            function escapeHtml(unsafe) {
-                return (unsafe || '')
-                    .replace(/&/g, '&amp;')
-                    .replace(/</g, '<')
-                    .replace(/>/g, '>')
-                    .replace(/"/g, '"')
-                    .replace(/'/g, '&#039;');
-            }
-            document.getElementById("status-filter").addEventListener("change", applyFilters);
         </script>
     </x-slot:scripts>
 </x-layouts.admin>

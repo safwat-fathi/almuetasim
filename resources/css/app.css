@@ -13,4 +13,25 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 				--font-tajawal: 'Tajawal', 'Arial', sans-serif;
+    
+    /* Water-themed colors */
+    --color-primary: #2d3b61;
+    --color-primary-content: #ffffff;
+    --color-secondary: #76898f;
+    --color-secondary-content: #ffffff;
+    --color-accent: #4a6b7a;
+    --color-accent-content: #ffffff;
+    --color-base-100: #f8fafc;
+    --color-base-200: #e2e8f0;
+    --color-base-300: #cbd5e1;
+    --color-base-content: #1e293b;
+    --color-info: #0ea5e9;
+    --color-success: #10b981;
+    --color-warning: #f59e0b;
+    --color-error: #ef4444;
+}
+
+/* Custom hero gradient (used on homepage). Use .hero.hero-gradient to override DaisyUI's .hero if present */
+.hero.hero-gradient {
+  background: linear-gradient(90deg, #3c59a7 0%, #76898f 100%);
 }

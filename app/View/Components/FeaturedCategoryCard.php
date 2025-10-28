@@ -12,12 +12,12 @@ class FeaturedCategoryCard extends Component
 	 * Create a new component instance.
 	 */
 	public function __construct(
-		public string $icon,
-		public string $title,
-		public string $description,
-		public string $slug
+		public ?string $icon = null,
+		public string $title = '',
+		public string $description = '',
+		public string $slug = ''
 	) {
-		//
+		// allow optional icon for automatic mapping in the view
 	}
 
 	/**

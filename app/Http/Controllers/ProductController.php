@@ -45,7 +45,21 @@ class ProductController extends Controller
 		
 		$products = $query->orderBy('created_at', 'desc')->paginate(10);
 		$categories = Category::all();
-		
+
+		// If the client expects JSON (AJAX), return structured JSON for client-side rendering
+		if ($request->wantsJson()) {
+			$products->load('category');
+			return response()->json([
+				'products' => $products->items(),
+				'pagination' => [
+					'current_page' => $products->currentPage(),
+					'last_page' => $products->lastPage(),
+					'per_page' => $products->perPage(),
+					'total' => $products->total(),
+				]
+			]);
+		}
+
 		return view('admin.products.index', compact('products', 'categories'));
 	}
 
@@ -122,6 +136,8 @@ class ProductController extends Controller
 		}
 
 		$product = Product::create($data);
+		// Load relationships
+		$product->load('category');
 
 		if ($request->wantsJson()) {
 			return response()->json([
@@ -167,6 +183,14 @@ class ProductController extends Controller
 		$data['images'] = json_decode($request->images ?? '[]', true);
 
 		$product->update($data);
+		$product->refresh()->load('category');
+
+		if ($request->wantsJson()) {
+			return response()->json([
+				'message' => 'Product updated successfully',
+				'product' => $product
+			]);
+		}
 
 		return redirect()->route('admin.products.index')->with('success', 'Product updated successfully!');
 	}
@@ -179,6 +203,10 @@ class ProductController extends Controller
 		$product = Product::findOrFail($id);
 		$product->delete();
 
+		if (request()->wantsJson()) {
+			return response()->json(['message' => 'Product deleted successfully']);
+		}
+
 		return redirect()->route('admin.products.index')->with('success', 'Product deleted successfully!');
 	}
 
@@ -190,6 +218,54 @@ class ProductController extends Controller
 		// Redirect to index with parameters for consistency
 		return redirect()->route('admin.products.index', [
 			'search' => $request->input('q'),
+		]);
+	}
+
+	/**
+	 * Public products endpoint for AJAX on the homepage.
+	 */
+	public function publicIndex(Request $request)
+	{
+		$query = Product::with('category');
+
+		if ($request->has('search') && $request->search) {
+			$searchTerm = $request->search;
+			$query->where('title', 'LIKE', "%{$searchTerm}%");
+		}
+
+		if ($request->has('category') && $request->category) {
+			$query->where('category_id', $request->category);
+		}
+
+		// Support a simple `sort` parameter for the public listing
+		// allowed values: featured (default), price_asc, price_desc, newest
+		$sort = $request->get('sort');
+		switch ($sort) {
+			case 'price_asc':
+				$query->orderBy('price', 'asc');
+				break;
+			case 'price_desc':
+				$query->orderBy('price', 'desc');
+				break;
+			case 'newest':
+				$query->orderBy('created_at', 'desc');
+				break;
+			case 'featured':
+			default:
+				// No special featured flag available, fallback to newest
+				$query->orderBy('created_at', 'desc');
+				break;
+		}
+
+		$products = $query->limit(20)->get();
+
+		if ($request->wantsJson()) {
+			return response()->json(['products' => $products]);
+		}
+
+		return view('home', [
+			'products' => $products,
+			'categories' => Category::limit(4)->get(),
 		]);
 	}
 }

@@ -19,6 +19,9 @@ Route::get('/category/{categorySlug}', [CategoryController::class, 'showPublic']
 
 Route::get('/product/{productSlug}', [ProductController::class, 'show'])->name('product.show');
 
+// Public products endpoint (for AJAX search/filter on homepage)
+Route::get('/products', [ProductController::class, 'publicIndex'])->name('products.public.index');
+
 // Wishlist routes
 Route::post('/wishlist/add/{productId}', function ($productId) {
 	$wishlist = session()->get('wishlist', []);

@@ -1,5 +1,6 @@
 .hero-gradient {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    /* custom hero gradient used on home page */
+    background: linear-gradient(90deg, #3c59a7 0%, #76898f 100%); /* from-[#3c59a7] to-[#76898f] */
 }
 .image-zoom {
     transition: transform 0.3s ease;

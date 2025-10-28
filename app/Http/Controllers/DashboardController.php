@@ -28,10 +28,7 @@ class DashboardController extends Controller
 
         // Apply search filter
         if ($request->has('search') && !empty($request->search)) {
-            $query->where(function($q) use ($request) {
-                $q->where('title', 'like', '%' . $request->search . '%')
-                  ->orWhere('sku', 'like', '%' . $request->search . '%');
-            });
+            $query->where('title', 'like', '%' . $request->search . '%');
         }
 
         // Apply category filter
@@ -66,10 +63,7 @@ class DashboardController extends Controller
 
         // Apply search filter
         if ($request->has('search') && !empty($request->search)) {
-            $query->where(function($q) use ($request) {
-                $q->where('title', 'like', '%' . $request->search . '%')
-                  ->orWhere('sku', 'like', '%' . $request->search . '%');
-            });
+            $query->where('title', 'like', '%' . $request->search . '%');
         }
 
         // Apply category filter
@@ -99,7 +93,6 @@ class DashboardController extends Controller
                 return [
                     'id' => $product->id,
                     'title' => $product->title,
-                    'sku' => $product->sku,
                     'category' => $product->category ? $product->category->name : 'غير مصنف',
                     'price' => number_format($product->price, 2),
                     'stock' => $product->stock,

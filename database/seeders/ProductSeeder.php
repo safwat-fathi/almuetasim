@@ -15,7 +15,6 @@ class ProductSeeder extends Seeder
 		
 		DB::table('products')->insert([
 			[
-				'sku' => 'WF-001',
 				'title' => 'نظام تنقية مياه 7 مراحل',
 				'slug' => Str::slug('نظام تنقية مياه 7 مراحل'),
 				'description' => 'نظام تنقية مياه منزلي متكامل مكون من 7 مراحل تنقية.',
@@ -31,7 +30,6 @@ class ProductSeeder extends Seeder
 				'updated_at' => now(),
 			],
 			[
-				'sku' => 'RF-101',
 				'title' => 'فلتر الكربون الاستبدالي',
 				'slug' => Str::slug('فلتر الكربون الاستبدالي'),
 				'description' => 'فلتر كربون عالي الجودة لإزالة الكلور والروائح.',
@@ -47,7 +45,6 @@ class ProductSeeder extends Seeder
 				'updated_at' => now(),
 			],
 			[
-				'sku' => 'RF-102',
 				'title' => 'فلتر الرواسب',
 				'slug' => Str::slug('فلتر الرواسب'),
 				'description' => 'يزيل الغبار والصدأ والجسيمات الأخرى من الماء.',
@@ -63,7 +60,6 @@ class ProductSeeder extends Seeder
 				'updated_at' => now(),
 			],
 			[
-				'sku' => 'RF-103',
 				'title' => 'فلتر UV',
 				'slug' => Str::slug('فلتر UV'),
 				'description' => 'يحمي الماء من أضرار الأشعة فوق البنفسجية والبكتيريا.',
@@ -79,7 +75,6 @@ class ProductSeeder extends Seeder
 				'updated_at' => now(),
 			],
 			[
-				'sku' => 'RF-104',
 				'title' => 'فلتر الكلور',
 				'slug' => Str::slug('فلتر الكلور'),
 				'description' => 'يزيل الكلور من الماء.',
@@ -95,7 +90,6 @@ class ProductSeeder extends Seeder
 				'updated_at' => now(),
 			],
 			[
-				'sku' => 'SRV-INST-01',
 				'title' => 'خدمة تركيب نظام تنقية',
 				'slug' => Str::slug('خدمة تركيب نظام تنقية'),
 				'description' => 'خدمة تركيب احترافية لأنظمة تنقية المياه.',
@@ -111,7 +105,6 @@ class ProductSeeder extends Seeder
 				'updated_at' => now(),
 			],
 			[
-				'sku' => 'SRV-MAINT-01',
 				'title' => 'خدمة صيانة دورية',
 				'slug' => Str::slug('خدمة صيانة دورية'),
 				'description' => 'خدمة صيانة دورية لأنظمة تنقية المياه.',

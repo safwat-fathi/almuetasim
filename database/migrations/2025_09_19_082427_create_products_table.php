@@ -13,7 +13,6 @@ return new class extends Migration
 	{
 		Schema::create('products', function (Blueprint $table) {
 			$table->id();
-			$table->string('sku')->unique();
 			$table->string('title');
 			$table->text('description')->nullable();
 			$table->json('specs')->nullable(); // e.g. {"type":"RO","flow_lph":200}

@@ -17,6 +17,12 @@
                 </a>
             </li>
             <li>
+                <a href="/" target="_blank">
+                    <i data-lucide="home" class="w-5 h-5"></i>
+                    الموقع الرئيسي
+                </a>
+            </li>
+            <li>
                 <a href="{{ route('admin.products.index') }}" @if(request()->routeIs('admin.products.*')) class="active" @endif>
                     <i data-lucide="package" class="w-5 h-5"></i>
                     المنتجات

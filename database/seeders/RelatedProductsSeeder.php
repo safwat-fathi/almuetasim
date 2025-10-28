@@ -13,67 +13,67 @@ class RelatedProductsSeeder extends Seeder
      */
     public function run(): void
     {
-        // Get product IDs by SKU for easy referencing
-        $productIds = DB::table('products')->pluck('id', 'sku')->toArray();
+        // Get product IDs by title for easy referencing
+        $productIds = DB::table('products')->pluck('id', 'title')->toArray();
         
         // Define related products relationships
         // Water purification system related to its compatible replacement filters
         $relatedProducts = [
-            // Water purification system (WF-001) is related to replacement filters
+            // Water purification system is related to replacement filters
             [
-                'product_id' => $productIds['WF-001'],
-                'related_product_id' => $productIds['RF-101'],
+                'product_id' => $productIds['نظام تنقية مياه 7 مراحل'],
+                'related_product_id' => $productIds['فلتر الكربون الاستبدالي'],
             ],
             [
-                'product_id' => $productIds['WF-001'],
-                'related_product_id' => $productIds['RF-102'],
+                'product_id' => $productIds['نظام تنقية مياه 7 مراحل'],
+                'related_product_id' => $productIds['فلتر الرواسب'],
             ],
             [
-                'product_id' => $productIds['WF-001'],
-                'related_product_id' => $productIds['RF-103'],
+                'product_id' => $productIds['نظام تنقية مياه 7 مراحل'],
+                'related_product_id' => $productIds['فلتر UV'],
             ],
             [
-                'product_id' => $productIds['WF-001'],
-                'related_product_id' => $productIds['RF-104'],
+                'product_id' => $productIds['نظام تنقية مياه 7 مراحل'],
+                'related_product_id' => $productIds['فلتر الكلور'],
             ],
             // Related filters are also related to each other
             [
-                'product_id' => $productIds['RF-101'],
-                'related_product_id' => $productIds['RF-102'],
+                'product_id' => $productIds['فلتر الكربون الاستبدالي'],
+                'related_product_id' => $productIds['فلتر الرواسب'],
             ],
             [
-                'product_id' => $productIds['RF-101'],
-                'related_product_id' => $productIds['RF-103'],
+                'product_id' => $productIds['فلتر الكربون الاستبدالي'],
+                'related_product_id' => $productIds['فلتر UV'],
             ],
             [
-                'product_id' => $productIds['RF-101'],
-                'related_product_id' => $productIds['RF-104'],
+                'product_id' => $productIds['فلتر الكربون الاستبدالي'],
+                'related_product_id' => $productIds['فلتر الكلور'],
             ],
             [
-                'product_id' => $productIds['RF-102'],
-                'related_product_id' => $productIds['RF-101'],
+                'product_id' => $productIds['فلتر الرواسب'],
+                'related_product_id' => $productIds['فلتر الكربون الاستبدالي'],
             ],
             [
-                'product_id' => $productIds['RF-102'],
-                'related_product_id' => $productIds['RF-103'],
+                'product_id' => $productIds['فلتر الرواسب'],
+                'related_product_id' => $productIds['فلتر UV'],
             ],
             [
-                'product_id' => $productIds['RF-102'],
-                'related_product_id' => $productIds['RF-104'],
+                'product_id' => $productIds['فلتر الرواسب'],
+                'related_product_id' => $productIds['فلتر الكلور'],
             ],
             // Services related to water purification system
             [
-                'product_id' => $productIds['WF-001'],
-                'related_product_id' => $productIds['SRV-INST-01'],
+                'product_id' => $productIds['نظام تنقية مياه 7 مراحل'],
+                'related_product_id' => $productIds['خدمة تركيب نظام تنقية'],
             ],
             [
-                'product_id' => $productIds['WF-001'],
-                'related_product_id' => $productIds['SRV-MAINT-01'],
+                'product_id' => $productIds['نظام تنقية مياه 7 مراحل'],
+                'related_product_id' => $productIds['خدمة صيانة دورية'],
             ],
             // Maintenance service related to installation service
             [
-                'product_id' => $productIds['SRV-INST-01'],
-                'related_product_id' => $productIds['SRV-MAINT-01'],
+                'product_id' => $productIds['خدمة تركيب نظام تنقية'],
+                'related_product_id' => $productIds['خدمة صيانة دورية'],
             ],
         ];
         

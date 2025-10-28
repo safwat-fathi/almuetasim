@@ -20,7 +20,6 @@ class ProductTest extends TestCase
         $product = Product::create([
             'title' => 'Test Product',
             'slug' => 'test-product',
-            'sku' => 'TP001',
             'type' => 'product',
             'category_id' => $category->id,
             'price' => 10.99
@@ -31,7 +30,6 @@ class ProductTest extends TestCase
         $service = Product::create([
             'title' => 'Test Service',
             'slug' => 'test-service',
-            'sku' => 'TS001',
             'type' => 'service',
             'category_id' => $category->id,
             'price' => 49.99
@@ -50,7 +48,6 @@ class ProductTest extends TestCase
         $product1 = Product::create([
             'title' => 'Main Product',
             'slug' => 'main-product',
-            'sku' => 'MP001',
             'type' => 'product',
             'category_id' => $category->id,
             'price' => 29.99
@@ -59,7 +56,6 @@ class ProductTest extends TestCase
         $product2 = Product::create([
             'title' => 'Related Product 1',
             'slug' => 'related-product-1',
-            'sku' => 'RP001',
             'type' => 'product',
             'category_id' => $category->id,
             'price' => 19.99
@@ -68,7 +64,6 @@ class ProductTest extends TestCase
         $product3 = Product::create([
             'title' => 'Related Product 2',
             'slug' => 'related-product-2',
-            'sku' => 'RP002',
             'type' => 'product',
             'category_id' => $category->id,
             'price' => 39.99

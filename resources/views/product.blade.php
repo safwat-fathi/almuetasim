@@ -335,7 +335,6 @@
 
                     <h3>Product Details:</h3>
                     <ul>
-                        <li>SKU: {{ $product->sku }}</li>
                         <li>Category: {{ $product->category->name }}</li>
                         @if ($product->is_part)
                         <li>This is a replacement part/accessory</li>
@@ -360,10 +359,6 @@
                     <div>
                         <h3 class="font-bold text-lg mb-4">Product Specifications</h3>
                         <div class="space-y-2">
-                            <div class="flex justify-between border-b pb-1">
-                                <span class="font-medium">SKU:</span>
-                                <span>{{ $product->sku }}</span>
-                            </div>
                             <div class="flex justify-between border-b pb-1">
                                 <span class="font-medium">Category:</span>
                                 <span>{{ $product->category->name }}</span>

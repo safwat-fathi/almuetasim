@@ -89,7 +89,7 @@ class Product extends Model
 		}]);
 	}
 
-	protected $fillable = ['sku', 'title', 'slug', 'description', 'specs', 'price', 'stock', 'is_part', 'warranty_months', 'images', 'category_id', 'type'];
+	protected $fillable = ['title', 'slug', 'description', 'specs', 'price', 'stock', 'is_part', 'warranty_months', 'images', 'category_id', 'type'];
 
 	/**
 	 * Boot the model.

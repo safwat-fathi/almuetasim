@@ -70,7 +70,6 @@
                                                     </div>
                                                     <div>
                                                         <div class="font-bold">{{ $product->title }}</div>
-                                                        <div class="text-sm opacity-50">{{ $product->sku }}</div>
                                                     </div>
                                                 </div>
                                             </td>
@@ -136,11 +135,6 @@
                         
                         <input type="text" class="input input-bordered" :class="{ 'input-error': errors.name }" x-model="formData.name" placeholder="اسم المنتج" />
                         <label class="label"><span class="label-text-alt text-error" x-show="errors.name" x-text="errors.name"></span></label>
-                    </div>
-                    <div class="form-control">
-                        
-                        <input type="text" class="input input-bordered" :class="{ 'input-error': errors.sku }" x-model="formData.sku" placeholder="SKU رمز المنتج" />
-                        <label class="label"><span class="label-text-alt text-error" x-show="errors.sku" x-text="errors.sku"></span></label>
                     </div>
                 </div>
 
@@ -241,7 +235,7 @@
                     imageFile: null, // Add image file property
                     imageFiles: [], // Array to store multiple files
                     formData: {
-                        name: '', sku: '', description: '', price: '', stock: '',
+                        name: '', description: '', price: '', stock: '',
                         category_id: '', active: true
                     },
                     errors: {},
@@ -257,7 +251,7 @@
                     },
                     resetForm() {
                         this.formData = {
-                            name: '', sku: '', description: '', price: '', stock: '',
+                            name: '', description: '', price: '', stock: '',
                             category_id: '', active: true
                         };
                         this.imageFile = null; // Also reset image file
@@ -326,7 +320,6 @@
                         
                         // Validate required fields
                         if (!this.formData.name) this.errors.name = 'Product name is required';
-                        if (!this.formData.sku) this.errors.sku = 'SKU is required';
                         if (!this.formData.price) this.errors.price = 'Price is required';
                         if (!this.formData.stock) this.errors.stock = 'Stock quantity is required';
                         if (!this.formData.category_id) this.errors.category_id = 'Category is required';
@@ -342,7 +335,6 @@
                             // Create FormData object to handle file uploads
                             const formData = new FormData();
                             formData.append('title', this.formData.name);  // Backend expects 'title' not 'name'
-                            formData.append('sku', this.formData.sku);
                             formData.append('description', this.formData.description);
                             formData.append('price', this.formData.price);
                             formData.append('stock', this.formData.stock);

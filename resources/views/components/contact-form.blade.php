@@ -84,7 +84,7 @@
                     @enderror
                 </div>
                 <div>
-                    <button type="submit" class="btn btn-lg w-full text-white bg-primary hover:bg-primary-900 flex items-center justify-center gap-2">
+                    <button type="submit" class="btn btn-lg w-full text-white bg-[#2d3b61] hover:bg-[#1e293b] flex items-center justify-center gap-2 transition-colors duration-200">
                         <i data-lucide="send" class="w-5 h-5"></i>
                         إرسال الرسالة
                     </button>

@@ -33,13 +33,13 @@
             @foreach ($categories as $category)
                 <li><a href="{{ route('category.show', $category) }}"
                         @class([
-                            'hover:text-white' => request()->route()->parameter('categorySlug') != $category->slug,
+                            'text-base-content hover:text-white' => request()->route()->parameter('categorySlug') != $category->slug,
                             'text-white' =>
                                 request()->route()->parameter('categorySlug') == $category->slug,
                         ])
                         style="background-color: {{ request()->route()->parameter('categorySlug') == $category->slug ? '#2d3b61' : 'transparent' }};"
                         onmouseover="this.style.backgroundColor='#2d3b61'; this.style.color='white';"
-                        onmouseout="this.style.backgroundColor='{{ request()->route()->parameter('categorySlug') == $category->slug ? '#2d3b61' : 'transparent' }}'; this.style.color='{{ request()->route()->parameter('categorySlug') == $category->slug ? 'white' : 'inherit' }}';"
+                        onmouseout="this.style.backgroundColor='{{ request()->route()->parameter('categorySlug') == $category->slug ? '#2d3b61' : 'transparent' }}'; this.style.color='{{ request()->route()->parameter('categorySlug') == $category->slug ? 'white' : '#374151' }}';"
                         >
                         <i data-lucide="{{ $category->icon ?? 'box' }}" class="w-4 h-4"></i>
                         {{ $category->name }}

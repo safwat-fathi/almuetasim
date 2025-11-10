@@ -80,7 +80,7 @@ jobs:
             # Permissions required by Laravel
             chmod -R ug+rwX storage bootstrap/cache 2>/dev/null || true
 
-            # Ensure storage symlink exists
+            # Ensure public/storage symlink exists (exposes storage/app/public)
             if [ ! -L public/storage ]; then
               php artisan storage:link || true
             fi
@@ -98,8 +98,8 @@ jobs:
 
             # For shared-hosting style root document root, expose public assets at root via symlinks
             if [ -f index.php ] && [ -d public ]; then
-              # Replace any stale real directories with symlinks so uploads don’t go out-of-sync
-              for p in build images storage uploads; do
+              # Replace any stale real directories with symlinks (DO NOT touch core storage dir)
+              for p in build images uploads; do
                 if [ -d "$p" ] && [ ! -L "$p" ]; then
                   rm -rf "$p"
                 fi
@@ -107,12 +107,24 @@ jobs:
 
               ln -sfn public/build build || true
               ln -sfn public/images images || true
-              ln -sfn public/storage storage || true
 
               # Map legacy /uploads/* URLs to /storage/uploads/*
               if [ -d public/storage/uploads ] || [ -L public/storage ]; then
                 ln -sfn storage/uploads uploads || true
               fi
+            fi
+
+            # SAFETY: If storage/ at project root was mistakenly converted to a symlink, repair it
+            if [ -L storage ]; then
+              echo "Repairing root storage directory (was a symlink)…"
+              rm -f storage
+              mkdir -p storage/app/public \
+                       storage/framework/cache \
+                       storage/framework/sessions \
+                       storage/framework/views \
+                       storage/logs
+              chmod -R ug+rwX storage || true
+              php artisan storage:link || true
             fi
 
             # Remove any Vite dev-server markers

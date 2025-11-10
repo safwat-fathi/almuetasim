@@ -235,7 +235,7 @@ ssh -p "$DEPLOY_PORT" "${DEPLOY_USER}@${DEPLOY_HOST}" bash -lc "
   find . -maxdepth 2 -name '*.php' -type f -mmin -10 2>/dev/null | head -10 || true
 "
 
-echo ""
+echo " "
 echo "Deploy completed. If changes still don't appear, check:"
 echo "  1. Browser cache (hard refresh with Ctrl+Shift+R)"
 echo "  2. Hostinger cache panel"

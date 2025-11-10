@@ -107,8 +107,26 @@ jobs:
               fi
             fi
 
-            # Run database migrations and optimize caches
+            # Remove any Vite dev-server markers
+            rm -f public/hot hot 2>/dev/null || true
+
+            # Run database migrations
             php artisan migrate --force || true
+
+            # Thoroughly clear all caches to avoid stale manifest/view assets
+            php artisan cache:clear || true
+            php artisan config:clear || true
+            php artisan route:clear || true
+            php artisan view:clear || true
+
+            # Remove cached files as a fallback
+            rm -f bootstrap/cache/config.php || true
+            rm -f bootstrap/cache/routes-*.php || true
+            rm -f bootstrap/cache/services.php || true
+            rm -f bootstrap/cache/packages.php || true
+            rm -rf storage/framework/views/* 2>/dev/null || true
+
+            # Rebuild caches
             php artisan optimize || true
             php artisan config:cache || true
             php artisan route:cache || true

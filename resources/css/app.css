@@ -1,0 +1,174 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+ @plugin "daisyui" {
+   themes: light --default
+ }
+
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+				--font-tajawal: 'Tajawal', 'Arial', sans-serif;
+    
+    /* Water-themed colors - Enhanced */
+    --color-primary: #1e40af;
+    --color-primary-content: #ffffff;
+    --color-secondary: #64748b;
+    --color-secondary-content: #ffffff;
+    --color-accent: #3b82f6;
+    --color-accent-content: #ffffff;
+    --color-base-100: #ffffff;
+    --color-base-200: #f1f5f9;
+    --color-base-300: #e2e8f0;
+    --color-base-content: #0f172a;
+    --color-info: #0ea5e9;
+    --color-success: #10b981;
+    --color-warning: #f59e0b;
+    --color-error: #ef4444;
+}
+
+/* Custom hero gradient (used on homepage). Use .hero.hero-gradient to override DaisyUI's .hero if present */
+.hero.hero-gradient {
+  background: linear-gradient(90deg, #3c59a7 0%, #76898f 100%);
+}
+
+/* Loading state for products grid */
+#products-grid[data-loading="true"] {
+  opacity: 0.6;
+  position: relative;
+}
+#products-grid[data-loading="true"]::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.4);
+  background-image: linear-gradient(90deg, rgba(255,255,255,0.0), rgba(255,255,255,0.08), rgba(255,255,255,0.0));
+  animation: shimmer 1.2s infinite linear;
+}
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* List view: professional flex-row layout */
+.list-view {
+  display: block;
+}
+.list-view > * {
+  width: 100%;
+}
+.list-view .card {
+  background: transparent;
+  box-shadow: none;
+}
+.list-view .card > a {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  background: var(--color-base-100);
+  border: 1px solid rgba(30,41,59,0.06);
+}
+.list-view .card > a:hover {
+  box-shadow: 0 6px 18px rgba(30,41,59,0.06);
+}
+.list-view .card > a figure {
+  flex: 0 0 140px;
+  width: 140px;
+  height: 100px;
+  margin: 0;
+  overflow: hidden;
+  border-radius: 0.35rem;
+}
+.list-view .card > a figure img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.list-view .card > a .card-body {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  width: 100%;
+  padding: 0;
+}
+.list-view .card > a .card-body > :not(.price-actions) {
+  flex: 1 1 auto;
+}
+.list-view .card > a .card-body .price-actions {
+  flex: 0 0 160px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+.list-view .card > a .card-body .price-actions .price {
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+.list-view .card + .card {
+  margin-top: 0.75rem;
+}
+
+@media (max-width: 768px) {
+  .list-view .card > a {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .list-view .card > a figure {
+    width: 100%;
+    height: 200px;
+    flex: none;
+  }
+  .list-view .card > a .card-body {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .list-view .card > a .card-body .price-actions {
+    align-items: flex-start;
+    width: 100%;
+    margin-top: 0.5rem;
+  }
+}
+
+/* Global site color overrides to match the homepage palette */
+:root {
+  --site-primary: var(--color-primary);
+  --site-primary-content: var(--color-primary-content);
+}
+
+/* Make page background and base text follow theme variables (keeps DaisyUI behavior) */
+body {
+  background-color: var(--color-base-100);
+  color: var(--color-base-content);
+}
+
+/* Headings should use the same primary color as the homepage */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--site-primary);
+}
+
+/* Links and any element using .text-primary should match the primary color */
+.text-primary {
+  color: var(--site-primary);
+}
+a:hover, .text-primary:hover {
+  opacity: 0.9;
+}
+
+/* Primary buttons (DaisyUI .btn-primary) should use the same site primary */
+.btn.btn-primary, .btn-primary {
+  background-color: var(--site-primary) !important;
+  border-color: var(--site-primary) !important;
+  color: var(--site-primary-content) !important;
+}
+
+/* Ensure the hero gradient uses the same variables so colors stay consistent */
+.hero.hero-gradient {
+  background: linear-gradient(90deg, var(--site-primary) 0%, var(--color-accent) 100%);
+}

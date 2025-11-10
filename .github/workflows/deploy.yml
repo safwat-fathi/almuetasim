@@ -37,6 +37,8 @@ jobs:
           rm -rf node_modules tests .git .github
           # Do not package a local SQLite DB; keep server DB intact
           rm -f database/database.sqlite || true
+          # Never upload local .env to the server
+          rm -f .env || true
 
       - name: Pre-deploy backup SQLite DB (safety)
         uses: appleboy/ssh-action@v1.2.0
@@ -88,6 +90,18 @@ jobs:
             if [ ! -f .env ]; then
               echo ".env not found. Creating from .env.example…"
               cp .env.example .env
+            fi
+
+            # Ensure Arabic locale by default
+            if grep -q '^APP_LOCALE=' .env; then
+              sed -i.bak 's/^APP_LOCALE=.*/APP_LOCALE=ar/' .env || true
+            else
+              echo 'APP_LOCALE=ar' >> .env
+            fi
+            if grep -q '^APP_FALLBACK_LOCALE=' .env; then
+              sed -i.bak 's/^APP_FALLBACK_LOCALE=.*/APP_FALLBACK_LOCALE=ar/' .env || true
+            else
+              echo 'APP_FALLBACK_LOCALE=ar' >> .env
             fi
 
             # Generate APP_KEY if missing or empty

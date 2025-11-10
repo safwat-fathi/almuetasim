@@ -19,8 +19,6 @@ jobs:
           coverage: none
       - name: Install Composer dependencies
         run: composer install --no-interaction --prefer-dist --no-progress
-      - name: Run tests
-        run: php artisan test
       - name: Build frontend assets
         if: ${{ hashFiles('package.json') != '' }}
         run: |

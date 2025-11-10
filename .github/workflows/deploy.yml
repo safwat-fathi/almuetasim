@@ -35,6 +35,25 @@ jobs:
       - name: Clean deploy ignores
         run: |
           rm -rf node_modules tests .git .github
+          # Do not package a local SQLite DB; keep server DB intact
+          rm -f database/database.sqlite || true
+
+      - name: Pre-deploy backup SQLite DB (safety)
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.HOSTINGER_HOST }}
+          username: ${{ secrets.HOSTINGER_USER }}
+          port: ${{ secrets.HOSTINGER_PORT }}
+          password: ${{ secrets.HOSTINGER_PASSWORD }}
+          script: |
+            set -e
+            if [ -f "${{ secrets.HOSTINGER_PATH }}/database/database.sqlite" ]; then
+              ts=$(date +%Y%m%d%H%M%S)
+              cp "${{ secrets.HOSTINGER_PATH }}/database/database.sqlite" "${{ secrets.HOSTINGER_PATH }}/database/database.sqlite.$ts.bak"
+              echo "Backed up SQLite to database/database.sqlite.$ts.bak"
+            else
+              echo "No existing SQLite DB to backup."
+            fi
       - name: Upload via SCP (SSH key auth)
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -126,6 +145,14 @@ jobs:
               chmod -R ug+rwX storage || true
               php artisan storage:link || true
             fi
+
+            # Ensure SQLite DB exists (first deploy) and has proper permissions; do not overwrite existing
+            if [ ! -f database/database.sqlite ]; then
+              echo "No SQLite DB found, creating empty database file…"
+              mkdir -p database
+              touch database/database.sqlite
+            fi
+            chmod 664 database/database.sqlite 2>/dev/null || true
 
             # Remove any Vite dev-server markers
             rm -f public/hot hot 2>/dev/null || true

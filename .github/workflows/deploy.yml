@@ -96,6 +96,17 @@ jobs:
               fi
             fi
 
+            # For shared-hosting style root document root, expose public assets at root via symlinks
+            if [ -f index.php ] && [ -d public ]; then
+              ln -sfn public/build build 2>/dev/null || true
+              ln -sfn public/images images 2>/dev/null || true
+              ln -sfn public/storage storage 2>/dev/null || true
+              # Map legacy /uploads/* URLs to /storage/uploads/*
+              if [ -d public/storage/uploads ] || [ -L public/storage ]; then
+                ln -sfn storage/uploads uploads 2>/dev/null || true
+              fi
+            fi
+
             # Run database migrations and optimize caches
             php artisan migrate --force || true
             php artisan optimize || true

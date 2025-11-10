@@ -98,12 +98,20 @@ jobs:
 
             # For shared-hosting style root document root, expose public assets at root via symlinks
             if [ -f index.php ] && [ -d public ]; then
-              ln -sfn public/build build 2>/dev/null || true
-              ln -sfn public/images images 2>/dev/null || true
-              ln -sfn public/storage storage 2>/dev/null || true
+              # Replace any stale real directories with symlinks so uploads don’t go out-of-sync
+              for p in build images storage uploads; do
+                if [ -d "$p" ] && [ ! -L "$p" ]; then
+                  rm -rf "$p"
+                fi
+              done
+
+              ln -sfn public/build build || true
+              ln -sfn public/images images || true
+              ln -sfn public/storage storage || true
+
               # Map legacy /uploads/* URLs to /storage/uploads/*
               if [ -d public/storage/uploads ] || [ -L public/storage ]; then
-                ln -sfn storage/uploads uploads 2>/dev/null || true
+                ln -sfn storage/uploads uploads || true
               fi
             fi
 

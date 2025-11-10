@@ -85,6 +85,17 @@ jobs:
               php artisan storage:link || true
             fi
 
+            # If document root is the project root (shared hosting),
+            # ensure a correct root-level index.php exists that points to ./vendor and ./bootstrap
+            if [ -f index.php ] && [ -d public ]; then
+              if grep -q "__DIR__.'/../vendor/autoload.php'" index.php 2>/dev/null; then
+                echo "Fixing root index.php paths for shared hosting…"
+                # Build index.php by transforming public/index.php paths ../ -> ./
+                php -r "file_put_contents('index.php', str_replace(\"__DIR__.'/../\", \"__DIR__.'/\", file_get_contents('public/index.php')));"
+                chmod 644 index.php || true
+              fi
+            fi
+
             # Run database migrations and optimize caches
             php artisan migrate --force || true
             php artisan optimize || true

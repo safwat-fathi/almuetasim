@@ -93,17 +93,18 @@ class ProductController extends Controller
 	{
         $validationData = $request->all();
 		
-		$rules = [
-			'title' => 'required|string|max:255',
-			'description' => 'required|string',
-			'specs' => 'nullable|json',
-			'price' => 'required|numeric|min:0',
-			'stock' => 'required|integer|min:0',
-			'is_part' => 'required|boolean',
-			'warranty_months' => 'required|integer|min:0',
-			'category_id' => 'nullable|exists:categories,id',
-			'type' => 'required|in:product,service',
-		];
+        $rules = [
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'specs' => 'nullable|json',
+            'price' => 'required|numeric|min:0',
+            'discount' => 'nullable|integer|min:0|max:100',
+            'stock' => 'required|integer|min:0',
+            'is_part' => 'required|boolean',
+            'warranty_months' => 'required|integer|min:0',
+            'category_id' => 'nullable|exists:categories,id',
+            'type' => 'required|in:product,service',
+        ];
 		
 		// Conditionally add image validation only if files are validly uploaded
 		if ($request->hasFile('images')) {
@@ -197,6 +198,7 @@ class ProductController extends Controller
             'description' => 'required|string',
             'specs' => 'nullable|json',
             'price' => 'required|numeric|min:0',
+            'discount' => 'nullable|integer|min:0|max:100',
             'stock' => 'required|integer|min:0',
             'is_part' => 'required|boolean',
             'warranty_months' => 'required|integer|min:0',

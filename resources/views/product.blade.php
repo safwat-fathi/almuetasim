@@ -47,10 +47,9 @@
                         :style="zoomStyle"
                         :class="zoomed ? 'cursor-zoom-out' : 'cursor-zoom-in'"
                         class="w-full h-full object-cover transition-transform duration-200 ease-out" />
-                    @if ($product->price < 1000)
-                        {{-- Simple discount logic for demo --}}
+                    @if (!empty($product->discount) && $product->discount > 0)
                         <div class="badge badge-secondary absolute top-4 left-4">
-                            {{ round((1000 - $product->price) / 10) }}% OFF
+                            {{ $product->discount }}% OFF
                         </div>
                     @endif
                 </div>
@@ -94,12 +93,15 @@
                     </div>
 
                     <!-- Price -->
+                    @php
+                        $discount = (int) ($product->discount ?? 0);
+                        $finalPrice = $discount > 0 ? round(($product->price * (100 - $discount)) / 100, 2) : $product->price;
+                    @endphp
                     <div class="flex items-center gap-3 mb-6">
-                        <span class="text-3xl font-bold text-primary">@money($product->price)</span>
-                        @if ($product->price < 1000)
-                            {{-- Simple discount logic for demo --}}
-                            <span class="text-xl line-through text-base-content/50">@money(1000)</span>
-                            <span class="badge badge-secondary">وفر @money(1000 - $product->price)</span>
+                        <span class="text-3xl font-bold text-primary">@money($finalPrice)</span>
+                        @if ($discount > 0)
+                            <span class="text-xl line-through text-base-content/50">@money($product->price)</span>
+                            <span class="badge badge-secondary">خصم {{ $discount }}%</span>
                         @endif
                     </div>
                 </div>

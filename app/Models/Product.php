@@ -18,6 +18,7 @@ class Product extends Model
 			'specs' => 'array',
 			'is_part' => 'boolean',
 			'price' => 'decimal:2',
+			'discount' => 'integer',
 			'warranty_months' => 'integer',
 			'type' => 'string',
 		];
@@ -89,7 +90,7 @@ class Product extends Model
 		}]);
 	}
 
-protected $fillable = ['title', 'slug', 'description', 'specs', 'price', 'stock', 'is_part', 'warranty_months', 'images', 'category_id', 'type'];
+protected $fillable = ['title', 'slug', 'description', 'specs', 'price', 'discount', 'stock', 'is_part', 'warranty_months', 'images', 'category_id', 'type'];
 
 	/**
 	 * Boot the model.

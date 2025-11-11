@@ -55,6 +55,7 @@
                                         <th>المنتج</th>
                                         <th>الفئة</th>
                                         <th>السعر</th>
+                                        <th>الخصم</th>
                                         <th>الكمية</th>
                                         <th>الحالة</th>
                                         <th>الإجراءات</th>
@@ -80,6 +81,13 @@
                                                 <span class="badge badge-ghost">{{ $product->category->name ?? 'Uncategorized' }}</span>
                                             </td>
                                             <td>@money($product->price)</td>
+                                            <td>
+                                                @if (!empty($product->discount) && $product->discount > 0)
+                                                    <span class="badge badge-primary">{{ $product->discount }}%</span>
+                                                @else
+                                                    <span class="badge">0%</span>
+                                                @endif
+                                            </td>
                                             <td>{{ $product->stock }}</td>
                                             <td>
                                                 @if ($product->stock > 10)
@@ -106,7 +114,7 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="6" class="text-center py-8">
+                                            <td colspan="7" class="text-center py-8">
                                                 <p class="text-lg">لا توجد منتجات لعرضها حاليا</p>
                                             </td>
                                         </tr>
@@ -147,7 +155,7 @@
                     <textarea class="textarea textarea-bordered h-24 resize-none w-full" x-model="formData.description" placeholder="وصف المنتج"></textarea>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div class="form-control">
 
                         <input type="number" step="0.01" class="input input-bordered" :class="{ 'input-error': errors.price }" x-model="formData.price" placeholder="السعر" />
@@ -167,6 +175,11 @@
                             @endforeach
                         </select>
                         <label class="label"><span class="label-text-alt text-error" x-show="errors.category_id" x-text="errors.category_id"></span></label>
+                    </div>
+                    <div class="form-control">
+
+                        <input type="number" min="0" max="100" class="input input-bordered"  :class="{ 'input-error': errors.discount }" x-model.number="formData.discount" placeholder="الخصم (%)" />
+                        <label class="label"><span class="label-text-alt text-error" x-show="errors.discount" x-text="errors.discount"></span></label>
                     </div>
                 </div>
 
@@ -256,7 +269,7 @@
                     imageFiles: [], // Array to store multiple files
                     formData: {
                         name: '', description: '', price: '', stock: '',
-                        category_id: '', active: true
+                        category_id: '', discount: null, active: true
                     },
                     errors: {},
                     openModal() {
@@ -274,7 +287,7 @@
                     resetForm() {
                         this.formData = {
                             name: '', description: '', price: '', stock: '',
-                            category_id: '', active: true
+                            category_id: '', discount: null, active: true
                         };
                         this.imageFile = null; // Also reset image file
                         this.imageFiles = []; // Reset image files array
@@ -350,6 +363,7 @@
                             price: product.price ?? '',
                             stock: product.stock ?? '',
                             category_id: product.category_id ?? '',
+                            discount: (product.discount ?? null),
                             active: product.active ?? true,
                             id: product.id || null,
                         };
@@ -366,6 +380,7 @@
                         if (!this.formData.price) this.errors.price = 'Price is required';
                         if (!this.formData.stock) this.errors.stock = 'Stock quantity is required';
                         if (!this.formData.category_id) this.errors.category_id = 'Category is required';
+                        if (this.formData.discount < 0 || this.formData.discount > 100) this.errors.discount = 'Discount must be between 0 and 100';
 
                         // If there are validation errors, don't submit
                         if (Object.keys(this.errors).length > 0) {
@@ -382,6 +397,7 @@
                             formData.append('price', this.formData.price);
                             formData.append('stock', this.formData.stock);
                             formData.append('category_id', this.formData.category_id);
+                            formData.append('discount', (this.formData.discount === null || this.formData.discount === '') ? 0 : this.formData.discount);
                             formData.append('type', 'product');  // Default type
                             formData.append('specs', '[]');  // Default empty specs
                             formData.append('warranty_months', '0');  // Default warranty
@@ -447,6 +463,7 @@
                         if (!this.formData.price) this.errors.price = 'Price is required';
                         if (!this.formData.stock) this.errors.stock = 'Stock quantity is required';
                         if (!this.formData.category_id) this.errors.category_id = 'Category is required';
+                        if (this.formData.discount < 0 || this.formData.discount > 100) this.errors.discount = 'Discount must be between 0 and 100';
 
                         if (Object.keys(this.errors).length > 0) return;
 
@@ -459,6 +476,7 @@
                             formData.append('price', this.formData.price);
                             formData.append('stock', this.formData.stock);
                             formData.append('category_id', this.formData.category_id);
+                            formData.append('discount', (this.formData.discount === null || this.formData.discount === '') ? 0 : this.formData.discount);
                             formData.append('type', 'product');
                             formData.append('specs', '[]');
                             formData.append('warranty_months', '0');
@@ -718,6 +736,7 @@
                         </td>
                         <td><span class="badge badge-ghost">${escapeHtml(categoryName)}</span></td>
                         <td>${new Intl.NumberFormat('ar-EG', { style: 'currency', currency: 'EGP' }).format(Number(product.price))}</td>
+                        <td>${Number(product.discount || 0) > 0 ? `<span class=\"badge badge-primary\">${Number(product.discount)}%</span>` : '<span class=\"badge\">0%</span>'}</td>
                         <td>${product.stock}</td>
                         <td>${product.stock > 10 ? '<span class="badge badge-success">متاح</span>' : (product.stock > 0 ? '<span class="badge badge-warning">مخزون قليل</span>' : '<span class="badge badge-error">غير متاح</span>')}</td>
                         <td>

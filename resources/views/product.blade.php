@@ -563,9 +563,10 @@
                                 :image="$relatedProductImage"
                                 :title="$relatedProduct->title" 
                                 :price="$relatedProduct->price"
+                                :discount="$relatedProduct->discount ?? 0"
                                 :category="$relatedProduct->category->name ?? 'Uncategorized'"
                                 :type="$relatedProduct->type ?? 'product'"
-                                :on-sale="$relatedProduct->price < 1000"
+                                :on-sale="$relatedProduct->discount > 0"
 																:type="$relatedProduct->type"
 																 />
                         @endforeach

@@ -1,9 +1,17 @@
+@php
+    $discountValue = isset($discount) ? (int) $discount : 0;
+    $hasDiscount = $discountValue > 0;
+    $basePrice = (float) ($price ?? 0);
+    $finalPrice = $hasDiscount ? round($basePrice * (100 - $discountValue) / 100, 2) : $basePrice;
+@endphp
 <div class="card bg-base-100 shadow-xl card-hover">
     <a href="{{ route('product.show', $slug) }}">
         <figure class="relative overflow-hidden h-48">
             <img src="{{ $image }}" alt="{{ $title }}"
                 class="w-full h-full object-cover transition-transform duration-300 hover:scale-110" />
-            @if ($onSale ?? false)
+            @if ($hasDiscount)
+                <div class="badge badge-secondary absolute top-2 left-2">{{ $discountValue }}% OFF</div>
+            @elseif ($onSale ?? false)
                 <div class="badge badge-secondary absolute top-2 left-2">تخفيض</div>
             @endif
             @if(isset($type))
@@ -20,12 +28,12 @@
             <h3 class="card-title text-sm">{{ $title }}</h3>
             <div class="price-actions mb-4">
                 <div class="price">
-                    <span class="text-lg font-bold text-primary">@money($price)</span>
+                    <span class="text-lg font-bold text-primary">@money($finalPrice)</span>
                 </div>
-                @if ($onSale ?? false)
-                    @php
-                        $displayOriginalPrice = $originalPrice ?? ($price * 1.2); // Default to 20% higher if not provided
-                    @endphp
+                @if ($hasDiscount)
+                    <div class="original-price text-sm line-through text-base-content/50">@money($basePrice)</div>
+                @elseif ($onSale ?? false)
+                    @php $displayOriginalPrice = $originalPrice ?? ($basePrice * 1.2); @endphp
                     <div class="original-price text-sm line-through text-base-content/50">@money($displayOriginalPrice)</div>
                 @endif
             </div>

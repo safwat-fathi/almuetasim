@@ -60,7 +60,7 @@
                     image="{{ $product->images ? $product->images[0] : 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop&crop=center' }}"
                     slug="{{ $product->slug }}" title="{{ $product->title }}" price="{{ $product->price }}"
                     type="{{ $product->type }}"
-                    original-price="{{ $product->price * 1.2 }}" on-sale="true" />
+                    original-price="{{ $product->price  * (100 - $product->discount) / 100 }}" on-sale="{{ $product->discount > 0 }}" />
             @endforeach
         </div>
     </div>

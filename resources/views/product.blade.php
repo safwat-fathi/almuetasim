@@ -158,7 +158,7 @@
                                 showToast('Error adding to wishlist', 'error');
                             });">
                             <i data-lucide="heart" class="w-5 h-5"></i>
-                            Wishlist
+														إضافة للمفضلة
                         </button>
                         <button class="btn btn-outline btn-lg"
                             :class="{ 'loading': shareLoading }"
@@ -170,7 +170,7 @@
                                 showToast('Failed to copy URL', 'error');
                             });">
                             <i data-lucide="share-2" class="w-5 h-5"></i>
-                            Share
+														شارك
                         </button>
                     </div>
                 </div>

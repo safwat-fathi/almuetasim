@@ -467,23 +467,53 @@
                         // Remove the row from the table if present (simpler and reliable)
                         if (row) { row.remove(); }
                         // toast
-                        const existingToast = document.getElementById('toast-container'); if (existingToast) existingToast.remove();
-                        const toast = document.createElement('div'); toast.className = 'alert alert-success'; toast.style.zIndex = 9999; toast.textContent = result.message || 'تم حذف الفئة بنجاح'; document.body.appendChild(toast);
-                        setTimeout(()=> toast.remove(), 3000);
+                        toastNotify(result.message || 'تم حذف الفئة بنجاح', 'success');
                         // As a fallback, reload to reflect pagination/counts
                         if (!row) { location.reload(); }
                     } else if (!response.ok && contentType.includes('application/json')) {
                         const result = await response.json();
-                        alert(result.message || 'حدث خطأ أثناء حذف الفئة');
+                        toastNotify(result.message || 'حدث خطأ أثناء حذف الفئة', 'error');
                     } else {
                         const text = await response.text();
                         console.error('Delete category: expected JSON but got:', text);
-                        alert('Unexpected server response when deleting category');
+                        toastNotify('Unexpected server response when deleting category', 'error');
                     }
                 } catch (error) {
                     console.error('Delete error:', error);
-                    alert('حدث خطأ أثناء حذف الفئة');
+                    toastNotify('حدث خطأ أثناء حذف الفئة', 'error');
                 }
+            }
+
+            // Global toast helper (mirrors the modal's showToast for consistency)
+            function toastNotify(message, type = 'info') {
+                const existingToast = document.getElementById('toast-container');
+                if (existingToast) existingToast.remove();
+                const toastContainer = document.createElement('div');
+                toastContainer.id = 'toast-container';
+                toastContainer.className = 'toast toast-top toast-center';
+                toastContainer.style.zIndex = '9999';
+                let toastClasses = 'alert ';
+                switch(type) {
+                    case 'success':
+                        toastClasses += 'alert-success';
+                        break;
+                    case 'error':
+                        toastClasses += 'alert-error';
+                        break;
+                    case 'warning':
+                        toastClasses += 'alert-warning';
+                        break;
+                    default:
+                        toastClasses += 'alert-info';
+                        break;
+                }
+                toastContainer.innerHTML = `<div class="${toastClasses}"><span>${message}</span></div>`;
+                document.body.appendChild(toastContainer);
+                setTimeout(() => {
+                    if (toastContainer.parentNode) {
+                        toastContainer.parentNode.removeChild(toastContainer);
+                    }
+                }, 5000);
             }
         </script>
     </x-slot:scripts>

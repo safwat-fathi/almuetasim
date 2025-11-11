@@ -19,29 +19,34 @@
         </div>
     </div>
 
+    @php
+        $images = $product->images ?? [];
+        // Convert stored images to proper URLs if needed
+        $processedImages = [];
+        foreach ($images as $image) {
+            if (Str::startsWith($image, ['http://', 'https://', '/'])) {
+                $processedImages[] = $image;
+            } else {
+                $processedImages[] = Storage::url($image);
+            }
+        }
+        $mainImage = !empty($processedImages)
+            ? $processedImages[0]
+            : 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&h=600&fit=crop&crop=center';
+    @endphp
+
     <!-- Product Details -->
     <div class="container mx-auto px-4 py-8">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
             <!-- Product Images -->
-            <div class="space-y-4">
-                @php
-                    $images = $product->images ?? [];
-                    // Convert stored images to proper URLs if needed
-                    $processedImages = [];
-                    foreach ($images as $image) {
-                        if (Str::startsWith($image, ['http://', 'https://', '/'])) {
-                            $processedImages[] = $image;
-                        } else {
-                            $processedImages[] = Storage::url($image);
-                        }
-                    }
-                    $mainImage = !empty($processedImages)
-                        ? $processedImages[0]
-                        : 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&h=600&fit=crop&crop=center';
-                @endphp
-                <div class="relative overflow-hidden rounded-lg bg-base-200 aspect-square">
-                    <img id="main-image" src="{{ $mainImage }}" alt="{{ $product->title }}"
-                        class="w-full h-full object-cover image-zoom cursor-zoom-in" />
+            <div class="space-y-4" x-data="productGallery({{ json_encode($processedImages) }})">
+                <div class="relative overflow-hidden rounded-lg bg-base-200 aspect-square select-none"
+                     @mouseenter="zoomed = true" @mouseleave="zoomed = false"
+                     @mousemove="onMove($event)">
+                    <img :src="activeImage" alt="{{ $product->title }}"
+                        :style="zoomStyle"
+                        :class="zoomed ? 'cursor-zoom-out' : 'cursor-zoom-in'"
+                        class="w-full h-full object-cover transition-transform duration-200 ease-out" />
                     @if ($product->price < 1000)
                         {{-- Simple discount logic for demo --}}
                         <div class="badge badge-secondary absolute top-4 left-4">
@@ -54,11 +59,12 @@
                 @if (count($processedImages) > 1)
                     <div class="grid grid-cols-4 gap-2">
                         @foreach ($processedImages as $index => $image)
-                            <div class="thumbnail {{ $index === 0 ? 'active' : '' }} aspect-square rounded-lg overflow-hidden cursor-pointer"
-                                onclick="changeImage('{{ $image }}', this)">
-                                <img src="{{ $image }}" alt="View {{ $index + 1 }}"
-                                    class="w-full h-full object-cover" />
-                            </div>
+                            <button type="button"
+                                    :class="activeIndex === {{ $index }} ? 'ring-2 ring-primary' : ''"
+                                    class="aspect-square rounded-lg overflow-hidden cursor-pointer focus:outline-none"
+                                    @click="setActive({{ $index }})">
+                                <img src="{{ $image }}" alt="View {{ $index + 1 }}" class="w-full h-full object-cover" />
+                            </button>
                         @endforeach
                     </div>
                 @endif
@@ -567,3 +573,30 @@
                 </div>
             </div>
 </x-layouts.app>
+
+<script>
+    function productGallery(images) {
+        return {
+            images: Array.isArray(images) && images.length ? images : ['{{ $mainImage }}'],
+            activeIndex: 0,
+            zoomed: false,
+            originX: 50,
+            originY: 50,
+            get activeImage() { return this.images[this.activeIndex] || this.images[0]; },
+            setActive(i) { this.activeIndex = i; },
+            onMove(e) {
+                if (!this.zoomed) return;
+                const rect = e.currentTarget.getBoundingClientRect();
+                const x = ((e.clientX - rect.left) / rect.width) * 100;
+                const y = ((e.clientY - rect.top) / rect.height) * 100;
+                this.originX = Math.max(0, Math.min(100, x));
+                this.originY = Math.max(0, Math.min(100, y));
+            },
+            get zoomStyle() {
+                return this.zoomed
+                    ? `transform: scale(2); transform-origin: ${this.originX}% ${this.originY}%;`
+                    : 'transform: scale(1); transform-origin: center center;';
+            }
+        };
+    }
+</script>

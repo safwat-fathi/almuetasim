@@ -189,40 +189,79 @@ class ProductController extends Controller
 	/**
 	 * Update the specified resource in storage.
 	 */
-	public function update(Request $request, $id)
-	{
-		$request->validate([
-			'title' => 'required|string|max:255',
-			'description' => 'required|string',
-			'specs' => 'nullable|json',
-			'price' => 'required|numeric|min:0',
-			'stock' => 'required|integer|min:0',
-			'is_part' => 'required|boolean',
-			'warranty_months' => 'required|integer|min:0',
-			'images' => 'nullable|json',
-			'category_id' => 'nullable|exists:categories,id',
-			'type' => 'required|in:product,service',
-		]);
+    public function update(Request $request, $id)
+    {
+        // Build validation rules allowing either JSON (existing image paths) or uploaded files
+        $rules = [
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'specs' => 'nullable|json',
+            'price' => 'required|numeric|min:0',
+            'stock' => 'required|integer|min:0',
+            'is_part' => 'required|boolean',
+            'warranty_months' => 'required|integer|min:0',
+            'category_id' => 'nullable|exists:categories,id',
+            'type' => 'required|in:product,service',
+        ];
 
-		$product = Product::findOrFail($id);
-		$data = $request->all();
-		$data['specs'] = json_decode($request->specs ?? '[]', true);
-		$data['images'] = json_decode($request->images ?? '[]', true);
+        if ($request->hasFile('images')) {
+            $rules['images'] = 'nullable|array|max:5';
+            $rules['images.*'] = 'file|mimes:jpeg,png,jpg,webp|max:5120';
+        } elseif ($request->has('images')) {
+            // Accept JSON for existing image paths when editing
+            $rules['images'] = 'nullable|json';
+        }
+
+        $validated = $request->validate($rules);
+
+        $product = Product::findOrFail($id);
+        $data = $request->all();
+        $data['specs'] = json_decode($request->specs ?? '[]', true);
+
+        // Start with current images to avoid unintentional clearing
+        $finalImages = $product->images ?? [];
+
+        // If client submits explicit JSON list, use it as the base (keeps, ordering)
+        if ($request->has('images') && !$request->hasFile('images')) {
+            $fromJson = json_decode($request->images ?? '[]', true) ?: [];
+            if (is_array($fromJson)) {
+                $finalImages = $fromJson;
+            }
+        }
+
+        // Handle new uploads and merge with the base list
+        if ($request->hasFile('images')) {
+            $files = $request->file('images');
+            foreach ($files as $file) {
+                if ($file && $file->isValid()) {
+                    $filename = time() . '_' . uniqid() . '_' . $file->getClientOriginalName();
+                    $path = $file->storeAs('uploads', $filename, 'public');
+                    $finalImages[] = $path;
+                }
+            }
+        }
+
+        // Only set images if changed or provided
+        if ($request->has('images') || $request->hasFile('images')) {
+            $data['images'] = array_values($finalImages);
+        } else {
+            unset($data['images']);
+        }
 
         // SKU removed from schema; do not generate or persist
 
-		$product->update($data);
-		$product->refresh()->load('category');
+        $product->update($data);
+        $product->refresh()->load('category');
 
-		if ($request->wantsJson()) {
-			return response()->json([
-				'message' => 'Product updated successfully',
-				'product' => $product
-			]);
-		}
+        if ($request->wantsJson()) {
+            return response()->json([
+                'message' => 'Product updated successfully',
+                'product' => $product
+            ]);
+        }
 
-		return redirect()->route('admin.products.index')->with('success', 'Product updated successfully!');
-	}
+        return redirect()->route('admin.products.index')->with('success', 'Product updated successfully!');
+    }
 
 	/**
 	 * Remove the specified resource from storage.

@@ -89,14 +89,11 @@
 
                     <!-- Price -->
                     <div class="flex items-center gap-3 mb-6">
-                        <span class="text-3xl font-bold text-primary">{{ number_format($product->price, 2) }}
-                            ج.م</span>
+                        <span class="text-3xl font-bold text-primary">@money($product->price)</span>
                         @if ($product->price < 1000)
                             {{-- Simple discount logic for demo --}}
-                            <span class="text-xl line-through text-base-content/50">{{ number_format(1000, 2) }}
-                                ج.م</span>
-                            <span class="badge badge-secondary">وفر {{ number_format(1000 - $product->price, 2) }}
-                                ج.م</span>
+                            <span class="text-xl line-through text-base-content/50">@money(1000)</span>
+                            <span class="badge badge-secondary">وفر @money(1000 - $product->price)</span>
                         @endif
                     </div>
                 </div>
@@ -186,7 +183,7 @@
                             </div>
                         @endif
                     </div>
-                    <h3 class="font-semibold mb-3">Key Features</h3>
+                    <h3 class="font-semibold mb-3">الميزات الرئيسية</h3>
                     <ul class="space-y-2">
                         <li class="flex items-center gap-2">
                             <i data-lucide="check-circle" class="w-4 h-4 text-success"></i>
@@ -488,14 +485,14 @@
                             <div class="border rounded-lg p-4">
                                 <div class="flex justify-between items-center mb-2">
                                     <span class="font-medium">Express Delivery</span>
-                                    <span class="font-bold">99.99 EGP</span>
+                                    <span class="font-bold">@money(99.99)</span>
                                 </div>
                                 <p class="text-sm text-base-content/70">2-3 business days</p>
                             </div>
                             <div class="border rounded-lg p-4">
                                 <div class="flex justify-between items-center mb-2">
                                     <span class="font-medium">Next Day Delivery</span>
-                                    <span class="font-bold">199.99 EGP</span>
+                                    <span class="font-bold">@money(199.99)</span>
                                 </div>
                                 <p class="text-sm text-base-content/70">Order by 2 PM for next day delivery</p>
                             </div>
@@ -535,7 +532,7 @@
 
             <!-- Related Products -->
             <div class="mt-16">
-                <h2 class="text-2xl font-bold mb-8">Related Products</h2>
+                <h2 class="text-2xl font-bold mb-8">منتجات ذات صلة</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     @if($relatedProducts && $relatedProducts->count() > 0)
                         @foreach($relatedProducts as $relatedProduct)

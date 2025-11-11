@@ -114,8 +114,14 @@ jobs:
             chmod -R ug+rwX storage bootstrap/cache 2>/dev/null || true
 
             # Ensure public/storage symlink exists (exposes storage/app/public)
+            # Prefer artisan, but fall back to ln -s if exec() is disabled on host
+            mkdir -p storage/app/public || true
             if [ ! -L public/storage ]; then
               php artisan storage:link || true
+            fi
+            # Fallback/manual creation or repair (idempotent)
+            if [ ! -L public/storage ]; then
+              ln -sfn ../storage/app/public public/storage || true
             fi
 
             # If document root is the project root (shared hosting),
@@ -173,11 +179,17 @@ jobs:
               if [ ! -f .htaccess ]; then
                 cp public/.htaccess .htaccess || true
               fi
-              # Inject asset rewrite rules just after "RewriteEngine On" within the mod_rewrite block
+              # Inject asset rewrite rules only if not already rewriting everything to /public
+              # and if specific storage rule not present. This avoids overriding a root
+              # .htaccess that already forwards all paths to /public (your current setup).
               php -r '
                 $f = ".htaccess";
                 $c = file_exists($f) ? file_get_contents($f) : "";
                 if ($c === false) exit(0);
+                if (preg_match("/RewriteRule\s+\^\(\.\*\)\$\s+public\/\$1/i", $c)) {
+                  // Already globally forwarding to /public — leave as-is
+                  exit(0);
+                }
                 $rules = "\n    # Expose public subdirs when docroot is project root\n".
                          "    RewriteRule ^build/(.*)$ public/build/$1 [L]\n".
                          "    RewriteRule ^images/(.*)$ public/images/$1 [L]\n".
@@ -198,6 +210,9 @@ jobs:
             # Thoroughly clear all caches to avoid stale manifest/view assets
             php artisan cache:clear || true
             php artisan config:clear || true
+
+            # Validate storage link exists after all steps
+            ls -ld public/storage || true
             php artisan route:clear || true
             php artisan view:clear || true
 

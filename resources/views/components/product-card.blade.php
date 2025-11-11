@@ -20,13 +20,13 @@
             <h3 class="card-title text-sm">{{ $title }}</h3>
             <div class="price-actions mb-4">
                 <div class="price">
-                    <span class="text-lg font-bold text-primary">{{ number_format($price, 2) }} ج.م</span>
+                    <span class="text-lg font-bold text-primary">@money($price)</span>
                 </div>
                 @if ($onSale ?? false)
                     @php
                         $displayOriginalPrice = $originalPrice ?? ($price * 1.2); // Default to 20% higher if not provided
                     @endphp
-                    <div class="original-price text-sm line-through text-base-content/50">{{ number_format($displayOriginalPrice, 2) }} ج.م</div>
+                    <div class="original-price text-sm line-through text-base-content/50">@money($displayOriginalPrice)</div>
                 @endif
             </div>
             @if(isset($category))

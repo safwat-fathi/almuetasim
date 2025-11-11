@@ -488,7 +488,8 @@
             const image = (p.images && p.images[0]) ? ('/storage/' + p.images[0]) :
                 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop&crop=center';
             const title = escapeHtml(p.title || '');
-            const price = Number(p.price || 0).toFixed(2);
+            const egpFormatter = new Intl.NumberFormat('ar-EG', { style: 'currency', currency: 'EGP' });
+            const price = egpFormatter.format(Number(p.price || 0));
             const category = p.category && p.category.name ? escapeHtml(p.category.name) : '';
             const slug = p.slug || '#';
 
@@ -501,7 +502,7 @@
                         <div class="card-body">
                             <h3 class="card-title text-sm">${title}</h3>
                             <div class="flex items-center gap-2 mb-4">
-                                <span class="text-lg font-bold text-primary">${price} ج.م</span>
+                                <span class="text-lg font-bold text-primary">${price}</span>
                             </div>
                             ${category ? `<div class="text-xs text-base-content/70">${category}</div>` : ''}
                         </div>
@@ -543,7 +544,8 @@
             const image = (p.images && p.images[0]) ? ('/storage/' + p.images[0]) :
                 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200&h=150&fit=crop&crop=center';
             const title = escapeHtml(p.title || '');
-            const price = Number(p.price || 0).toFixed(2);
+            const egpFormatter = new Intl.NumberFormat('ar-EG', { style: 'currency', currency: 'EGP' });
+            const price = egpFormatter.format(Number(p.price || 0));
             const slug = p.slug || '#';
             return `
                 <a href="/product/${encodeURIComponent(slug)}" class="flex items-center gap-3 p-2 rounded hover:bg-base-200">
@@ -552,7 +554,7 @@
                         <div class="text-sm font-semibold">${title}</div>
                         <div class="text-xs text-base-content/70 flex items-center gap-1">
                             <i data-lucide="dollar-sign" class="w-3 h-3"></i>
-                            ${price} ج.م
+                            ${price}
                         </div>
                     </div>
                 </a>

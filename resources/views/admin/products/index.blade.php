@@ -79,7 +79,7 @@
                                             <td>
                                                 <span class="badge badge-ghost">{{ $product->category->name ?? 'Uncategorized' }}</span>
                                             </td>
-                                            <td>{{ number_format($product->price, 2) }} ج.م</td>
+                                            <td>@money($product->price)</td>
                                             <td>{{ $product->stock }}</td>
                                             <td>
                                                 @if ($product->stock > 10)
@@ -717,7 +717,7 @@
                             </div>
                         </td>
                         <td><span class="badge badge-ghost">${escapeHtml(categoryName)}</span></td>
-                        <td>$${Number(product.price).toFixed(2)}</td>
+                        <td>${new Intl.NumberFormat('ar-EG', { style: 'currency', currency: 'EGP' }).format(Number(product.price))}</td>
                         <td>${product.stock}</td>
                         <td>${product.stock > 10 ? '<span class="badge badge-success">متاح</span>' : (product.stock > 0 ? '<span class="badge badge-warning">مخزون قليل</span>' : '<span class="badge badge-error">غير متاح</span>')}</td>
                         <td>

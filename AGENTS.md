@@ -263,3 +263,8 @@ protected function isAccessible(User $user, ?string $path = null): bool
 | decoration-slice | box-decoration-slice |
 | decoration-clone | box-decoration-clone |
 </laravel-boost-guidelines>
+
+## Before implementation
+
+- You must write a full plan in a md file in `.docs/ai/plans/{action-feature-description}.md` before writing any code.
+- You must not write any code without approval.

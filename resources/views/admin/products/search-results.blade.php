@@ -107,7 +107,7 @@
                                         </div>
 
                                         <div class="flex justify-between items-center mb-4">
-                                            <div class="text-2xl font-bold text-blue-600">${{ number_format($product->price, 2) }}</div>
+                                            <div class="text-2xl font-bold text-blue-600">@money($product->price)</div>
                                             <div class="text-sm text-gray-600">الكمية: {{ $product->stock }}</div>
                                         </div>
 

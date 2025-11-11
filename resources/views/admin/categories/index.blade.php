@@ -57,7 +57,7 @@
                                 </thead>
                                 <tbody id="categories-table-body">
                                     @forelse ($categories as $category)
-                                        <tr>
+                                        <tr data-category-id="{{ $category->id }}" data-category-slug="{{ $category->slug }}">
                                             <td>{{ $loop->iteration }}</td>
                                             <td>
                                                 <div class="font-bold">{{ $category->name }}</div>
@@ -106,6 +106,7 @@
     <dialog id="add_category_modal" class="modal" 
             x-data="categoryModal" 
             @open-category-modal.window="openModal()" 
+            @open-edit-category.window="editCategory($event.detail)"
             :class="{ 'modal-open': isOpen }">
         <div class="modal-box w-11/12 max-w-2xl">
             <h3 class="font-bold text-lg mb-4" x-text="isEditing ? 'تعديل الفئة' : 'إضافة فئة جديدة'"></h3>
@@ -148,18 +149,31 @@
         </form>
     </dialog>
 
+    <!-- Delete Confirmation Modal -->
+    <dialog id="delete_category_modal" class="modal" x-data="deleteCategoryModal" @open-delete-category.window="openModal($event.detail)" :class="{ 'modal-open': isOpen }">
+        <div class="modal-box">
+            <h3 class="font-bold text-lg">تأكيد الحذف</h3>
+            <p class="py-4">هل أنت متأكد من حذف هذه الفئة؟ هذا الإجراء لا يمكن التراجع عنه.</p>
+            <div class="modal-action">
+                <button class="btn" @click="closeModal()">إلغاء</button>
+                <button class="btn btn-error" @click="confirmDelete()">حذف</button>
+            </div>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+            <button @click="closeModal()">إلغاء</button>
+        </form>
+    </dialog>
+
     <x-slot:scripts>
         <script>
-            function getCategoryModalComponent() {
-                return document.getElementById('add_category_modal').__x;
-            }
-
             function editCategory(id) {
-                getCategoryModalComponent().editCategory(id);
+                // Use window events to communicate with the modal (avoids Alpine internals)
+                window.dispatchEvent(new CustomEvent('open-edit-category', { detail: id }));
             }
 
             function deleteCategory(id) {
-                getCategoryModalComponent().deleteCategory(id);
+                // Trigger delete confirmation modal
+                window.dispatchEvent(new CustomEvent('open-delete-category', { detail: id }));
             }
 
             document.addEventListener('alpine:init', () => {
@@ -168,6 +182,7 @@
                     isSubmitting: false,
                     isEditing: false,
                     categoryId: null,
+                    categorySlug: null,
                     formData: {
                         name: '', description: ''
                     },
@@ -195,6 +210,7 @@
                         this.isSubmitting = false;
                         this.isEditing = false;
                         this.categoryId = null;
+                        this.categorySlug = null;
                     },
                     
                     async saveCategory() {
@@ -221,7 +237,8 @@
                             // Determine the URL and method based on whether we're editing
                             let url, method;
                             if (this.isEditing) {
-                                url = `/admin/categories/${this.categoryId}`;
+                                // Use slug for update because Category uses slug route binding
+                                url = `/admin/categories/${this.categorySlug}`;
                                 method = 'PUT';
                             } else {
                                 url = '/admin/categories';
@@ -268,11 +285,13 @@
                         
                         // Fetch category data
                         try {
-                            const response = await fetch(`/admin/categories/${id}/edit`);
+                            // Use ID-based endpoint since Category uses slug for route model binding
+                            const response = await fetch(`/admin/categories/${id}`);
                             if (response.ok) {
                                 const category = await response.json();
                                 this.formData.name = category.name;
                                 this.formData.description = category.description;
+                                this.categorySlug = category.slug;
                                 this.openModal();
                             } else {
                                 this.showToast('حدث خطأ أثناء جلب بيانات الفئة', 'error');
@@ -357,6 +376,24 @@
                         }, 5000);
                     }
                 }));
+
+                Alpine.data('deleteCategoryModal', () => ({
+                    isOpen: false,
+                    categoryId: null,
+                    openModal(id) {
+                        this.categoryId = id;
+                        this.isOpen = true;
+                    },
+                    closeModal() {
+                        this.isOpen = false;
+                        this.categoryId = null;
+                    },
+                    async confirmDelete() {
+                        if (!this.categoryId) return;
+                        await deleteCategoryConfirmed(this.categoryId);
+                        this.closeModal();
+                    }
+                }));
             });
             
             function handleSearchKeyPress(event) {
@@ -394,6 +431,60 @@
             });
 
             document.getElementById("date-filter").addEventListener("change", applyFilters);
+
+            // Perform actual delete request after confirmation
+            async function deleteCategoryConfirmed(id) {
+                try {
+                    const row = document.querySelector(`tr[data-category-id="${id}"]`);
+                    const slug = row ? row.getAttribute('data-category-slug') : id;
+                    // Attempt DELETE first
+                    let response = await fetch(`/admin/categories/${slug}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+
+                    // Fallback to POST + _method=DELETE if needed
+                    if (response.status === 405) {
+                        response = await fetch(`/admin/categories/${slug}`, {
+                            method: 'POST',
+                            body: new URLSearchParams({'_method': 'DELETE'}),
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Content-Type': 'application/x-www-form-urlencoded'
+                            }
+                        });
+                    }
+
+                    const contentType = response.headers.get('content-type') || '';
+                    if (response.ok && contentType.includes('application/json')) {
+                        const result = await response.json();
+                        // Remove the row from the table if present (simpler and reliable)
+                        if (row) { row.remove(); }
+                        // toast
+                        const existingToast = document.getElementById('toast-container'); if (existingToast) existingToast.remove();
+                        const toast = document.createElement('div'); toast.className = 'alert alert-success'; toast.style.zIndex = 9999; toast.textContent = result.message || 'تم حذف الفئة بنجاح'; document.body.appendChild(toast);
+                        setTimeout(()=> toast.remove(), 3000);
+                        // As a fallback, reload to reflect pagination/counts
+                        if (!row) { location.reload(); }
+                    } else if (!response.ok && contentType.includes('application/json')) {
+                        const result = await response.json();
+                        alert(result.message || 'حدث خطأ أثناء حذف الفئة');
+                    } else {
+                        const text = await response.text();
+                        console.error('Delete category: expected JSON but got:', text);
+                        alert('Unexpected server response when deleting category');
+                    }
+                } catch (error) {
+                    console.error('Delete error:', error);
+                    alert('حدث خطأ أثناء حذف الفئة');
+                }
+            }
         </script>
     </x-slot:scripts>
 </x-layouts.admin>

@@ -89,6 +89,15 @@ class CategoryController extends Controller
     }
 
     /**
+     * Show the form for editing the specified resource.
+     * For our admin modal, we return the category as JSON.
+     */
+    public function edit(Category $category): JsonResponse
+    {
+        return response()->json($category);
+    }
+
+    /**
      * Display products filtered by category (public route).
      *
      * @param  string  $categorySlug

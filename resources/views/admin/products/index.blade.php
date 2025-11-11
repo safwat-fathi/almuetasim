@@ -79,7 +79,7 @@
                                             <td>
                                                 <span class="badge badge-ghost">{{ $product->category->name ?? 'Uncategorized' }}</span>
                                             </td>
-                                            <td>${{ number_format($product->price, 2) }}</td>
+                                            <td>{{ number_format($product->price, 2) }} ج.م</td>
                                             <td>{{ $product->stock }}</td>
                                             <td>
                                                 @if ($product->stock > 10)

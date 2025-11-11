@@ -2,7 +2,7 @@
 
 <x-layouts.app>
     <section class="hero hero-gradient text-white min-h-[calc(45vh-65px)] relative overflow-hidden">
-        <div class="bg-white/40 backdrop-blur-md flex flex-col items-center justify-center gap-4 md:gap-6 p-8 md:p-12 rounded-2xl relative z-10 text-center max-w-screen-xl mx-auto">
+        <div class="bg-white/40 backdrop-blur-md flex flex-col items-center justify-center gap-4 md:gap-6 p-8 md:p-12 rounded-2xl relative z-10 text-center max-w-screen-xl mx-auto lg:min-w-[600px]">
             {{-- تم استبدال الشعار بصورة الفلتر وجعلها في الوسط لتكون أكثر وضوحاً --}}
             <img
                 src="{{ asset('images/filter-no-bg.png') }}"

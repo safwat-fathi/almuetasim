@@ -91,7 +91,7 @@
                                 <h2 class="card-title text-lg">{{ $product->title }}</h2>
                                 <p class="text-gray-600 text-sm line-clamp-2">{{ $product->description }}</p>
                                 <div class="mt-2">
-                                    <span class="text-lg font-bold text-primary">{{ number_format($product->price, 2) }} ر.س</span>
+                                    <span class="text-lg font-bold text-primary">{{ number_format($product->price, 2) }} ج.م</span>
                                 </div>
                                 <div class="card-actions justify-end mt-4">
                                     <a href="{{ route('product.show', $product->slug) }}" class="btn btn-primary btn-sm">

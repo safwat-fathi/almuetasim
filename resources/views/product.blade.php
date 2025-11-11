@@ -90,13 +90,13 @@
                     <!-- Price -->
                     <div class="flex items-center gap-3 mb-6">
                         <span class="text-3xl font-bold text-primary">{{ number_format($product->price, 2) }}
-                            EGP</span>
+                            ج.م</span>
                         @if ($product->price < 1000)
                             {{-- Simple discount logic for demo --}}
                             <span class="text-xl line-through text-base-content/50">{{ number_format(1000, 2) }}
-                                EGP</span>
+                                ج.م</span>
                             <span class="badge badge-secondary">Save {{ number_format(1000 - $product->price, 2) }}
-                                EGP</span>
+                                ج.م</span>
                         @endif
                     </div>
                 </div>
@@ -272,7 +272,7 @@
                     </div>
                 </div>
 
-                <input type="radio" name="product_tabs" class="tab mb-4" aria-label="Specifications" />
+                {{-- <input type="radio" name="product_tabs" class="tab mb-4" aria-label="Specifications" />
                 <div class="tab-content">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div>
@@ -328,7 +328,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> --}}
 
                 {{-- <div class="prose max-w-none">
                     <p class="text-lg mb-4">{{ $product->description }}</p>

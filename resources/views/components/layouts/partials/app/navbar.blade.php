@@ -501,7 +501,7 @@
                         <div class="card-body">
                             <h3 class="card-title text-sm">${title}</h3>
                             <div class="flex items-center gap-2 mb-4">
-                                <span class="text-lg font-bold text-primary">${price} EGP</span>
+                                <span class="text-lg font-bold text-primary">${price} ج.م</span>
                             </div>
                             ${category ? `<div class="text-xs text-base-content/70">${category}</div>` : ''}
                         </div>
@@ -552,7 +552,7 @@
                         <div class="text-sm font-semibold">${title}</div>
                         <div class="text-xs text-base-content/70 flex items-center gap-1">
                             <i data-lucide="dollar-sign" class="w-3 h-3"></i>
-                            ${price} EGP
+                            ${price} ج.م
                         </div>
                     </div>
                 </a>

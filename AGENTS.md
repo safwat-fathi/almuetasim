@@ -267,6 +267,7 @@ protected function isAccessible(User $user, ?string $path = null): bool
 ## Don'ts
 
 - Do not use browser alerts.
+- Do not use English for feedback to the user.
 
 ## Before implementation
 

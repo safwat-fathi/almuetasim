@@ -7,7 +7,6 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
 
 class CategoryController extends Controller
 {
@@ -67,12 +66,12 @@ class CategoryController extends Controller
 		if ($request->wantsJson()) {
 			return response()->json([
 				'success' => true,
-				'message' => 'Category created successfully!',
+				'message' => 'تم إضافة الفئة بنجاح!',
 				'category' => $category
 			]);
 		}
 
-		return redirect()->route('admin.categories.index')->with('success', 'Category created successfully!');
+		return redirect()->route('admin.categories.index')->with('success', 'تم إضافة الفئة بنجاح!');
 	}
 
 	/**
@@ -133,12 +132,12 @@ class CategoryController extends Controller
 		if ($request->wantsJson()) {
 			return response()->json([
 				'success' => true,
-				'message' => 'Category updated successfully!',
+				'message' => 'تم تعديل الفئة بنجاح!',
 				'category' => $category
 			]);
 		}
 
-		return redirect()->route('admin.categories.index')->with('success', 'Category updated successfully!');
+		return redirect()->route('admin.categories.index')->with('success', 'تم تعديل الفئة بنجاح!');
 	}
 
 	/**
@@ -165,10 +164,10 @@ class CategoryController extends Controller
 		if (request()->wantsJson()) {
 			return response()->json([
 				'success' => true,
-				'message' => 'Category deleted successfully!'
+				'message' => 'تم حذف الفئة بنجاح!'
 			]);
 		}
 
-		return redirect()->route('admin.categories.index')->with('success', 'Category deleted successfully!');
+		return redirect()->route('admin.categories.index')->with('success', 'تم حذف الفئة بنجاح!');
 	}
 }

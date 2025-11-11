@@ -168,6 +168,27 @@ jobs:
             fi
             chmod 664 database/database.sqlite 2>/dev/null || true
 
+            # Ensure root .htaccess routes public assets when docroot is project root
+            if [ -d public ]; then
+              if [ ! -f .htaccess ]; then
+                cp public/.htaccess .htaccess || true
+              fi
+              # Inject asset rewrite rules just after "RewriteEngine On" within the mod_rewrite block
+              php -r '
+                $f = ".htaccess";
+                $c = file_exists($f) ? file_get_contents($f) : "";
+                if ($c === false) exit(0);
+                $rules = "\n    # Expose public subdirs when docroot is project root\n".
+                         "    RewriteRule ^build/(.*)$ public/build/$1 [L]\n".
+                         "    RewriteRule ^images/(.*)$ public/images/$1 [L]\n".
+                         "    RewriteRule ^storage/(.*)$ public/storage/$1 [L]\n";
+                if (strpos($c, "RewriteRule ^storage/") === false) {
+                  $c = preg_replace("/(RewriteEngine\s+On\s*)/i", "$1\n$rules", $c, 1);
+                  file_put_contents($f, $c);
+                }
+              '
+            fi
+
             # Remove any Vite dev-server markers
             rm -f public/hot hot 2>/dev/null || true
 

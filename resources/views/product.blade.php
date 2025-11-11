@@ -95,38 +95,11 @@
                             {{-- Simple discount logic for demo --}}
                             <span class="text-xl line-through text-base-content/50">{{ number_format(1000, 2) }}
                                 ج.م</span>
-                            <span class="badge badge-secondary">Save {{ number_format(1000 - $product->price, 2) }}
+                            <span class="badge badge-secondary">وفر {{ number_format(1000 - $product->price, 2) }}
                                 ج.م</span>
                         @endif
                     </div>
                 </div>
-
-                <!-- Color Options -->
-                @if (!$product->is_part)
-                    <div>
-                        <h3 class="font-semibold mb-3">Color</h3>
-                        <div class="flex gap-2">
-                            <div class="form-control">
-                                <label class="cursor-pointer">
-                                    <input type="radio" name="color" class="radio radio-primary" checked />
-                                    <span class="ml-2">Black</span>
-                                </label>
-                            </div>
-                            <div class="form-control">
-                                <label class="cursor-pointer">
-                                    <input type="radio" name="color" class="radio radio-primary" />
-                                    <span class="ml-2">White</span>
-                                </label>
-                            </div>
-                            <div class="form-control">
-                                <label class="cursor-pointer">
-                                    <input type="radio" name="color" class="radio radio-primary" />
-                                    <span class="ml-2">Blue</span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                @endif
 
                 <!-- Quantity -->
                 {{-- <div>
@@ -243,7 +216,7 @@
 
         <div class="mt-16">
             <div class="tabs tabs-bordered mb-8">
-                <input type="radio" name="product_tabs" class="tab mb-4" aria-label="Description" checked />
+                {{-- <input type="radio" name="product_tabs" class="tab mb-4" aria-label="Description" checked />
                 <div class="tab-content">
                     <div class="prose max-w-none">
                         <p class="text-lg mb-4">
@@ -270,7 +243,7 @@
                             <li>Gamers and content creators</li>
                         </ul>
                     </div>
-                </div>
+                </div> --}}
 
                 {{-- <input type="radio" name="product_tabs" class="tab mb-4" aria-label="Specifications" />
                 <div class="tab-content">

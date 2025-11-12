@@ -11,6 +11,8 @@
 
 <footer class="footer footer-center bg-base-300 text-base-content p-10">
         <nav class="grid grid-flow-col gap-4">
+            <a href="{{ route('home') }}" class="link link-hover">الرئيسية</a>
+            <a href="{{ route('products.public.list') }}" class="link link-hover">المنتجات</a>
             <a href="{{ route('about') }}" class="link link-hover">معلومات عنا</a>
             {{-- <a class="link link-hover">اتصل بنا</a> --}}
             {{-- <a class="link link-hover">الوظائف</a> --}}

@@ -17,7 +17,7 @@
             </div>
             <ul tabindex="0" class="dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-56 p-3 shadow space-y-1">
                 <li>
-                    <a href="{{ route('home') }}" @class([
+                    {{-- <a href="{{ route('home') }}" @class([
                         $navLinkBase,
                         'bg-[#2d3b61]' => request()->routeIs('home'),
                         'text-white' => request()->routeIs('home'),
@@ -32,10 +32,10 @@
                             'text-white' => request()->routeIs('home'),
                         ])></i>
                         الرئيسية
-                    </a>
+                    </a> --}}
                 </li>
                 <li>
-                    <a href="{{ route('about') }}" @class([
+                    {{-- <a href="{{ route('about') }}" @class([
                         $navLinkBase,
                         'bg-[#2d3b61]' => request()->routeIs('about'),
                         'text-white' => request()->routeIs('about'),
@@ -50,70 +50,29 @@
                             'text-white' => request()->routeIs('about'),
                         ])></i>
                         من نحن
-                    </a>
+                    </a> --}}
                 </li>
-                <li>
-                    <a href="{{ route('products.public.list') }}" @class([
-                        $navLinkBase,
-                        'bg-[#2d3b61]' => request()->routeIs('products.public.list'),
-                        'text-white' => request()->routeIs('products.public.list'),
-                        '!text-white' => request()->routeIs('products.public.list'),
-                        'text-base-content' => !request()->routeIs('products.public.list'),
-                        'hover:bg-[#2d3b61]' => true,
-                        'hover:text-white' => true,
-                    ])>
-                        <i data-lucide="package" @class([
-                            'w-4 h-4',
-                            'group-hover:text-white' => true,
-                            'text-white' => request()->routeIs('products.public.list'),
-                        ])></i>
-                        المنتجات
-                    </a>
-                </li>
-                <li>
-                    <details>
-                        <summary @class([
+                @foreach ($categories as $category)
+                    <li>
+                        <a href="{{ route('category.show', $category) }}" @class([
                             $navLinkBase,
-                            'cursor-pointer',
-                            'text-base-content' => !$isCategoryRoute,
+                            'bg-[#2d3b61]' => $currentCategorySlug === $category->slug,
+                            'text-white' => $currentCategorySlug === $category->slug,
+                            '!text-white' => $currentCategorySlug === $category->slug,
+                            'text-base-content' => $currentCategorySlug !== $category->slug,
                             'hover:bg-[#2d3b61]' => true,
                             'hover:text-white' => true,
-                            'bg-[#2d3b61]' => $isCategoryRoute,
-                            'text-white' => $isCategoryRoute,
-                            '!text-white' => $isCategoryRoute,
                         ])>
-                            <i data-lucide="grid" @class([
-                                'w-4 h-4',
-                                'group-hover:text-white' => true,
-                                'text-white' => $isCategoryRoute,
-                            ])></i>
-                            التصنيفات
-                        </summary>
-                        <ul class="mt-1 space-y-1">
-                            @foreach ($categories as $category)
-                                <li>
-                                    <a href="{{ route('category.show', $category) }}" @class([
-                                        $navLinkBase,
-                                        'bg-[#2d3b61]' => $currentCategorySlug === $category->slug,
-                                        'text-white' => $currentCategorySlug === $category->slug,
-                                        '!text-white' => $currentCategorySlug === $category->slug,
-                                        'text-base-content' => $currentCategorySlug !== $category->slug,
-                                        'hover:bg-[#2d3b61]' => true,
-                                        'hover:text-white' => true,
-                                    ])>
-                                        <i data-lucide="{{ $category->icon ?? 'box' }}"
-                                            @class([
-                                                'w-4 h-4',
-                                                'group-hover:text-white' => true,
-                                                'text-white' => $currentCategorySlug === $category->slug,
-                                            ])></i>
-                                        {{ $category->name }}
-                                    </a>
-                                </li>
-                            @endforeach
-                        </ul>
-                    </details>
-                </li>
+                            <i data-lucide="{{ $category->icon ?? 'box' }}"
+                                @class([
+                                    'w-4 h-4',
+                                    'group-hover:text-white' => true,
+                                    'text-white' => $currentCategorySlug === $category->slug,
+                                ])></i>
+                            {{ $category->name }}
+                        </a>
+                    </li>
+                @endforeach
             </ul>
         </div>
         <a href="{{ url('/') }}">
@@ -122,9 +81,9 @@
     </div>
 
     <div class="navbar-center hidden lg:flex">
-        <ul class="menu menu-horizontal px-1 gap-2 items-center">
+        <ul class="menu menu-horizontal px-1 gap-1 items-center">
             <li>
-                <a href="{{ route('home') }}" @class([
+                {{-- <a href="{{ route('home') }}" @class([
                     $navLinkBase,
                     'bg-[#2d3b61]' => request()->routeIs('home'),
                     'text-white' => request()->routeIs('home'),
@@ -139,85 +98,32 @@
                         'text-white' => request()->routeIs('home'),
                     ])></i>
                     الرئيسية
-                </a>
+                </a> --}}
             </li>
-            
-            <li>
-                <a href="{{ route('products.public.list') }}" @class([
-                    $navLinkBase,
-                    'bg-[#2d3b61]' => request()->routeIs('products.public.list'),
-                    'text-white' => request()->routeIs('products.public.list'),
-                    '!text-white' => request()->routeIs('products.public.list'),
-                    'text-base-content' => !request()->routeIs('products.public.list'),
-                    'hover:bg-[#2d3b61]' => true,
-                    'hover:text-white' => true,
-                ])>
-                    <i data-lucide="package" @class([
-                        'w-4 h-4',
-                        'group-hover:text-white' => true,
-                        'text-white' => request()->routeIs('products.public.list'),
-                    ])></i>
-                    المنتجات
-                </a>
-            </li>
-            <li class="relative group">
-                <button type="button"
-                    @class([
+            @foreach ($categories as $category)
+                <li>
+                    <a href="{{ route('category.show', $category) }}" @class([
                         $navLinkBase,
-                        'cursor-pointer',
-                        'bg-[#2d3b61]' => $isCategoryRoute,
-                        'text-white' => $isCategoryRoute,
-                        '!text-white' => $isCategoryRoute,
-                        'text-base-content' => !$isCategoryRoute,
+                        'group/item',
+                        'bg-[#2d3b61]' => $currentCategorySlug === $category->slug,
+                        'text-white' => $currentCategorySlug === $category->slug,
+                        '!text-white' => $currentCategorySlug === $category->slug,
+                        'text-base-content' => $currentCategorySlug !== $category->slug,
                         'hover:bg-[#2d3b61]' => true,
                         'hover:text-white' => true,
-                        'group-hover:bg-[#2d3b61]' => true,
-                        'group-hover:text-white' => true,
-                    ])
-                    aria-haspopup="true"
-                    aria-expanded="{{ $isCategoryRoute ? 'true' : 'false' }}">
-                    <i data-lucide="grid" @class([
-                        'w-4 h-4',
-                        'group-hover:text-white' => true,
-                        'text-white' => $isCategoryRoute,
-                        'text-base-content' => !$isCategoryRoute,
-                    ])></i>
-                    التصنيفات
-                    <i data-lucide="chevron-down" @class([
-                        'w-4 h-4',
-                        'group-hover:text-white' => true,
-                        'text-white' => $isCategoryRoute,
-                        'text-base-content' => !$isCategoryRoute,
-                    ])></i>
-                </button>
-                <ul
-                    class="absolute right-0 top-full z-[60] hidden w-64 flex-col space-y-1 rounded-box bg-base-100 p-3 shadow-lg group-hover:flex group-focus-within:flex ms-0">
-                    @foreach ($categories as $category)
-                        <li>
-                            <a href="{{ route('category.show', $category) }}" @class([
-                                $navLinkBase,
-                                'group/item',
-                                'bg-[#2d3b61]' => $currentCategorySlug === $category->slug,
-                                'text-white' => $currentCategorySlug === $category->slug,
-                                '!text-white' => $currentCategorySlug === $category->slug,
-                                'text-base-content' => $currentCategorySlug !== $category->slug,
-                                'hover:bg-[#2d3b61]' => true,
-                                'hover:text-white' => true,
-                            ])>
-                                <i data-lucide="{{ $category->icon ?? 'box' }}" @class([
-                                    'w-4 h-4',
-                                    'group-hover/item:text-white' => true,
-                                    'text-white' => $currentCategorySlug === $category->slug,
-                                    'text-base-content' => $currentCategorySlug !== $category->slug,
-                                ])></i>
-                                {{ $category->name }}
-                            </a>
-                        </li>
-                    @endforeach
-                </ul>
-            </li>
+                    ])>
+                        <i data-lucide="{{ $category->icon ?? 'box' }}" @class([
+                            'w-4 h-4',
+                            'group-hover/item:text-white' => true,
+                            'text-white' => $currentCategorySlug === $category->slug,
+                            'text-base-content' => $currentCategorySlug !== $category->slug,
+                        ])></i>
+                        {{ $category->name }}
+                    </a>
+                </li>
+            @endforeach
 						<li>
-                <a href="{{ route('about') }}" @class([
+                {{-- <a href="{{ route('about') }}" @class([
                     $navLinkBase,
                     'bg-[#2d3b61]' => request()->routeIs('about'),
                     'text-white' => request()->routeIs('about'),
@@ -232,7 +138,7 @@
                         'text-white' => request()->routeIs('about'),
                     ])></i>
                     من نحن
-                </a>
+                </a> --}}
             </li>
         </ul>
     </div>

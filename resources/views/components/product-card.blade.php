@@ -3,11 +3,23 @@
     $hasDiscount = $discountValue > 0;
     $basePrice = (float) ($price ?? 0);
     $finalPrice = $hasDiscount ? round($basePrice * (100 - $discountValue) / 100, 2) : $basePrice;
+
+    // Resolve image URL to ensure it points to /storage/uploads when needed
+    $imageUrl = $image ?? null;
+    if ($imageUrl) {
+        if (Str::startsWith($imageUrl, '/uploads')) {
+            $imageUrl = '/storage' . $imageUrl;
+        } elseif (!Str::startsWith($imageUrl, ['http://', 'https://', '/storage'])) {
+            $imageUrl = Storage::url($imageUrl) ?? asset('storage/' . ltrim($imageUrl, '/'));
+        }
+    } else {
+        $imageUrl = 'https://placehold.co/400x400';
+    }
 @endphp
 <div class="card bg-base-100 shadow-xl card-hover">
     <a href="{{ route('product.show', $slug) }}">
         <figure class="relative overflow-hidden h-48">
-            <img src="{{ $image }}" alt="{{ $title }}"
+            <img src="{{ $imageUrl }}" alt="{{ $title }}"
                 class="w-full h-full object-cover transition-transform duration-300 hover:scale-110" />
             @if ($hasDiscount)
                 <div class="badge badge-secondary absolute top-2 left-2">{{ $discountValue }}% OFF</div>

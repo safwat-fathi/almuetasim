@@ -31,10 +31,6 @@
     --color-error: #ef4444;
 }
 
-/* Custom hero gradient (used on homepage). Use .hero.hero-gradient to override DaisyUI's .hero if present */
-.hero.hero-gradient {
-  background: linear-gradient(90deg, #3c59a7 0%, #76898f 100%);
-}
 
 /* Loading state for products grid */
 #products-grid[data-loading="true"] {

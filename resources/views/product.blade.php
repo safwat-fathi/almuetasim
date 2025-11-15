@@ -151,11 +151,17 @@
                             :class="{ 'loading': wishlistLoading }"
                             x-on:click="wishlistLoading = true; fetch('{{ route('wishlist.add', $product->id) }}', { method: 'POST', headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' } }).then(response => response.json()).then(data => { 
                                 wishlistLoading = false; 
-                                document.getElementById('wishlist-count').textContent = data.count;
-                                showToast('Added to wishlist!', 'success');
+                                const wishlistCountEl = document.getElementById('wishlist-count');
+                                if (wishlistCountEl) {
+                                    wishlistCountEl.textContent = data.count;
+                                    wishlistCountEl.style.display = data.count > 0 ? 'block' : 'none';
+                                }
+                                // Dispatch custom event to update navbar
+                                document.dispatchEvent(new CustomEvent('wishlistUpdated', { detail: { count: data.count } }));
+                                showToast('تمت الإضافة إلى قائمة الأمنيات!', 'success');
                             }).catch(error => { 
                                 wishlistLoading = false; 
-                                showToast('Error adding to wishlist', 'error');
+                                showToast('حدث خطأ أثناء الإضافة', 'error');
                             });">
                             <i data-lucide="heart" class="w-5 h-5"></i>
 														إضافة للمفضلة

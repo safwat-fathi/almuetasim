@@ -1,8 +1,20 @@
 @php
+    use App\Http\Controllers\WishlistController;
+    use Illuminate\Support\Str;
+    use Illuminate\Support\Facades\Storage;
+    
     $categories = \App\Models\Category::orderBy('name')->get();
     $currentCategorySlug = request()->route('categorySlug');
     $isCategoryRoute = request()->routeIs('category.show');
     $navLinkBase = 'group flex items-center gap-2 px-4 py-2 rounded-md transition-colors duration-150';
+    
+    // Get wishlist count and top products
+    $wishlistCount = 0;
+    $wishlistTopProducts = [];
+    if (session()->has('wishlist')) {
+        $wishlistCount = count(session()->get('wishlist', []));
+        $wishlistTopProducts = WishlistController::getTopProducts();
+    }
 @endphp
 
 <nav class="navbar shadow-lg sticky top-0 z-50" style="background-color: #f8fafc;">
@@ -165,6 +177,78 @@
                         class="text-sm text-primary flex items-center gap-1 justify-start">
                         <i data-lucide="arrow-left" class="w-3 h-3"></i>
                         عرض كل النتائج </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Wishlist Dropdown -->
+        <div class="dropdown dropdown-end">
+            <div tabindex="0" role="button" class="btn btn-ghost btn-circle">
+                <div class="indicator">
+                    <i data-lucide="heart"></i>
+                    @if($wishlistCount > 0)
+                        <span class="badge badge-sm indicator-item text-white" id="wishlist-count"
+                            style="background-color: #2d3b61;">{{ $wishlistCount }}</span>
+                    @else
+                        <span class="badge badge-sm indicator-item text-white hidden" id="wishlist-count"
+                            style="background-color: #2d3b61;">0</span>
+                    @endif
+                </div>
+            </div>
+            <div tabindex="0" class="card card-compact dropdown-content bg-base-100 z-[1] mt-3 w-80 shadow-xl">
+                <div class="card-body">
+                    <span class="text-lg font-bold">قائمة الأمنيات</span>
+                    <div id="wishlist-items" class="space-y-2 max-h-64 overflow-y-auto">
+                        @if(count($wishlistTopProducts) > 0)
+                            @foreach($wishlistTopProducts as $product)
+                                @php
+                                    $images = $product['images'] ?? [];
+                                    $mainImage = null;
+                                    if (!empty($images)) {
+                                        $image = $images[0];
+                                        if (Str::startsWith($image, ['http://', 'https://', '/'])) {
+                                            $mainImage = $image;
+                                        } else {
+                                            $mainImage = Storage::url($image);
+                                        }
+                                    } else {
+                                        $mainImage = 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200&h=150&fit=crop&crop=center';
+                                    }
+                                    $discount = (int) ($product['discount'] ?? 0);
+                                    $finalPrice = $discount > 0 ? round(($product['price'] * (100 - $discount)) / 100, 2) : $product['price'];
+                                @endphp
+                                <div class="flex items-center gap-3 p-2 rounded hover:bg-base-200" data-product-id="{{ $product['id'] }}">
+                                    <a href="{{ route('product.show', $product['slug']) }}" class="flex items-center gap-3 flex-1">
+                                        <img src="{{ $mainImage }}" alt="{{ $product['title'] }}" class="w-12 h-12 object-cover rounded" />
+                                        <div class="flex-1 min-w-0">
+                                            <div class="text-sm font-semibold truncate">{{ $product['title'] }}</div>
+                                            <div class="text-xs text-base-content/70 flex items-center gap-1">
+                                                <span class="font-medium">@money($finalPrice)</span>
+                                                @if($discount > 0)
+                                                    <span class="line-through">@money($product['price'])</span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </a>
+                                    <button 
+                                        class="btn btn-ghost btn-xs btn-circle remove-from-wishlist-navbar" 
+                                        data-product-id="{{ $product['id'] }}"
+                                        title="إزالة من قائمة الأمنيات">
+                                        <i data-lucide="x" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
+                            @endforeach
+                        @else
+                            <p class="text-base-content/70 text-sm">قائمة الأمنيات فارغة</p>
+                        @endif
+                    </div>
+                    <div class="card-actions">
+                        <a href="{{ route('wishlist.index') }}" class="btn btn-block text-white"
+                            style="background-color: #2d3b61; border-color: #2d3b61;">
+                            <i data-lucide="heart" class="w-4 h-4"></i>
+                            عرض قائمة الأمنيات
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -537,5 +621,100 @@
             });
         }
 
+    })();
+</script>
+
+<script>
+    (function() {
+        // Function to update wishlist count in navbar
+        function updateWishlistCount(count) {
+            const wishlistCountEl = document.getElementById('wishlist-count');
+            if (wishlistCountEl) {
+                wishlistCountEl.textContent = count;
+                if (count > 0) {
+                    wishlistCountEl.style.display = 'block';
+                } else {
+                    wishlistCountEl.style.display = 'none';
+                }
+            }
+        }
+
+        // Function to refresh wishlist dropdown (reload page to get updated products)
+        function refreshWishlistDropdown() {
+            // Reload the page to get updated wishlist items
+            // This is simpler than dynamically updating the dropdown
+            // The dropdown will be updated on next open
+        }
+
+        // Listen for custom events from other pages
+        document.addEventListener('wishlistUpdated', function(e) {
+            if (e.detail && typeof e.detail.count !== 'undefined') {
+                updateWishlistCount(e.detail.count);
+            }
+        });
+
+        // Also listen for storage events (in case of multiple tabs)
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'wishlist') {
+                // Reload count from session
+                fetch('/wishlist/count')
+                    .then(response => response.json())
+                    .then(data => {
+                        updateWishlistCount(data.count);
+                    });
+            }
+        });
+
+        // Remove from wishlist in navbar dropdown
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.remove-from-wishlist-navbar')) {
+                const button = e.target.closest('.remove-from-wishlist-navbar');
+                const productId = button.getAttribute('data-product-id');
+                const item = button.closest('[data-product-id]');
+                
+                // Show loading state
+                button.disabled = true;
+                button.classList.add('loading');
+                
+                fetch(`/wishlist/remove/${productId}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Remove the item with animation
+                        item.style.transition = 'opacity 0.3s, transform 0.3s';
+                        item.style.opacity = '0';
+                        item.style.transform = 'translateX(-10px)';
+                        
+                        setTimeout(() => {
+                            item.remove();
+                            
+                            // Update count
+                            updateWishlistCount(data.count);
+                            
+                            // Dispatch custom event
+                            document.dispatchEvent(new CustomEvent('wishlistUpdated', { detail: { count: data.count } }));
+                            
+                            // Check if wishlist is empty
+                            const wishlistItems = document.getElementById('wishlist-items');
+                            if (wishlistItems && wishlistItems.children.length === 0) {
+                                wishlistItems.innerHTML = '<p class="text-base-content/70 text-sm">قائمة الأمنيات فارغة</p>';
+                            }
+                        }, 300);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error removing from wishlist:', error);
+                    button.disabled = false;
+                    button.classList.remove('loading');
+                });
+            }
+        });
     })();
 </script>

@@ -217,26 +217,7 @@
                                     $discount = (int) ($product['discount'] ?? 0);
                                     $finalPrice = $discount > 0 ? round(($product['price'] * (100 - $discount)) / 100, 2) : $product['price'];
                                 @endphp
-                                <div class="flex items-center gap-3 p-2 rounded hover:bg-base-200" data-product-id="{{ $product['id'] }}">
-                                    <a href="{{ route('product.show', $product['slug']) }}" class="flex items-center gap-3 flex-1">
-                                        <img src="{{ $mainImage }}" alt="{{ $product['title'] }}" class="w-12 h-12 object-cover rounded" />
-                                        <div class="flex-1 min-w-0">
-                                            <div class="text-sm font-semibold truncate">{{ $product['title'] }}</div>
-                                            <div class="text-xs text-base-content/70 flex items-center gap-1">
-                                                <span class="font-medium">@money($finalPrice)</span>
-                                                @if($discount > 0)
-                                                    <span class="line-through">@money($product['price'])</span>
-                                                @endif
-                                            </div>
-                                        </div>
-                                    </a>
-                                    <button 
-                                        class="btn btn-ghost btn-xs btn-circle remove-from-wishlist-navbar" 
-                                        data-product-id="{{ $product['id'] }}"
-                                        title="إزالة من قائمة الأمنيات">
-                                        <i data-lucide="x" class="w-4 h-4"></i>
-                                    </button>
-                                </div>
+                                <x-product.inline-card :product="$product" :mainImage="$mainImage" :finalPrice="$finalPrice" :showQuantity="false" :showOriginalPrice="true" :removeClass="'remove-from-wishlist-navbar'" />
                             @endforeach
                         @else
                             <p class="text-base-content/70 text-sm">قائمة الأمنيات فارغة</p>

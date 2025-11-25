@@ -217,7 +217,7 @@
                                     $discount = (int) ($product['discount'] ?? 0);
                                     $finalPrice = $discount > 0 ? round(($product['price'] * (100 - $discount)) / 100, 2) : $product['price'];
                                 @endphp
-                                <x-product.inline-card :product="$product" :mainImage="$mainImage" :finalPrice="$finalPrice" :showQuantity="false" :showOriginalPrice="true" :removeClass="'remove-from-wishlist-navbar'" />
+                                <x-product.wishlist-inline :product="$product" :mainImage="$mainImage" :finalPrice="$finalPrice" />
                             @endforeach
                         @else
                             <p class="text-base-content/70 text-sm">قائمة الأمنيات فارغة</p>
@@ -263,6 +263,20 @@
         </button> --}}
     </div>
 </nav>
+
+<!-- Client-side wishlist template used by JS if needed -->
+<script type="text/template" id="product-wishlist-template">
+    <a href="/product/__SLUG__" class="flex items-center gap-3 p-2 rounded hover:bg-base-200">
+        <img src="__IMAGE__" alt="__TITLE__" class="w-12 h-12 object-cover rounded" />
+        <div class="flex-1 min-w-0">
+            <div class="text-sm font-semibold truncate">__TITLE__</div>
+            <div class="text-xs text-base-content/70 flex items-center gap-1">
+                <span class="font-medium">__PRICE__</span>
+                __ORIGINAL__
+            </div>
+        </div>
+    </a>
+</script>
 
 <script>
     (function() {

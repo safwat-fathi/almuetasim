@@ -23,3 +23,18 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Ignore local AI assistant files and developer plans that shouldn't be pushed
+/.docs/
+
+# Prevent committing generated inventory / site-audit files (might contain local paths)
+/docs/seo/inventory.json
+
+# Ignore environment local overrides (common variants)
+.env.local
+.env.testing
+
+# Ignore local build/dev caches
+.sass-cache/
+.cache/
+

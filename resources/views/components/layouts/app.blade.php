@@ -4,7 +4,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', __('app.name'))</title>
+
+    {{-- Collect page SEO values from view sections (if present) and fall back to config/service --}}
+    @php
+      $pageTitle = trim(View::getSection('title') ?? '');
+      $pageDescription = trim(View::getSection('description') ?? '');
+      $initial = [];
+      if (!empty($pageTitle)) {
+        $initial['title'] = $pageTitle;
+      }
+      if (!empty($pageDescription)) {
+        $initial['description'] = $pageDescription;
+      }
+    @endphp
+
+    {{-- Render SEO meta (fills title, description, OG/Twitter, canonical) --}}
+    <x-seo :data="$initial" />
 
 
     <!-- Vite styles -->

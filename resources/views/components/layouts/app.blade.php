@@ -25,8 +25,19 @@
     <!-- Vite styles -->
     @vite(['resources/css/app.css'])
 
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Google Fonts - optimise delivery -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    {{-- load non-blocking then swap in; provide noscript fallback for old browsers --}}
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript>
+      <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    </noscript>
+
+    {{-- allow pages to request a hero/preload image for better LCP handling --}}
+    @if(View::hasSection('preload_image') && $preload = trim(View::getSection('preload_image')))
+      <link rel="preload" as="image" href="{{ e($preload) }}">
+    @endif
 </head>
 
 <body class="font-tajawal bg-base-100">

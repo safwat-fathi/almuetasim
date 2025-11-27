@@ -68,7 +68,7 @@
                                                 <div class="flex items-center space-x-3">
                                                     <div class="avatar">
                                                         <div class="mask mask-squircle w-12 h-12">
-                                                            <img src="{{ $product->images ? (Storage::url($product->images[0]) ?? asset('storage/' . $product->images[0])) : 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=100&h=100&fit=crop' }}"
+                                                            <img loading="lazy" src="{{ $product->images ? (Storage::url($product->images[0]) ?? asset('storage/' . $product->images[0])) : 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=100&h=100&fit=crop' }}"
                                                                 alt="{{ $product->title }}" />
                                                         </div>
                                                     </div>
@@ -207,6 +207,7 @@
                                 <div class="relative">
                                     <img :src="URL.createObjectURL(file)"
                                          :alt="'Preview ' + index"
+                                         loading="lazy"
                                          class="w-16 h-16 object-cover rounded border" />
                                     <button type="button"
                                             class="absolute -top-2 -right-2 btn btn-xs btn-circle btn-error"
@@ -726,7 +727,7 @@
                             <div class="flex items-center space-x-3">
                                 <div class="avatar">
                                     <div class="mask mask-squircle w-12 h-12">
-                                        <img src="${(product.images && product.images[0]) ? ('/storage/' + product.images[0]) : 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=100&h=100&fit=crop'}" alt="${escapeHtml(product.title)}" />
+                                        <img src="${(product.images && product.images[0]) ? ('/storage/' + product.images[0]) : 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=100&h=100&fit=crop'}" alt="${escapeHtml(product.title)}"  loading="lazy"/>
                                     </div>
                                 </div>
                                 <div>

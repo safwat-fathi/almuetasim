@@ -77,11 +77,13 @@
                                 @if($product->images && count($product->images) > 0)
                                     <img src="{{ asset('storage/' . $product->images[0]) }}" 
                                          alt="{{ $product->title }}" 
-                                         class="w-full h-48 object-cover" />
+                                         class="w-full h-48 object-cover"
+                                         loading="lazy" />
                                 @else
                                     <img src="{{ asset('storage/uploads/default-product.jpg') }}" 
                                          alt="{{ $product->title }}" 
-                                         class="w-full h-48 object-cover" />
+                                         class="w-full h-48 object-cover" 
+                                         loading="lazy"/>
                                 @endif
                                 @if($product->is_part)
                                     <div class="absolute top-2 right-2 badge badge-warning badge-outline"> spare part </div>

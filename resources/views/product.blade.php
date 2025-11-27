@@ -35,6 +35,9 @@
             : 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&h=600&fit=crop&crop=center';
     @endphp
 
+    {{-- Preload the main product image to help LCP/FCP when available --}}
+    @section('preload_image', $mainImage)
+
     <!-- Product Details -->
     <div class="container mx-auto px-4 py-8">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
@@ -43,7 +46,8 @@
                 <div class="relative overflow-hidden rounded-lg bg-base-200 aspect-square select-none"
                      @mouseenter="zoomed = true" @mouseleave="zoomed = false"
                      @mousemove="onMove($event)">
-                    <img :src="activeImage" alt="{{ $product->title }}"
+                    <img src="{{ $mainImage }}" :src="activeImage" alt="{{ $product->title }}"
+                        fetchpriority="high" loading="lazy" decoding="async"
                         :style="zoomStyle"
                         :class="zoomed ? 'cursor-zoom-out' : 'cursor-zoom-in'"
                         class="w-full h-full object-cover transition-transform duration-200 ease-out" />
@@ -62,7 +66,7 @@
                                     :class="activeIndex === {{ $index }} ? 'ring-2 ring-primary' : ''"
                                     class="aspect-square rounded-lg overflow-hidden cursor-pointer focus:outline-none"
                                     @click="setActive({{ $index }})">
-                                <img src="{{ $image }}" alt="View {{ $index + 1 }}" class="w-full h-full object-cover" />
+                                <img src="{{ $image }}" alt="View {{ $index + 1 }}" loading="lazy" decoding="async" class="w-full h-full object-cover" />
                             </button>
                         @endforeach
                     </div>

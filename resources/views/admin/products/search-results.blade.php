@@ -90,7 +90,9 @@
                                     <figure class="px-6 pt-6">
                                         <img src="{{ $product->images ? (Storage::url($product->images[0]) ?? asset('storage/' . $product->images[0])) : 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=300&h=200&fit=crop' }}"
                                              alt="{{ $product->title }}"
-                                             class="rounded-xl w-full h-48 object-cover shadow-md" />
+                                             class="rounded-xl w-full h-48 object-cover shadow-md"
+                                             loading="lazy"
+                                              />
                                     </figure>
                                     <div class="card-body p-6">
                                         <h3 class="card-title text-lg font-bold text-gray-800 mb-2">{{ Str::limit($product->title, 30) }}</h3>
@@ -229,7 +231,8 @@
                                 <div class="relative">
                                     <img :src="URL.createObjectURL(file)"
                                          :alt="'Preview ' + index"
-                                         class="w-16 h-16 object-cover rounded border" />
+                                         class="w-16 h-16 object-cover rounded border"
+                                         loading="lazy" />
                                     <button type="button"
                                             class="absolute -top-2 -right-2 btn btn-xs btn-circle btn-error"
                                             @click="removeImageFile(index)">

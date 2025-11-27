@@ -19,7 +19,7 @@
 <div class="card bg-base-100 shadow-xl card-hover">
     <a href="{{ route('product.show', $slug) }}">
         <figure class="relative overflow-hidden h-48">
-            <img src="{{ $imageUrl }}" alt="{{ $title }}"
+            <img src="{{ $imageUrl }}" alt="{{ $title }}" loading="lazy" decoding="async"    
                 class="w-full h-full object-cover transition-transform duration-300 hover:scale-110" />
             @if ($hasDiscount)
                 <div class="badge badge-secondary absolute top-2 left-2">{{ $discountValue }}% OFF</div>

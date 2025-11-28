@@ -197,7 +197,8 @@
             </div>
             <div tabindex="0" class="card card-compact dropdown-content bg-base-100 z-[1] mt-3 w-80 shadow-xl">
                 <div class="card-body">
-                    <span class="text-lg font-bold">قائمة الأمنيات</span>
+                    <span class="text-lg font-bold">المفضلة</span>
+
                     <div id="wishlist-items" class="space-y-2 max-h-64 overflow-y-auto">
                         @if(count($wishlistTopProducts) > 0)
                             @foreach($wishlistTopProducts as $product)
@@ -227,7 +228,8 @@
                         <a href="{{ route('wishlist.index') }}" class="btn btn-block text-white"
                             style="background-color: #2d3b61; border-color: #2d3b61;">
                             <i data-lucide="heart" class="w-4 h-4"></i>
-                            عرض قائمة الأمنيات
+                            عرض المفضلة
+
                         </a>
                     </div>
                 </div>
@@ -643,10 +645,19 @@
 
         // Listen for custom events from other pages
         document.addEventListener('wishlistUpdated', function(e) {
-            if (e.detail && typeof e.detail.count !== 'undefined') {
-                updateWishlistCount(e.detail.count);
+            if (e.detail) {
+                if (typeof e.detail.count !== 'undefined') {
+                    updateWishlistCount(e.detail.count);
+                }
+                if (e.detail.dropdownHtml) {
+                    const wishlistItems = document.getElementById('wishlist-items');
+                    if (wishlistItems) {
+                        wishlistItems.innerHTML = e.detail.dropdownHtml;
+                    }
+                }
             }
         });
+
 
         // Also listen for storage events (in case of multiple tabs)
         window.addEventListener('storage', function(e) {
@@ -694,7 +705,13 @@
                             updateWishlistCount(data.count);
                             
                             // Dispatch custom event
-                            document.dispatchEvent(new CustomEvent('wishlistUpdated', { detail: { count: data.count } }));
+                            document.dispatchEvent(new CustomEvent('wishlistUpdated', { 
+                                detail: { 
+                                    count: data.count,
+                                    dropdownHtml: data.dropdownHtml
+                                } 
+                            }));
+
                             
                             // Check if wishlist is empty
                             const wishlistItems = document.getElementById('wishlist-items');

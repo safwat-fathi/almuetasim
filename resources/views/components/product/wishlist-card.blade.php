@@ -50,7 +50,7 @@
                 <i data-lucide="eye" class="w-4 h-4"></i>
                 عرض التفاصيل
             </a>
-            <button class="btn btn-ghost btn-sm btn-circle remove-from-wishlist" data-product-id="{{ $prod->id }}" title="إزالة من قائمة الأمنيات">
+            <button class="btn btn-ghost btn-sm btn-circle remove-from-wishlist" data-product-id="{{ $prod->id }}" title="إزالة من المفضلة">
                 <i data-lucide="heart" class="w-5 h-5 fill-current text-error"></i>
             </button>
         </div>

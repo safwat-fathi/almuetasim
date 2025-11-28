@@ -126,9 +126,11 @@
                 <div class="space-y-3" x-data="{ 
                     wishlistLoading: false,
                     shareLoading: false,
+                    inWishlist: {{ $inWishlist ? 'true' : 'false' }},
                     showToast(message, type = 'info') {
                         const toast = document.createElement('div');
-                        toast.className = 'toast toast-top toast-end z-50';
+                        toast.className = 'toast toast-bottom toast-start z-50';
+
                         toast.innerHTML = `
                             <div class='alert alert-${type}'>
                                 <span>${message}</span>
@@ -139,33 +141,63 @@
                         setTimeout(() => {
                             toast.remove();
                         }, 3000);
-											}
+                    },
+                    toggleWishlist() {
+                        this.wishlistLoading = true;
+                        const url = this.inWishlist 
+                            ? '{{ route('wishlist.remove', $product->id) }}' 
+                            : '{{ route('wishlist.add', $product->id) }}';
+                            
+                        fetch(url, { 
+                            method: 'POST', 
+                            headers: { 
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            } 
+                        })
+                        .then(response => response.json())
+                        .then(data => { 
+                            this.wishlistLoading = false; 
+                            if (data.success) {
+                                this.inWishlist = !this.inWishlist;
+                                
+                                // Dispatch custom event to update navbar with count AND HTML
+                                document.dispatchEvent(new CustomEvent('wishlistUpdated', { 
+                                    detail: { 
+                                        count: data.count,
+                                        dropdownHtml: data.dropdownHtml
+                                    } 
+                                }));
+                                
+                                this.showToast(
+                                    this.inWishlist ? 'تمت الإضافة إلى المفضلة!' : 'تمت الإزالة من المفضلة!', 
+                                    'success'
+                                );
+                            }
+                        })
+                        .catch(error => { 
+                            this.wishlistLoading = false; 
+                            this.showToast('حدث خطأ ما', 'error');
+                            console.error(error);
+                        });
+                    }
                 }">
+
                     {{-- <button class="btn btn-primary btn-lg w-full"
                         onclick="addToCart({{ $product->id }}, '{{ $product->title }}', {{ $product->price }}, '{{ $mainImage }}')">
                         <i data-lucide="shopping-cart" class="w-5 h-5"></i>
                         Add to Cart
                     </button> --}}
                     <div class="grid grid-cols-2 gap-3">
+                    <div class="grid grid-cols-2 gap-3">
                         <button class="btn btn-outline btn-lg" 
-                            :class="{ 'loading': wishlistLoading }"
-                            x-on:click="wishlistLoading = true; fetch('{{ route('wishlist.add', $product->id) }}', { method: 'POST', headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' } }).then(response => response.json()).then(data => { 
-                                wishlistLoading = false; 
-                                const wishlistCountEl = document.getElementById('wishlist-count');
-                                if (wishlistCountEl) {
-                                    wishlistCountEl.textContent = data.count;
-                                    wishlistCountEl.style.display = data.count > 0 ? 'block' : 'none';
-                                }
-                                // Dispatch custom event to update navbar
-                                document.dispatchEvent(new CustomEvent('wishlistUpdated', { detail: { count: data.count } }));
-                                showToast('تمت الإضافة إلى قائمة الأمنيات!', 'success');
-                            }).catch(error => { 
-                                wishlistLoading = false; 
-                                showToast('حدث خطأ أثناء الإضافة', 'error');
-                            });">
-                            <i data-lucide="heart" class="w-5 h-5"></i>
-														إضافة للمفضلة
+                            :class="{ 'loading': wishlistLoading, 'btn-error text-white': inWishlist, 'btn-outline': !inWishlist }"
+                            x-on:click="toggleWishlist()">
+                            <i data-lucide="heart" class="w-5 h-5" :class="{ 'fill-current': inWishlist }"></i>
+                            <span x-text="inWishlist ? 'إزالة من المفضلة' : 'إضافة للمفضلة'"></span>
                         </button>
+
                         <button class="btn btn-outline btn-lg"
                             :class="{ 'loading': shareLoading }"
                             x-on:click="shareLoading = true; navigator.clipboard.writeText(window.location.href).then(() => { 

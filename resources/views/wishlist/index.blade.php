@@ -3,15 +3,15 @@
     use Illuminate\Support\Facades\Storage;
 @endphp
 
-@section('title', 'قائمة الأمنيات')
+@section('title', 'المفضلة')
 
 <x-layouts.app>
     <div class="min-h-screen bg-base-200 py-8">
         <div class="container mx-auto px-4">
             <!-- Page Header -->
             <div class="text-center mb-12">
-                <h1 class="text-4xl font-bold text-primary mb-4">قائمة الأمنيات</h1>
-                <p class="text-lg text-base-content/70">المنتجات التي أضفتها إلى قائمة الأمنيات</p>
+                <h1 class="text-4xl font-bold text-primary mb-4">المفضلة</h1>
+                <p class="text-lg text-base-content/70">المنتجات التي أضفتها إلى المفضلة</p>
             </div>
 
             <!-- Products Grid -->
@@ -41,8 +41,9 @@
             @else
                 <div class="text-center py-12">
                     <i data-lucide="heart" class="w-16 h-16 mx-auto text-base-content/40 mb-4"></i>
-                    <h3 class="text-xl font-semibold mb-2">قائمة الأمنيات فارغة</h3>
-                    <p class="text-base-content/70 mb-6">لم تقم بإضافة أي منتجات إلى قائمة الأمنيات بعد</p>
+                    <h3 class="text-xl font-semibold mb-2">المفضلة فارغة</h3>
+                    <p class="text-base-content/70 mb-6">لم تقم بإضافة أي منتجات إلى المفضلة بعد</p>
+
                     <a href="{{ route('products.public.list') }}" class="btn btn-primary">
                         <i data-lucide="shopping-bag" class="w-5 h-5"></i>
                         تصفح المنتجات

@@ -74,8 +74,13 @@ class ProductController extends Controller
 		// Get all related products with category information (both directions)
 		$relatedProducts = $product->getAllRelatedProducts(8);
 
-		return view('product', compact('product', 'relatedProducts'));
+        // Check if product is in wishlist
+        $wishlist = session()->get('wishlist', []);
+        $inWishlist = in_array($product->id, $wishlist);
+
+		return view('product', compact('product', 'relatedProducts', 'inWishlist'));
 	}
+
 
 	/**
 	 * Show the form for creating a new resource.

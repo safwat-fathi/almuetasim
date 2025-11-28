@@ -30,7 +30,8 @@
             </div>
         </div>
     </a>
-    <button class="btn btn-ghost btn-xs btn-circle remove-from-wishlist-navbar" data-product-id="{{ $productId }}" title="إزالة من قائمة الأمنيات">
+    <button class="btn btn-ghost btn-xs btn-circle remove-from-wishlist-navbar" data-product-id="{{ $productId }}" title="إزالة من المفضلة">
+
         <i data-lucide="x" class="w-4 h-4"></i>
     </button>
 </div>

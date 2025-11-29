@@ -189,7 +189,7 @@
                         <i data-lucide="shopping-cart" class="w-5 h-5"></i>
                         Add to Cart
                     </button> --}}
-                    <div class="grid grid-cols-2 gap-3">
+                    
                     <div class="grid grid-cols-2 gap-3">
                         <button class="btn btn-outline btn-lg" 
                             :class="{ 'loading': wishlistLoading, 'btn-error text-white': inWishlist, 'btn-outline': !inWishlist }"
@@ -202,7 +202,7 @@
                             :class="{ 'loading': shareLoading }"
                             x-on:click="shareLoading = true; navigator.clipboard.writeText(window.location.href).then(() => { 
                                 shareLoading = false; 
-                                showToast('URL copied to clipboard!', 'success');
+                                showToast('تم نسخ الرابط!', 'success');
                             }).catch(err => { 
                                 shareLoading = false; 
                                 showToast('Failed to copy URL', 'error');

@@ -6,17 +6,17 @@
 
 <x-layouts.app>
     <!-- Category Header -->
-    <div class="hero hero-gradient text-white py-16">
+    <header class="hero hero-gradient text-white py-16">
         <div class="container mx-auto px-4 text-center">
             <h1 class="text-4xl font-bold mb-4">{{ $category->name }}</h1>
             <p class="text-xl opacity-90">{{ $category->description }}</p>
         </div>
-    </div>
+    </header>
 
     <!-- Products Section -->
-    <div class="container mx-auto px-4 py-16">
+    <section class="container mx-auto px-4 py-16" aria-labelledby="category-products-heading">
         <div class="flex flex-col md:flex-row justify-between items-center mb-8">
-            <h2 class="text-3xl font-bold mb-4 md:mb-0">المنتجات</h2>
+            <h2 id="category-products-heading" class="text-3xl font-bold mb-4 md:mb-0">المنتجات</h2>
             <div class="flex gap-2">
                 <select id="products-sort-select" class="select select-bordered">
                     <option value="featured">ترتيب حسب: التميز</option>
@@ -65,7 +65,7 @@
                 @endif
             </div>
         @endif
-    </div>
+    </section>
 
     <!-- Contact Form -->
     <x-contact-form />

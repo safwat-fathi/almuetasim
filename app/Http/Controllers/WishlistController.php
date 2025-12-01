@@ -90,7 +90,8 @@ class WishlistController extends Controller
         $topIds = array_slice($wishlistIds, 0, 3);
 
         $products = Product::whereIn('id', $topIds)
-            ->with('category')
+            ->select(['id', 'title', 'slug', 'price', 'discount', 'images', 'category_id']) // Only select needed columns
+            ->with(['category:id,name']) // Eager load with selected columns
             ->get()
             ->sortBy(function ($product) use ($topIds) {
                 return array_search($product->id, $topIds);
@@ -158,6 +159,13 @@ class WishlistController extends Controller
         
         // Let's use the view rendering.
         return view('components.layouts.partials.wishlist-dropdown-items', ['products' => $products])->render();
+    }
+    /**
+     * Get the dropdown HTML for AJAX requests.
+     */
+    public function getDropdown(): string
+    {
+        return self::getDropdownHtml();
     }
 }
 

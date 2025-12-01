@@ -8,6 +8,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MessagesController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\WishlistController;
 use Illuminate\Support\Facades\Route;
 
@@ -16,6 +17,9 @@ use Illuminate\Support\Facades\Route;
 // });
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+
+// Sitemap
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 
 Route::get('/about', [AboutController::class, 'index'])->name('about');
 
@@ -34,6 +38,7 @@ Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.in
 Route::post('/wishlist/add/{productId}', [WishlistController::class, 'add'])->name('wishlist.add');
 Route::post('/wishlist/remove/{productId}', [WishlistController::class, 'remove'])->name('wishlist.remove');
 Route::get('/wishlist/count', [WishlistController::class, 'count'])->name('wishlist.count');
+Route::get('/wishlist/dropdown', [WishlistController::class, 'getDropdown'])->name('wishlist.dropdown');
 
 // Contact form route
 Route::post('/contact', [MessagesController::class, 'store'])->name('contact.store');

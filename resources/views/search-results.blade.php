@@ -1,7 +1,7 @@
 @section('description', 'نتائج البحث - ' . (request('search') ? request('search') : 'المعتصم لفلاتر المياه'))
 
 <x-layouts.app>
-    <section class="hero hero-gradient text-white min-h-[calc(20vh-65px)]">
+    <header class="hero hero-gradient text-white min-h-[calc(20vh-65px)]">
         <div class="bg-white/40 flex flex-col items-center justify-center gap-4 p-10 rounded-2xl">
             <h1 class="text-4xl font-bold text-white drop-shadow-lg text-center flex items-center justify-center gap-4">
                
@@ -13,10 +13,10 @@
                 <p class="text-lg text-white/90">عرض النتائج لـ: "{{ request('search') }}"</p>
             @endif
         </div>
-    </section>
+    </header>
 
     <!-- Search and Filters Section -->
-    <div class="container mx-auto px-4 py-8">
+    <section class="container mx-auto px-4 py-8" aria-labelledby="search-results-heading">
         <div class="bg-base-100 rounded-lg shadow-lg p-6 mb-8">
             <div class="flex flex-col md:flex-row gap-4 items-center justify-between">
                 <div class="form-control flex-1 max-w-md">
@@ -47,7 +47,7 @@
 
         <!-- Results Count -->
         <div class="mb-6">
-            <p class="text-lg text-base-content/70">
+            <p class="text-lg text-base-content/70" id="search-results-heading">
                 @if($products->count() > 0)
                     تم العثور على {{ $products->count() }} منتج{{ $products->count() > 1 ? '' : '' }}
                 @else
@@ -57,7 +57,7 @@
         </div>
 
         <!-- Products Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="products-grid">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="products-grid" role="list">
             @forelse ($products as $product)
                 <x-product-card id="{{ $product->id }}"
                     image="{{ $product->images ? $product->images[0] : 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop&crop=center' }}"
@@ -76,11 +76,11 @@
 
         <!-- Pagination -->
         @if($products->hasPages())
-            <div class="mt-12 flex justify-center">
+            <nav class="mt-12 flex justify-center" aria-label="pagination">
                 {{ $products->appends(request()->query())->links() }}
-            </div>
+            </nav>
         @endif
-    </div>
+    </section>
 
 </x-layouts.app>
 

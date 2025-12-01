@@ -2,10 +2,10 @@
     <div class="min-h-screen bg-base-200 py-8">
         <div class="container mx-auto px-4">
             <!-- Page Header -->
-            <div class="text-center mb-12">
+            <header class="text-center mb-12">
                 <h1 class="text-4xl font-bold text-primary mb-4">جميع المنتجات</h1>
                 <p class="text-lg text-gray-600">تصفح جميع منتجاتنا المتوفرة</p>
-            </div>
+            </header>
 
             <!-- Search and Filter Section -->
             <div class="card bg-base-100 shadow-xl mb-8">
@@ -69,18 +69,24 @@
             </div>
 
             <!-- Products Grid -->
+            <section aria-labelledby="all-products-heading">
             @if($products->count() > 0)
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
+                <h2 id="all-products-heading" class="sr-only">قائمة جميع المنتجات</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8" role="list">
                     @foreach($products as $product)
                         <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow duration-300">
                             <figure class="relative">
                                 @if($product->images && count($product->images) > 0)
                                     <img src="{{ asset('storage/' . $product->images[0]) }}" 
                                          alt="{{ $product->title }}" 
+                                         loading="lazy"
+                                         decoding="async"
                                          class="w-full h-48 object-cover" />
                                 @else
                                     <img src="{{ asset('storage/uploads/default-product.jpg') }}" 
                                          alt="{{ $product->title }}" 
+                                         loading="lazy"
+                                         decoding="async"
                                          class="w-full h-48 object-cover" />
                                 @endif
                                 @if($product->is_part)
@@ -104,9 +110,9 @@
                 </div>
 
                 <!-- Pagination -->
-                <div class="flex justify-center mt-8">
+                <nav class="flex justify-center mt-8" aria-label="pagination">
                     {{ $products->appends(request()->query())->links() }}
-                </div>
+                </nav>
             @else
                 <div class="text-center py-12">
                     <i data-lucide="box" class="w-16 h-16 mx-auto text-gray-400 mb-4"></i>
@@ -114,6 +120,7 @@
                     <p class="text-gray-600">لم يتم العثور على منتجات تطابق معايير البحث</p>
                 </div>
             @endif
+            </section>
         </div>
     </div>
 </x-layouts.app>

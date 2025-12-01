@@ -90,6 +90,8 @@
                                     <figure class="px-6 pt-6">
                                         <img src="{{ $product->images ? (Storage::url($product->images[0]) ?? asset('storage/' . $product->images[0])) : 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=300&h=200&fit=crop' }}"
                                              alt="{{ $product->title }}"
+                                             loading="lazy"
+                                             decoding="async"
                                              class="rounded-xl w-full h-48 object-cover shadow-md" />
                                     </figure>
                                     <div class="card-body p-6">

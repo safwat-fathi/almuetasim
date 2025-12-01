@@ -46,4 +46,15 @@ class Category extends Model
     {
         return 'slug';
     }
+
+    /**
+     * Scope to optimize category queries by selecting specific fields
+     *
+     * @param \Illuminate\Database\Query\Builder $query
+     * @return \Illuminate\Database\Query\Builder
+     */
+    public function scopeOptimized($query)
+    {
+        return $query->select(['id', 'name', 'slug', 'description']);
+    }
 }

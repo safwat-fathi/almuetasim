@@ -15,10 +15,10 @@
     $finalPrice = $discount > 0 ? round(($prod->price * (100 - $discount)) / 100, 2) : $prod->price;
 @endphp
 
-<div class="card bg-base-100 shadow-xl card-hover" data-product-id="{{ $prod->id }}">
+<article class="card bg-base-100 shadow-xl card-hover" data-product-id="{{ $prod->id }}" itemscope itemtype="https://schema.org/Product">
     <a href="{{ route('product.show', $prod->slug) }}">
         <figure class="relative overflow-hidden h-48">
-            <img src="{{ $mainImage }}" alt="{{ $prod->title }}" class="w-full h-full object-cover transition-transform duration-300 hover:scale-110" />
+            <img src="{{ $mainImage }}" alt="{{ $prod->title }}" loading="lazy" decoding="async" itemprop="image" class="w-full h-full object-cover transition-transform duration-300 hover:scale-110" />
             @if ($discount > 0)
                 <div class="badge badge-secondary absolute top-2 left-2">{{ $discount }}% OFF</div>
             @endif
@@ -31,12 +31,16 @@
     </a>
     <div class="card-body">
         <h2 class="card-title text-lg">
-            <a href="{{ route('product.show', $prod->slug) }}" class="hover:text-primary">{{ $prod->title }}</a>
+            <a href="{{ route('product.show', $prod->slug) }}" class="hover:text-primary" itemprop="name">{{ $prod->title }}</a>
         </h2>
         <p class="text-base-content/70 text-sm line-clamp-2">{{ $prod->description }}</p>
         <div class="mt-2">
             <div class="flex items-center gap-2">
-                <span class="text-lg font-bold text-primary">@money($finalPrice)</span>
+                <span class="text-lg font-bold text-primary" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
+                    <meta itemprop="price" content="{{ $finalPrice }}">
+                    <meta itemprop="priceCurrency" content="EGP">
+                    @money($finalPrice)
+                </span>
                 @if ($discount > 0)
                     <span class="text-sm line-through text-base-content/50">@money($prod->price)</span>
                 @endif
@@ -55,4 +59,4 @@
             </button>
         </div>
     </div>
-</div>
+</article>

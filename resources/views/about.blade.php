@@ -2,30 +2,30 @@
     <div class="min-h-screen bg-base-200 py-12">
         <div class="container mx-auto px-4">
             <!-- Hero Section -->
-            <div class="text-center mb-12">
+            <header class="text-center mb-12">
                 <h1 class="text-5xl font-bold text-primary mb-4">{{ $settings['store_name'] ?? 'المعتصم لفلاتر المياه' }}
                 </h1>
                 <p class="text-xl text-gray-600">{{ $settings['business_type'] ?? 'متجر متخصص في فلاتر المياه' }}</p>
                 @if (!empty($settings['opening_date'] ?? ''))
                     <p class="text-lg mt-2">تأسسنا في {{ $settings['opening_date'] ?? '' }}</p>
                 @endif
-            </div>
+            </header>
 
             <!-- About Content -->
-            <div class="card bg-base-100 shadow-xl mb-12">
+            <article class="card bg-base-100 shadow-xl mb-12">
                 <div class="card-body">
                     <h2 class="card-title text-3xl mb-6">من نحن</h2>
                     <div class="prose max-w-none">
                         {!! nl2br(e($settings['about_us_content'] ?? 'محتوى صفحة من نحن غير محدد بعد.')) !!}
                     </div>
                 </div>
-            </div>
+            </article>
 
             <!-- Contact Information -->
-            <div class="grid md:grid-cols-2 gap-8 mb-12">
-                <div class="card bg-base-100 shadow-xl">
+            <section class="grid md:grid-cols-2 gap-8 mb-12" aria-labelledby="contact-heading">
+                <address class="card bg-base-100 shadow-xl not-italic">
                     <div class="card-body">
-                        <h3 class="card-title text-2xl mb-4">معلومات التواصل</h3>
+                        <h3 id="contact-heading" class="card-title text-2xl mb-4">معلومات التواصل</h3>
                         <div class="space-y-4">
                             @if (!empty($settings['contact_email'] ?? ''))
                                 <div class="flex items-center">
@@ -66,10 +66,10 @@
                             @endif
                         </div>
                     </div>
-                </div>
+                </address>
 
                 <!-- Map Section -->
-                <div class="card bg-base-100 shadow-xl">
+                <aside class="card bg-base-100 shadow-xl">
                     <div class="card-body">
                         <h3 class="card-title text-2xl mb-4">موقعنا</h3>
                         @if ($settings['location_link'] ?? '')
@@ -93,8 +93,8 @@
                             <p class="text-gray-500">لم يتم تحديد الموقع بعد.</p>
                         @endif
                     </div>
-                </div>
-            </div>
+                </aside>
+            </section>
 
 
         </div>

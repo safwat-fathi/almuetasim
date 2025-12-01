@@ -121,4 +121,26 @@ protected $fillable = ['title', 'slug', 'description', 'specs', 'price', 'discou
 	{
 		return 'slug';
 	}
+
+	/**
+	 * Scope to optimize product queries by selecting specific fields
+	 *
+	 * @param \Illuminate\Database\Query\Builder $query
+	 * @return \Illuminate\Database\Query\Builder
+	 */
+	public function scopeOptimized($query)
+	{
+		return $query->select(['id', 'title', 'description', 'price', 'discount', 'images', 'slug', 'type', 'specs', 'stock', 'category_id']);
+	}
+
+	/**
+	 * Scope to get products with optimized category relationship
+	 *
+	 * @param \Illuminate\Database\Query\Builder $query
+	 * @return \Illuminate\Database\Query\Builder
+	 */
+	public function scopeWithOptimizedCategory($query)
+	{
+		return $query->with(['category:id,name,slug']);
+	}
 }

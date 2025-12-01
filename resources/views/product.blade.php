@@ -6,9 +6,35 @@
 
 @section('description', $product->description)
 
+@php
+    // Generate breadcrumb structured data for product page
+    $breadcrumb = Schema::breadcrumbList()
+        ->itemListElement([
+            Schema::listItem()
+                ->position(1)
+                ->name('الرئيسية')
+                ->item(url('/')),
+            Schema::listItem()
+                ->position(2)
+                ->name($product->category->name)
+                ->item(route('category.show', $product->category->slug)),
+            Schema::listItem()
+                ->position(3)
+                ->name($product->title)
+                ->item(url()->current())
+        ]);
+@endphp
+
 <x-layouts.app>
+    {{-- Structured Data --}}
+    <script type="application/ld+json">
+        {!! $schema->toScript() !!}
+    </script>
+    <script type="application/ld+json">
+        {!! $breadcrumb->toScript() !!}
+    </script>
     <!-- Breadcrumb -->
-    <div class="container mx-auto px-4 py-4">
+    <nav class="container mx-auto px-4 py-4" aria-label="breadcrumb">
         <div class="text-sm breadcrumbs">
             <ul>
                 <li><a href="/" class="text-primary hover:underline">الرئيسية</a></li>
@@ -17,7 +43,7 @@
                 <li>{{ $product->title }}</li>
             </ul>
         </div>
-    </div>
+    </nav>
 
     @php
         $images = $product->images ?? [];
@@ -36,44 +62,48 @@
     @endphp
 
     <!-- Product Details -->
-    <div class="container mx-auto px-4 py-8">
+    <article class="container mx-auto px-4 py-8" itemscope itemtype="https://schema.org/Product">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
             <!-- Product Images -->
-            <div class="space-y-4" x-data="productGallery({{ json_encode($processedImages) }})">
-                <div class="relative overflow-hidden rounded-lg bg-base-200 aspect-square select-none"
+            <section class="space-y-4" x-data="productGallery({{ json_encode($processedImages) }})">
+                <figure class="relative overflow-hidden rounded-lg bg-base-200 aspect-square select-none"
                      @mouseenter="zoomed = true" @mouseleave="zoomed = false"
                      @mousemove="onMove($event)">
                     <img :src="activeImage" alt="{{ $product->title }}"
                         :style="zoomStyle"
                         :class="zoomed ? 'cursor-zoom-out' : 'cursor-zoom-in'"
+                        loading="eager"
+                        decoding="async"
+                        itemprop="image"
                         class="w-full h-full object-cover transition-transform duration-200 ease-out" />
                     @if (!empty($product->discount) && $product->discount > 0)
                         <div class="badge badge-secondary absolute top-4 left-4">
                             {{ $product->discount }}% OFF
                         </div>
                     @endif
-                </div>
+                </figure>
 
                 <!-- Thumbnail Images -->
                 @if (count($processedImages) > 1)
-                    <div class="grid grid-cols-4 gap-2">
+                    <div class="grid grid-cols-4 gap-2" role="group" aria-label="صور المنتج المصغرة">
                         @foreach ($processedImages as $index => $image)
                             <button type="button"
                                     :class="activeIndex === {{ $index }} ? 'ring-2 ring-primary' : ''"
                                     class="aspect-square rounded-lg overflow-hidden cursor-pointer focus:outline-none"
-                                    @click="setActive({{ $index }})">
-                                <img src="{{ $image }}" alt="View {{ $index + 1 }}" class="w-full h-full object-cover" />
+                                    @click="setActive({{ $index }})"
+                                    aria-label="عرض صورة {{ $index + 1 }}">
+                                <img src="{{ $image }}" alt="View {{ $index + 1 }}" loading="lazy" decoding="async" class="w-full h-full object-cover" />
                             </button>
                         @endforeach
                     </div>
                 @endif
-            </div>
+            </section>
 
             <!-- Product Info -->
-            <div class="space-y-6">
-                <div>
-                    <h1 class="text-3xl lg:text-4xl font-bold mb-2">{{ $product->title }}</h1>
-                    <p class="text-base-content/70 mb-4">{{ $product->description }}</p>
+            <section class="space-y-6">
+                <header>
+                    <h1 class="text-3xl lg:text-4xl font-bold mb-2" itemprop="name">{{ $product->title }}</h1>
+                    <p class="text-base-content/70 mb-4" itemprop="description">{{ $product->description }}</p>
 
                     <!-- Rating -->
                     <div class="flex items-center gap-2 mb-4">
@@ -251,8 +281,9 @@
                         </li>
                     </ul>
                 </div>
-            </div>
+            </section>
         </div>
+    </article>
 
         <!-- Product Tabs -->
 
@@ -577,8 +608,8 @@
             </div>
 
             <!-- Related Products -->
-            <div class="mt-16">
-                <h2 class="text-2xl font-bold mb-8">منتجات ذات صلة</h2>
+            <section class="mt-16" aria-labelledby="related-products-heading">
+                <h2 id="related-products-heading" class="text-2xl font-bold mb-8">منتجات ذات صلة</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     @if($relatedProducts && $relatedProducts->count() > 0)
                         @foreach($relatedProducts as $relatedProduct)
@@ -612,7 +643,7 @@
                         <p class="text-center col-span-full text-base-content/70 mb-4">لا يوجد منتجات مرتبطة بهذا المنتج.</p>
                     @endif
                 </div>
-            </div>
+            </section>
 </x-layouts.app>
 
 <script>

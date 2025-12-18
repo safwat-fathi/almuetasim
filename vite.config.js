@@ -9,6 +9,7 @@ export default defineConfig({
                 "resources/css/app.css",
                 "resources/js/app.js",
                 "resources/css/admin.css",
+                "resources/js/cart-clean.js",
             ],
             refresh: true,
         }),

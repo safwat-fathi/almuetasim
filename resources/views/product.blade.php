@@ -12,8 +12,10 @@
         <div class="text-sm breadcrumbs">
             <ul>
                 <li><a href="/" class="text-primary hover:underline">الرئيسية</a></li>
+                @if($product->category)
                 <li><a href="{{ route('category.show', $product->category->slug) }}"
                         class="text-primary hover:underline">{{ $product->category->name }}</a></li>
+                @endif
                 <li>{{ $product->title }}</li>
             </ul>
         </div>
@@ -184,12 +186,12 @@
                     }
                 }">
 
-                    {{-- <button class="btn btn-primary btn-lg w-full"
-                        onclick="addToCart({{ $product->id }}, '{{ $product->title }}', {{ $product->price }}, '{{ $mainImage }}')">
+                    <button class="btn btn-primary btn-lg w-full add-to-cart-btn"
+                        data-product-id="{{ $product->id }}">
                         <i data-lucide="shopping-cart" class="w-5 h-5"></i>
-                        Add to Cart
-                    </button> --}}
-                    
+                        إضافة للسلة
+                    </button>
+
                     <div class="grid grid-cols-2 gap-3">
                         <button class="btn btn-outline btn-lg" 
                             :class="{ 'loading': wishlistLoading, 'btn-error text-white': inWishlist, 'btn-outline': !inWishlist }"
@@ -255,144 +257,65 @@
         </div>
 
         <!-- Product Tabs -->
-
-
         <div class="mt-16">
-            <div class="tabs tabs-bordered mb-8">
-                {{-- <input type="radio" name="product_tabs" class="tab mb-4" aria-label="Description" checked />
-                <div class="tab-content">
-                    <div class="prose max-w-none">
-                        <p class="text-lg mb-4">
-                            Experience premium sound quality with our flagship wireless
-                            headphones. Engineered with advanced noise-canceling technology
-                            and premium drivers, these headphones deliver exceptional audio
-                            performance for music lovers and professionals alike.
-                        </p>
+            <div class="tabs tabs-bordered mb-8" x-data="{ activeTab: 'description' }">
+                <button type="button" class="tab" :class="{ 'tab-active': activeTab === 'description' }" @click="activeTab = 'description'">الوصف</button>
+                <button type="button" class="tab" :class="{ 'tab-active': activeTab === 'specifications' }" @click="activeTab = 'specifications'">المواصفات</button>
+                <button type="button" class="tab" :class="{ 'tab-active': activeTab === 'reviews' }" @click="activeTab = 'reviews'">التقييمات</button>
+                <button type="button" class="tab" :class="{ 'tab-active': activeTab === 'shipping' }" @click="activeTab = 'shipping'">الشحن والإرجاع</button>
+            </div>
 
-                        <h3>What&apos;s in the box:</h3>
-                        <ul>
-                            <li>Premium Wireless Headphones</li>
-                            <li>USB-C Charging Cable</li>
-                            <li>3.5mm Audio Cable</li>
-                            <li>Carrying Case</li>
-                            <li>User Manual & Warranty Card</li>
-                        </ul>
-
-                        <h3>Perfect for:</h3>
-                        <ul>
-                            <li>Music enthusiasts seeking premium sound quality</li>
-                            <li>Professionals working in noisy environments</li>
-                            <li>Travelers wanting comfort and noise isolation</li>
-                            <li>Gamers and content creators</li>
-                        </ul>
-                    </div>
-                </div> --}}
-
-                {{-- <input type="radio" name="product_tabs" class="tab mb-4" aria-label="Specifications" />
-                <div class="tab-content">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div>
-                            <h3 class="font-bold text-lg mb-4">
-                                Technical Specifications
-                            </h3>
-                            <div class="space-y-2">
-                                <div class="flex justify-between border-b pb-1">
-                                    <span class="font-medium">Driver Size:</span>
-                                    <span>40mm Dynamic</span>
-                                </div>
-                                <div class="flex justify-between border-b pb-1">
-                                    <span class="font-medium">Frequency Response:</span>
-                                    <span>20Hz - 20kHz</span>
-                                </div>
-                                <div class="flex justify-between border-b pb-1">
-                                    <span class="font-medium">Impedance:</span>
-                                    <span>32Ω</span>
-                                </div>
-                                <div class="flex justify-between border-b pb-1">
-                                    <span class="font-medium">Sensitivity:</span>
-                                    <span>105dB</span>
-                                </div>
-                                <div class="flex justify-between border-b pb-1">
-                                    <span class="font-medium">Weight:</span>
-                                    <span>250g</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div>
-                            <h3 class="font-bold text-lg mb-4">Connectivity & Battery</h3>
-                            <div class="space-y-2">
-                                <div class="flex justify-between border-b pb-1">
-                                    <span class="font-medium">Bluetooth Version:</span>
-                                    <span>5.0</span>
-                                </div>
-                                <div class="flex justify-between border-b pb-1">
-                                    <span class="font-medium">Range:</span>
-                                    <span>10m / 33ft</span>
-                                </div>
-                                <div class="flex justify-between border-b pb-1">
-                                    <span class="font-medium">Battery Life:</span>
-                                    <span>30 hours</span>
-                                </div>
-                                <div class="flex justify-between border-b pb-1">
-                                    <span class="font-medium">Charging Time:</span>
-                                    <span>2 hours</span>
-                                </div>
-                                <div class="flex justify-between border-b pb-1">
-                                    <span class="font-medium">Quick Charge:</span>
-                                    <span>5 min = 3 hours</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div> --}}
-
-                {{-- <div class="prose max-w-none">
+            <!-- Description Tab -->
+            <div x-show="activeTab === 'description'" class="tab-content">
+                <div class="prose max-w-none">
                     <p class="text-lg mb-4">{{ $product->description }}</p>
 
-                    <h3>Product Details:</h3>
+                    <h3>تفاصيل المنتج:</h3>
                     <ul>
-                        <li>Category: {{ $product->category->name }}</li>
+                        <li>الفئة: {{ $product->category->name }}</li>
                         @if ($product->is_part)
-                        <li>This is a replacement part/accessory</li>
+                        <li>هذا قطعة غيار/إكسسوار</li>
                         @else
-                        <li>This is a complete product</li>
+                        <li>هذا منتج كامل</li>
+                        @endif
+                        @if ($product->warranty_months > 0)
+                        <li>الضمان: {{ $product->warranty_months }} أشهر</li>
                         @endif
                     </ul>
 
-                    <h3>Perfect for:</h3>
+                    <h3>مناسب لـ:</h3>
                     <ul>
-                        <li>Customers looking for quality {{ $product->category->name }}</li>
-                        <li>Those who value reliability and performance</li>
-                        <li>Anyone seeking great value for money</li>
+                        <li>العملاء الذين يبحثون عن {{ $product->category->name }} عالي الجودة</li>
+                        <li>أولئك الذين يقدرون الموثوقية والأداء</li>
+                        <li>أي شخص يبحث عن قيمة ممتازة مقابل المال</li>
                     </ul>
                 </div>
             </div>
-            </div>
 
             <!-- Specifications Tab -->
-            <div id="specifications" class="tab-content">
+            <div x-show="activeTab === 'specifications'" class="tab-content">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div>
-                        <h3 class="font-bold text-lg mb-4">Product Specifications</h3>
+                        <h3 class="font-bold text-lg mb-4">مواصفات المنتج</h3>
                         <div class="space-y-2">
                             <div class="flex justify-between border-b pb-1">
-                                <span class="font-medium">Category:</span>
+                                <span class="font-medium">الفئة:</span>
                                 <span>{{ $product->category->name }}</span>
                             </div>
                             <div class="flex justify-between border-b pb-1">
-                                <span class="font-medium">Type:</span>
-                                <span>{{ $product->is_part ? 'Replacement Part' : 'Complete Product' }}</span>
+                                <span class="font-medium">النوع:</span>
+                                <span>{{ $product->is_part ? 'قطعة غيار' : 'منتج كامل' }}</span>
                             </div>
                             @if ($product->warranty_months > 0)
                             <div class="flex justify-between border-b pb-1">
-                                <span class="font-medium">Warranty:</span>
-                                <span>{{ $product->warranty_months }} months</span>
+                                <span class="font-medium">الضمان:</span>
+                                <span>{{ $product->warranty_months }} أشهر</span>
                             </div>
                             @endif
                         </div>
                     </div>
                     <div>
-                        <h3 class="font-bold text-lg mb-4">Technical Details</h3>
+                        <h3 class="font-bold text-lg mb-4">التفاصيل الفنية</h3>
                         <div class="space-y-2">
                             @if (isset($product->specs) && is_array($product->specs))
                                 @foreach ($product->specs as $key => $value)
@@ -402,7 +325,7 @@
                                 </div>
                                 @endforeach
                             @else
-                                <p class="text-base-content/70">No additional specifications available.</p>
+                                <p class="text-base-content/70">لا توجد مواصفات إضافية متاحة.</p>
                             @endif
                         </div>
                     </div>
@@ -410,7 +333,7 @@
             </div>
 
             <!-- Reviews Tab -->
-            <div id="reviews" class="tab-content">
+            <div x-show="activeTab === 'reviews'" class="tab-content">
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div>
                         <div class="text-center mb-6">
@@ -422,37 +345,32 @@
                                 <input type="radio" class="mask mask-star-2 bg-orange-400" checked disabled />
                                 <input type="radio" class="mask mask-star-2 bg-orange-400" checked disabled />
                             </div>
-                            <div class="text-sm text-base-content/70">247 reviews</div>
+                            <div class="text-sm text-base-content/70">247 تقييم</div>
                         </div>
                         <div class="space-y-2">
                             <div class="flex items-center gap-2">
                                 <span class="text-sm w-8">5★</span>
-                                <progress class="progress progress-primary w-24" value="85"
-                                    max="100"></progress>
+                                <progress class="progress progress-primary w-24" value="85" max="100"></progress>
                                 <span class="text-sm">85%</span>
                             </div>
                             <div class="flex items-center gap-2">
                                 <span class="text-sm w-8">4★</span>
-                                <progress class="progress progress-primary w-24" value="12"
-                                    max="100"></progress>
+                                <progress class="progress progress-primary w-24" value="12" max="100"></progress>
                                 <span class="text-sm">12%</span>
                             </div>
                             <div class="flex items-center gap-2">
                                 <span class="text-sm w-8">3★</span>
-                                <progress class="progress progress-primary w-24" value="2"
-                                    max="100"></progress>
+                                <progress class="progress progress-primary w-24" value="2" max="100"></progress>
                                 <span class="text-sm">2%</span>
                             </div>
                             <div class="flex items-center gap-2">
                                 <span class="text-sm w-8">2★</span>
-                                <progress class="progress progress-primary w-24" value="1"
-                                    max="100"></progress>
+                                <progress class="progress progress-primary w-24" value="1" max="100"></progress>
                                 <span class="text-sm">1%</span>
                             </div>
                             <div class="flex items-center gap-2">
                                 <span class="text-sm w-8">1★</span>
-                                <progress class="progress progress-primary w-24" value="0"
-                                    max="100"></progress>
+                                <progress class="progress progress-primary w-24" value="0" max="100"></progress>
                                 <span class="text-sm">0%</span>
                             </div>
                         </div>
@@ -469,11 +387,11 @@
                                     <input type="radio" class="mask mask-star-2 bg-orange-400" checked disabled />
                                     <input type="radio" class="mask mask-star-2 bg-orange-400" checked disabled />
                                 </div>
-                                <span class="font-medium">Sarah Johnson</span>
-                                <span class="text-sm text-base-content/70">2 days ago</span>
+                                <span class="font-medium">سارة جونسون</span>
+                                <span class="text-sm text-base-content/70">منذ يومين</span>
                             </div>
-                            <p class="text-sm mb-2"><strong>Amazing quality!</strong></p>
-                            <p class="text-sm text-base-content/70">This {{ $product->title }} exceeded my expectations. The build quality is excellent and it works perfectly. Highly recommend!</p>
+                            <p class="text-sm mb-2"><strong>جودة مذهلة!</strong></p>
+                            <p class="text-sm text-base-content/70">هذا {{ $product->title }} تجاوز توقعاتي. جودة البناء ممتازة ويعمل بشكل مثالي. أوصي به بشدة!</p>
                         </div>
 
                         <!-- Review 2 -->
@@ -486,11 +404,11 @@
                                     <input type="radio" class="mask mask-star-2 bg-orange-400" checked disabled />
                                     <input type="radio" class="mask mask-star-2 bg-orange-400" disabled />
                                 </div>
-                                <span class="font-medium">Mike Chen</span>
-                                <span class="text-sm text-base-content/70">1 week ago</span>
+                                <span class="font-medium">مايك تشين</span>
+                                <span class="text-sm text-base-content/70">منذ أسبوع</span>
                             </div>
-                            <p class="text-sm mb-2"><strong>Great value for money</strong></p>
-                            <p class="text-sm text-base-content/70">Perfect {{ $product->category->name }}. Works exactly as described. The price is very reasonable for the quality you get.</p>
+                            <p class="text-sm mb-2"><strong>قيمة ممتازة مقابل المال</strong></p>
+                            <p class="text-sm text-base-content/70">{{ $product->category->name }} مثالي. يعمل تماماً كما هو موصوف. السعر معقول جداً للجودة التي تحصل عليها.</p>
                         </div>
 
                         <!-- Review 3 -->
@@ -503,78 +421,78 @@
                                     <input type="radio" class="mask mask-star-2 bg-orange-400" checked disabled />
                                     <input type="radio" class="mask mask-star-2 bg-orange-400" checked disabled />
                                 </div>
-                                <span class="font-medium">Emily Rodriguez</span>
-                                <span class="text-sm text-base-content/70">2 weeks ago</span>
+                                <span class="font-medium">إميلي رودريغيز</span>
+                                <span class="text-sm text-base-content/70">منذ أسبوعين</span>
                             </div>
-                            <p class="text-sm mb-2"><strong>Best purchase this year!</strong></p>
-                            <p class="text-sm text-base-content/70">The quality is excellent and it arrived quickly. Will definitely buy from this store again.</p>
+                            <p class="text-sm mb-2"><strong>أفضل شراء هذا العام!</strong></p>
+                            <p class="text-sm text-base-content/70">الجودة ممتازة ووصل بسرعة. سأشتري بالتأكيد من هذا المتجر مرة أخرى.</p>
                         </div>
 
-                        <button class="btn btn-outline w-full">Load More Reviews</button>
+                        <button class="btn btn-outline w-full">تحميل المزيد من التقييمات</button>
                     </div>
                 </div>
             </div>
 
             <!-- Shipping Tab -->
-            <div id="shipping" class="tab-content">
+            <div x-show="activeTab === 'shipping'" class="tab-content">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div>
-                        <h3 class="font-bold text-lg mb-4">Shipping Options</h3>
+                        <h3 class="font-bold text-lg mb-4">خيارات الشحن</h3>
                         <div class="space-y-4">
                             <div class="border rounded-lg p-4">
                                 <div class="flex justify-between items-center mb-2">
-                                    <span class="font-medium">Standard Delivery</span>
-                                    <span class="text-success font-bold">FREE</span>
+                                    <span class="font-medium">التوصيل القياسي</span>
+                                    <span class="text-success font-bold">مجاني</span>
                                 </div>
-                                <p class="text-sm text-base-content/70">5-7 business days</p>
+                                <p class="text-sm text-base-content/70">5-7 أيام عمل</p>
                             </div>
                             <div class="border rounded-lg p-4">
                                 <div class="flex justify-between items-center mb-2">
-                                    <span class="font-medium">Express Delivery</span>
+                                    <span class="font-medium">التوصيل السريع</span>
                                     <span class="font-bold">@money(99.99)</span>
                                 </div>
-                                <p class="text-sm text-base-content/70">2-3 business days</p>
+                                <p class="text-sm text-base-content/70">2-3 أيام عمل</p>
                             </div>
                             <div class="border rounded-lg p-4">
                                 <div class="flex justify-between items-center mb-2">
-                                    <span class="font-medium">Next Day Delivery</span>
+                                    <span class="font-medium">التوصيل في اليوم التالي</span>
                                     <span class="font-bold">@money(199.99)</span>
                                 </div>
-                                <p class="text-sm text-base-content/70">Order by 2 PM for next day delivery</p>
+                                <p class="text-sm text-base-content/70">اطلب قبل الساعة 2 مساءً للتوصيل في اليوم التالي</p>
                             </div>
                         </div>
                     </div>
                     <div>
-                        <h3 class="font-bold text-lg mb-4">Return Policy</h3>
+                        <h3 class="font-bold text-lg mb-4">سياسة الإرجاع</h3>
                         <div class="space-y-4">
                             <div class="flex items-start gap-3">
                                 <i data-lucide="shield-check" class="w-5 h-5 text-success mt-1"></i>
                                 <div>
-                                    <h4 class="font-medium">30-Day Returns</h4>
-                                    <p class="text-sm text-base-content/70">Return within 30 days for a full refund</p>
+                                    <h4 class="font-medium">إرجاع خلال 30 يوم</h4>
+                                    <p class="text-sm text-base-content/70">أعد المنتج خلال 30 يوم لاسترداد كامل</p>
                                 </div>
                             </div>
                             <div class="flex items-start gap-3">
                                 <i data-lucide="truck" class="w-5 h-5 text-success mt-1"></i>
                                 <div>
-                                    <h4 class="font-medium">Free Return Shipping</h4>
-                                    <p class="text-sm text-base-content/70">We'll cover the return shipping costs</p>
+                                    <h4 class="font-medium">شحن إرجاع مجاني</h4>
+                                    <p class="text-sm text-base-content/70">سنغطي تكاليف شحن الإرجاع</p>
                                 </div>
                             </div>
                             @if ($product->warranty_months > 0)
                             <div class="flex items-start gap-3">
                                 <i data-lucide="headphones" class="w-5 h-5 text-success mt-1"></i>
                                 <div>
-                                    <h4 class="font-medium">{{ $product->warranty_months }}-Month Warranty</h4>
-                                    <p class="text-sm text-base-content/70">Full manufacturer warranty included</p>
+                                    <h4 class="font-medium">ضمان {{ $product->warranty_months }} شهر</h4>
+                                    <p class="text-sm text-base-content/70">ضمان الشركة المصنعة الكامل مشمول</p>
                                 </div>
                             </div>
                             @endif
                         </div>
                     </div>
                 </div>
-            </div> --}}
             </div>
+        </div>
 
             <!-- Related Products -->
             <div class="mt-16">

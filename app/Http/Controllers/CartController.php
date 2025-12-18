@@ -26,7 +26,8 @@ class CartController extends Controller
                     'name' => $product->title,
                     'price' => $product->price,
                     'image' => !empty($product->images) ? $product->images[0] : null, // product has images as json array, get first one
-                    'quantity' => 1
+                    'quantity' => 1,
+                    'slug' => $product->slug
                 ];
             }
             

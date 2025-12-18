@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AboutController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HomeController;
@@ -33,7 +34,19 @@ Route::get('/api/products', [ProductController::class, 'publicIndex'])->name('pr
 Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
 Route::post('/wishlist/add/{productId}', [WishlistController::class, 'add'])->name('wishlist.add');
 Route::post('/wishlist/remove/{productId}', [WishlistController::class, 'remove'])->name('wishlist.remove');
+// Check if a given product is in the wishlist (AJAX)
+Route::get('/wishlist/check/{productId}', [WishlistController::class, 'check'])->name('wishlist.check');
+// Return dropdown HTML and count for navbar (AJAX)
+Route::get('/wishlist/dropdown', [WishlistController::class, 'dropdown'])->name('wishlist.dropdown');
 Route::get('/wishlist/count', [WishlistController::class, 'count'])->name('wishlist.count');
+
+// Cart routes
+Route::post('/cart/add/{productId}', [CartController::class, 'add'])->name('cart.add');
+Route::post('/cart/remove/{productId}', [CartController::class, 'remove'])->name('cart.remove');
+Route::post('/cart/update/{productId}', [CartController::class, 'update'])->name('cart.update');
+Route::get('/cart/count', [CartController::class, 'count'])->name('cart.count');
+Route::get('/cart/items', [CartController::class, 'items'])->name('cart.items');
+Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
 
 // Contact form route
 Route::post('/contact', [MessagesController::class, 'store'])->name('contact.store');

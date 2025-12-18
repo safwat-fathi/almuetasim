@@ -76,6 +76,32 @@ class WishlistController extends Controller
     }
 
     /**
+     * Check whether a product is in the current session wishlist.
+     */
+    public function check(int $productId): JsonResponse
+    {
+        $wishlist = session()->get('wishlist', []);
+        $inWishlist = in_array((int) $productId, $wishlist, true);
+
+        return response()->json(['inWishlist' => $inWishlist]);
+    }
+
+    /**
+     * Return dropdown HTML and count for navbar via AJAX.
+     */
+    public function dropdown(): JsonResponse
+    {
+        $items = self::getTopProducts();
+        $count = is_array($items) ? count($items) : 0;
+
+        return response()->json([
+            'success' => true,
+            'count' => $count,
+            'dropdownHtml' => self::getDropdownHtml(),
+        ]);
+    }
+
+    /**
      * Get top 3 products from wishlist for navbar dropdown.
      */
     public static function getTopProducts(): array

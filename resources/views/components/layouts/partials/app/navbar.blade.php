@@ -15,6 +15,9 @@
         $wishlistCount = count(session()->get('wishlist', []));
         $wishlistTopProducts = WishlistController::getTopProducts();
     }
+
+    // Get cart items for navbar dropdown
+    $cartItems = session()->get('cart', []);
 @endphp
 
 <nav class="navbar shadow-lg sticky top-0 z-50" style="background-color: #f8fafc;">
@@ -183,7 +186,7 @@
 
         <!-- Wishlist Dropdown -->
         <div class="dropdown dropdown-end">
-            <div tabindex="0" role="button" class="btn btn-ghost btn-circle">
+            <div tabindex="0" role="button" id="wishlist-button" class="btn btn-ghost btn-circle" aria-haspopup="true" aria-expanded="false" data-wishlist-dropdown-url="{{ route('wishlist.dropdown') }}">
                 <div class="indicator">
                     <i data-lucide="heart"></i>
                     @if($wishlistCount > 0)
@@ -195,6 +198,42 @@
                     @endif
                 </div>
             </div>
+
+            <script>
+                (function() {
+                    // When the wishlist button is clicked, fetch the latest dropdown HTML
+                    var btn = document.getElementById('wishlist-button');
+                    if (!btn) return;
+
+                    btn.addEventListener('click', function() {
+                        var url = btn.getAttribute('data-wishlist-dropdown-url') || '/wishlist/dropdown';
+                        fetch(url, { credentials: 'same-origin' })
+                            .then(function(res) { return res.json(); })
+                            .then(function(json) {
+                                if (!json) return;
+                                if (json.dropdownHtml !== undefined) {
+                                    var container = document.getElementById('wishlist-items');
+                                    if (container) container.innerHTML = json.dropdownHtml;
+                                }
+                                if (json.count !== undefined) {
+                                    var counter = document.getElementById('wishlist-count');
+                                    if (counter) {
+                                        if (json.count > 0) {
+                                            counter.textContent = json.count;
+                                            counter.classList.remove('hidden');
+                                        } else {
+                                            counter.textContent = '0';
+                                            counter.classList.add('hidden');
+                                        }
+                                    }
+                                }
+                            }).catch(function() {
+                                // ignore failures silently
+                            });
+                    });
+                })();
+            </script>
+
             <div tabindex="0" class="card card-compact dropdown-content bg-base-100 z-[1] mt-3 w-80 shadow-xl">
                 <div class="card-body">
                     <span class="text-lg font-bold">المفضلة</span>
@@ -237,25 +276,53 @@
         </div>
 
         <div class="dropdown dropdown-end">
-            <div tabindex="0" role="button" class="btn btn-ghost btn-circle">
+            <div tabindex="0" role="button" id="cart-button" class="btn btn-ghost btn-circle">
                 <div class="indicator">
                     <i data-lucide="shopping-cart"></i>
-                    <span class="badge badge-sm indicator-item text-white" id="cart-count"
-                        style="background-color: #2d3b61;">0</span>
+                    @php
+                        $cartCount = count(session()->get('cart', []));
+                    @endphp
+                    @if($cartCount > 0)
+                        <span class="badge badge-sm indicator-item text-white" id="cart-count"
+                            style="background-color: #2d3b61;">{{ $cartCount }}</span>
+                    @else
+                        <span class="badge badge-sm indicator-item text-white hidden" id="cart-count"
+                            style="background-color: #2d3b61;">0</span>
+                    @endif
                 </div>
             </div>
             <div tabindex="0" class="card card-compact dropdown-content bg-base-100 z-[1] mt-3 w-80 shadow-xl">
                 <div class="card-body">
                     <span class="text-lg font-bold">عناصر السلة</span>
-                    <div id="cart-items" class="space-y-2">
-                        <p class="text-base-content/70">سلة التسوق فارغة</p>
+                    <div id="cart-items" class="space-y-2 max-h-64 overflow-y-auto">
+                        @if(count($cartItems) > 0)
+                            @foreach($cartItems as $item)
+                                <div class="cart-item flex items-center justify-between p-2 rounded hover:bg-base-200" data-product-id="{{ $item['id'] }}">
+                                    <a href="{{ isset($item['slug']) ? route('product.show', $item['slug']) : '#' }}" class="flex items-center gap-2 flex-1">
+                                        <img src="{{ $item['image'] ? '/storage/' . $item['image'] : 'https://placehold.co/60x60' }}" alt="{{ $item['name'] }}" class="w-12 h-12 object-cover rounded" />
+                                        <div class="flex-1 min-w-0">
+                                            <div class="text-sm font-semibold truncate">{{ $item['name'] }}</div>
+                                            <div class="text-xs text-base-content/70">الكمية: {{ $item['quantity'] }}</div>
+                                            <div class="text-xs flex items-center gap-1">
+                                                <span class="font-medium">{{ number_format($item['price'] * $item['quantity'], 2) }} ج.م</span>
+                                            </div>
+                                        </div>
+                                    </a>
+                                    <button class="btn btn-ghost btn-xs btn-circle remove-from-cart-navbar" data-product-id="{{ $item['id'] }}" title="إزالة من السلة">
+                                        <i data-lucide="x" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
+                            @endforeach
+                        @else
+                            <p class="text-base-content/70 text-sm">سلة التسوق فارغة</p>
+                        @endif
                     </div>
                     <div class="card-actions">
-                        <button class="btn btn-block text-white"
+                        <a href="{{ Route::has('cart.index') ? route('cart.index') : url('/cart') }}" class="btn btn-block text-white"
                             style="background-color: #2d3b61; border-color: #2d3b61;">
                             <i data-lucide="shopping-cart" class="w-4 h-4"></i>
                             عرض السلة
-                        </button>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -278,6 +345,25 @@
             </div>
         </div>
     </a>
+</script>
+
+<!-- Client-side cart template used by JS if needed -->
+<script type="text/template" id="product-cart-template">
+    <div class="cart-item" data-product-id="__ID__">
+        <a href="/product/__SLUG__" class="flex items-center gap-3 p-2 rounded hover:bg-base-200">
+            <img src="__IMAGE__" alt="__TITLE__" class="w-12 h-12 object-cover rounded" />
+            <div class="flex-1 min-w-0">
+                <div class="text-sm font-semibold truncate">__TITLE__</div>
+                <div class="text-xs text-base-content/70">الكمية: __QUANTITY__</div>
+                <div class="text-xs text-base-content/70 flex items-center gap-1">
+                    <span class="font-medium">__PRICE__</span>
+                </div>
+            </div>
+        </a>
+        <button class="btn btn-ghost btn-xs btn-circle remove-from-cart-navbar" data-product-id="__ID__" title="إزالة من السلة">
+            <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+    </div>
 </script>
 
 <script>
@@ -472,7 +558,7 @@
         }
 
         function renderProductCard(p) {
-            const image = (p.images && p.images[0]) ? ('/storage/' + p.images[0]) :
+            const image = (p.images && p.images[0]) ? ('/storage/' + p.images[0].replace(/^\/+/, '')) :
                 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop&crop=center';
             const title = escapeHtml(p.title || '');
             const egpFormatter = new Intl.NumberFormat('ar-EG', { style: 'currency', currency: 'EGP' });
@@ -528,7 +614,7 @@
         }
 
         function renderItem(p) {
-            const image = (p.images && p.images[0]) ? ('/storage/' + p.images[0]) :
+            const image = (p.images && p.images[0]) ? ('/storage/' + p.images[0].replace(/^\/+/, '')) :
                 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200&h=150&fit=crop&crop=center';
             const title = escapeHtml(p.title || '');
             const egpFormatter = new Intl.NumberFormat('ar-EG', { style: 'currency', currency: 'EGP' });
@@ -728,5 +814,244 @@
                 });
             }
         });
+    })();
+</script>
+
+<script>
+    (function() {
+        // Function to update cart count in navbar
+        function updateCartCount(count) {
+            const cartCountEl = document.getElementById('cart-count');
+            if (cartCountEl) {
+                cartCountEl.textContent = count;
+                if (count > 0) {
+                    cartCountEl.style.display = 'block';
+                } else {
+                    cartCountEl.style.display = 'none';
+                }
+            }
+        }
+
+        // Function to refresh cart dropdown
+        function refreshCartDropdown() {
+            fetch('/cart/items')
+                .then(response => response.json())
+                .then(data => {
+                    const cartItems = document.getElementById('cart-items');
+                    if (cartItems) {
+                        if (data.items && data.items.length > 0) {
+                            cartItems.innerHTML = '';
+                            data.items.forEach(function(item) {
+                                let priceFormatter = new Intl.NumberFormat('ar-EG', { style: 'currency', currency: 'EGP' });
+                                let formattedPrice = priceFormatter.format(item.price * item.quantity);
+
+                                let cartItemHtml = `
+                                    <div class="cart-item flex items-center justify-between p-2 rounded hover:bg-base-200" data-product-id="${item.id}">
+                                        <a href="/product/${item.slug || ''}" class="flex items-center gap-2 flex-1">
+                                            <img src="${item.image || 'https://placehold.co/60x60'}" alt="${item.name}" class="w-12 h-12 object-cover rounded" />
+                                            <div class="flex-1 min-w-0">
+                                                <div class="text-sm font-semibold truncate">${item.name}</div>
+                                                <div class="text-xs text-base-content/70">الكمية: ${item.quantity}</div>
+                                                <div class="text-xs flex items-center gap-1">
+                                                    <span class="font-medium">${formattedPrice}</span>
+                                                </div>
+                                            </div>
+                                        </a>
+                                        <button class="btn btn-ghost btn-xs btn-circle remove-from-cart-navbar" data-product-id="${item.id}" title="إزالة من السلة">
+                                            <i data-lucide="x" class="w-4 h-4"></i>
+                                        </button>
+                                    </div>
+                                `;
+                                cartItems.insertAdjacentHTML('beforeend', cartItemHtml);
+                            });
+                            // Update lucide icons
+                            if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                                window.lucide.createIcons();
+                            }
+                        } else {
+                            cartItems.innerHTML = '<p class="text-base-content/70 text-sm">سلة التسوق فارغة</p>';
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error refreshing cart dropdown:', error);
+                });
+        }
+
+        // Function to show toast notification
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = 'toast toast-bottom toast-start z-50';
+
+            toast.innerHTML = `
+                <div class='alert alert-${type}'>
+                    <span>${message}</span>
+                </div>
+            `;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        // Function to add product to cart
+        window.addToCart = function(productId, title, price, image) {
+            fetch(`/cart/add/${productId}`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updateCartCount(data.count);
+                    refreshCartDropdown(); // Update dropdown content
+                    showToast('تمت إضافة المنتج إلى السلة!', 'success');
+
+                    // Dispatch custom event to update cart dropdown
+                    document.dispatchEvent(new CustomEvent('cartUpdated', {
+                        detail: {
+                            count: data.count,
+                            message: data.message
+                        }
+                    }));
+                } else {
+                    showToast('حدث خطأ أثناء إضافة المنتج إلى السلة', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error adding to cart:', error);
+                showToast('حدث خطأ أثناء إضافة المنتج إلى السلة', 'error');
+            });
+        };
+
+        // Generic function to add product to cart (used in product cards)
+        window.addToCartGeneric = function(productId, title, price, image) {
+            fetch(`/cart/add/${productId}`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updateCartCount(data.count);
+                    refreshCartDropdown(); // Update dropdown content
+                    showToast('تمت إضافة المنتج إلى السلة!', 'success');
+
+                    // Dispatch custom event to update cart dropdown
+                    document.dispatchEvent(new CustomEvent('cartUpdated', {
+                        detail: {
+                            count: data.count,
+                            message: data.message
+                        }
+                    }));
+                } else {
+                    showToast('حدث خطأ أثناء إضافة المنتج إلى السلة', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error adding to cart:', error);
+                showToast('حدث خطأ أثناء إضافة المنتج إلى السلة', 'error');
+            });
+        };
+
+        // Listen for custom events from other pages
+        document.addEventListener('cartUpdated', function(e) {
+            if (e.detail && typeof e.detail.count !== 'undefined') {
+                updateCartCount(e.detail.count);
+            }
+        });
+
+        // Also listen for storage events (in case of multiple tabs)
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'cart') {
+                // Reload count from session
+                fetch('/cart/count')
+                    .then(response => response.json())
+                    .then(data => {
+                        updateCartCount(data.count);
+                        refreshCartDropdown(); // Update dropdown content
+                    });
+            }
+        });
+
+        // Remove from cart in navbar dropdown
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.remove-from-cart-navbar')) {
+                const button = e.target.closest('.remove-from-cart-navbar');
+                const productId = button.getAttribute('data-product-id');
+                const item = button.closest('[data-product-id]');
+
+                // Show loading state
+                button.disabled = true;
+                button.classList.add('loading');
+
+                fetch(`/cart/remove/${productId}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Remove the item with animation
+                        item.style.transition = 'opacity 0.3s, transform 0.3s';
+                        item.style.opacity = '0';
+                        item.style.transform = 'translateX(-10px)';
+
+                        setTimeout(() => {
+                            item.remove();
+
+                            // Update count
+                            updateCartCount(data.count);
+
+                            // Refresh dropdown
+                            refreshCartDropdown();
+
+                            // Dispatch custom event
+                            document.dispatchEvent(new CustomEvent('cartUpdated', {
+                                detail: {
+                                    count: data.count
+                                }
+                            }));
+
+                            // Check if cart is empty
+                            const cartItems = document.getElementById('cart-items');
+                            if (cartItems && cartItems.children.length === 0) {
+                                cartItems.innerHTML = '<p class="text-base-content/70 text-sm">سلة التسوق فارغة</p>';
+                            }
+                        }, 300);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error removing from cart:', error);
+                    button.disabled = false;
+                    button.classList.remove('loading');
+                });
+            }
+        });
+
+        // Ensure dropdown is populated when user opens the cart
+        var cartBtn = document.getElementById('cart-button');
+        if (cartBtn) {
+            cartBtn.addEventListener('click', function() {
+                try {
+                    refreshCartDropdown();
+                } catch (err) {
+                    console.error('Failed to refresh cart dropdown on open:', err);
+                }
+            });
+        }
     })();
 </script>

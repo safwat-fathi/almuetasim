@@ -726,7 +726,7 @@
                             <div class="flex items-center space-x-3">
                                 <div class="avatar">
                                     <div class="mask mask-squircle w-12 h-12">
-                                        <img src="${(product.images && product.images[0]) ? ('/storage/' + product.images[0]) : 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=100&h=100&fit=crop'}" alt="${escapeHtml(product.title)}" />
+                                        <img src="${(product.images && product.images[0]) ? ('/storage/' + product.images[0].replace(/^\\/+/, '')) : 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=100&h=100&fit=crop'}" alt="${escapeHtml(product.title)}" />
                                     </div>
                                 </div>
                                 <div>

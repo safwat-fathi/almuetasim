@@ -93,10 +93,18 @@
                                 <div class="mt-2">
                                     <span class="text-lg font-bold text-primary">@money($product->price)</span>
                                 </div>
-                                <div class="card-actions justify-end mt-4">
-                                    <a href="{{ route('product.show', $product->slug) }}" class="btn btn-primary btn-sm">
+                                <div class="card-actions justify-end mt-4 gap-2">
+                                    <a href="{{ route('product.show', $product->slug) }}" class="btn btn-outline btn-sm">
                                         عرض التفاصيل
                                     </a>
+                                    <button
+                                        type="button"
+                                        class="btn btn-primary btn-sm add-to-cart-btn"
+                                        data-product-id="{{ $product->id }}"
+                                        onclick="event.stopPropagation();">
+                                        <i class="fas fa-shopping-cart text-xs mr-1"></i>
+                                        إضافة للسلة
+                                    </button>
                                 </div>
                             </div>
                         </div>

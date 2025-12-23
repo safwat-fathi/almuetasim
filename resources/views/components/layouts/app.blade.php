@@ -56,13 +56,14 @@
     <!-- Resource hints for performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preload" href="{{ asset('images/filter-no-bg.png') }}" as="image" type="image/png" />
+    <link rel="preload" href="{{ asset('images/filter-no-bg.webp') }}" as="image" type="image/webp" />
 
     <!-- Vite styles -->
     @vite(['resources/css/app.css'])
 
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Google Fonts - Async loading for better performance -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet"></noscript>
 
     <!-- Preload critical resources -->
     <link rel="preload" href="{{ Vite::asset('resources/css/app.css') }}" as="style" />
@@ -108,8 +109,16 @@
 
     {{-- Footer --}}
         <x-layouts.partials.app.footer />
-    <!-- Vite scripts -->
-    @vite('resources/js/app.js')
+    <!-- Vite scripts - Deferred for better performance -->
+    @vite(['resources/js/app.js'])
+    <script>
+        // Ensure Vite scripts are deferred
+        document.querySelectorAll('script[src*="resources/js"]').forEach(script => {
+            if (!script.hasAttribute('defer') && !script.hasAttribute('async')) {
+                script.defer = true;
+            }
+        });
+    </script>
 </body>
 
 

@@ -3,13 +3,18 @@
 <x-layouts.app>
     <section class="hero hero-gradient text-white min-h-[calc(45vh-65px)] relative overflow-hidden" aria-label="الHEADER الرئيسي">
         <div class="w-full bg-white/40 backdrop-blur-md flex flex-col items-center justify-center gap-4 md:gap-6 p-8 md:p-12 relative z-10 text-center  ">
-            {{-- تم استبدال الشعار بصورة الفلتر وجعلها في الوسط لتكون أكثر وضوحاً --}}
-            <img
-                src="{{ asset('images/filter-no-bg.png') }}"
-                alt="شعار شركة المعتصم لتقنيات تنقية المياه - توفير فلاتر ومحطات مياه عالية الجودة"
-                loading="eager"
-                decoding="async"
-                class="h-40 md:h-56 lg:h-80 xl:h-96 w-auto object-contain drop-shadow-2xl mx-auto select-none" />
+            {{-- Hero image optimized with WebP format and explicit dimensions --}}
+            <picture>
+                <source srcset="{{ asset('images/filter-no-bg.webp') }}" type="image/webp">
+                <img
+                    src="{{ asset('images/filter-no-bg.png') }}"
+                    alt="شعار شركة المعتصم لتقنيات تنقية المياه - توفير فلاتر ومحطات مياه عالية الجودة"
+                    width="384"
+                    height="384"
+                    fetchpriority="high"
+                    decoding="async"
+                    class="h-40 md:h-56 lg:h-80 xl:h-96 w-auto object-contain drop-shadow-2xl mx-auto select-none" />
+            </picture>
 
             <h1 class="text-2xl md:text-3xl lg:text-4xl font-bold text-white/95 drop-shadow-lg leading-tight">
                 {{'المعتصم للفلاتر ومحطات المياه' }}

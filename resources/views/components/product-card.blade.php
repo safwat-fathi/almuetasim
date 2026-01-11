@@ -73,4 +73,4 @@ if ($imageUrl) {
 						</button>
 					</div>
 				</div>
-</div>
+</article>

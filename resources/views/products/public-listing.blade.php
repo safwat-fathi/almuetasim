@@ -2,10 +2,10 @@
     <div class="min-h-screen bg-base-200 py-8">
         <div class="container mx-auto px-4">
             <!-- Page Header -->
-            <div class="text-center mb-12">
+            <header class="text-center mb-12">
                 <h1 class="text-4xl font-bold text-primary mb-4">جميع المنتجات</h1>
                 <p class="text-lg text-gray-600">تصفح جميع منتجاتنا المتوفرة</p>
-            </div>
+            </header>
 
             <!-- Search and Filter Section -->
             <div class="card bg-base-100 shadow-xl mb-8">
@@ -69,6 +69,7 @@
             </div>
 
             <!-- Products Grid -->
+            <section aria-labelledby="all-products-heading">
             @if($products->count() > 0)
 							<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
 									@foreach($products as $product)
@@ -122,6 +123,7 @@
                     <p class="text-gray-600">لم يتم العثور على منتجات تطابق معايير البحث</p>
                 </div>
             @endif
+            </section>
         </div>
     </div>
 </x-layouts.app>

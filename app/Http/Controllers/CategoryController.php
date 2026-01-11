@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreCategoryRequest;
 use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Illuminate\Http\JsonResponse;
+use Spatie\SchemaOrg\Schema;
 
 class CategoryController extends Controller
 {
@@ -18,32 +22,24 @@ class CategoryController extends Controller
 	 */
 	public function index(Request $request): View
 	{
-		$query = Category::query();
+		$service = new \App\Services\CategoryService();
 
 		// Apply search filter
-		if ($request->filled('search')) {
-			$search = $request->input('search');
-			$query->where('name', 'like', "%{$search}%")
-				->orWhere('description', 'like', "%{$search}%");
-		}
+		$search = $request->filled('search') ? $request->input('search') : null;
 
-		// Apply additional filters if needed (e.g., by date, etc.)
-		if ($request->filled('date_filter')) {
-			$dateFilter = $request->input('date_filter');
-			switch ($dateFilter) {
-				case 'today':
-					$query->whereDate('created_at', today());
-					break;
-				case 'week':
-					$query->whereDate('created_at', '>=', now()->startOfWeek());
-					break;
-				case 'month':
-					$query->whereDate('created_at', '>=', now()->startOfMonth());
-					break;
-			}
+		if ($search) {
+			$categories = $service->searchCategories($search, 100); // Get top 100 matching categories
+			// Convert to paginator
+			$categories = new \Illuminate\Pagination\LengthAwarePaginator(
+				$categories,
+				$categories->count(),
+				10,
+				$request->page(),
+				['path' => $request->url(), 'pageName' => 'page']
+			);
+		} else {
+			$categories = Category::orderBy('created_at', 'desc')->paginate(10)->withQueryString();
 		}
-
-		$categories = $query->orderBy('created_at', 'desc')->paginate(10)->withQueryString();
 
 		return view('admin.categories.index', compact('categories'));
 	}
@@ -54,14 +50,11 @@ class CategoryController extends Controller
 	 * @param  \Illuminate\Http\Request  $request
 	 * @return \Illuminate\Http\RedirectResponse|JsonResponse
 	 */
-	public function store(Request $request)
+	public function store(StoreCategoryRequest $request)
 	{
-		$request->validate([
-			'name' => 'required|string|max:255',
-			'description' => 'nullable|string',
-		]);
+		$service = new \App\Services\CategoryService();
 
-		$category = Category::create($request->only(['name', 'description']));
+		$category = $service->createCategory($request->validated());
 
 		if ($request->wantsJson()) {
 			return response()->json([
@@ -104,13 +97,30 @@ class CategoryController extends Controller
 	 */
 	public function showPublic($categorySlug)
 	{
-		// Find the category by slug
-		$category = Category::where('slug', $categorySlug)->firstOrFail();
+		// Use the CacheService to get the category
+		$cacheService = new \App\Services\CacheService();
+		$category = $cacheService->getCategoryBySlug($categorySlug);
 
-		// Get products for this category
-		$products = Product::where('category_id', $category->id)->with('category')->paginate(12);
+		// Get products for this category with optimized query
+		$products = Product::where('category_id', $category->id)
+			->optimized()
+			->withOptimizedCategory()
+			->paginate(12);
 
-		return view('category', compact('category', 'products'));
+		// Generate breadcrumb structured data
+		$breadcrumb = Schema::breadcrumbList()
+			->itemListElement([
+				Schema::listItem()
+					->position(1)
+					->name('الرئيسية')
+					->item(url('/')),
+				Schema::listItem()
+					->position(2)
+					->name($category->name)
+					->item(url()->current())
+			]);
+
+		return view('category', compact('category', 'products', 'breadcrumb'));
 	}
 
 	/**
@@ -122,12 +132,14 @@ class CategoryController extends Controller
 	 */
 	public function update(Request $request, Category $category)
 	{
-		$request->validate([
+		$service = new \App\Services\CategoryService();
+
+		$validatedData = $request->validate([
 			'name' => 'required|string|max:255',
 			'description' => 'nullable|string',
 		]);
 
-		$category->update($request->only(['name', 'description']));
+		$category = $service->updateCategory($category, $validatedData);
 
 		if ($request->wantsJson()) {
 			return response()->json([
@@ -148,9 +160,12 @@ class CategoryController extends Controller
 	 */
 	public function destroy(Category $category)
 	{
-		// Check if category has associated products
-		if ($category->products()->count() > 0) {
-			$error = 'لا يمكن حذف الفئة لانه يحتوي على منتجات';
+		$service = new \App\Services\CategoryService();
+
+		try {
+			$deleted = $service->deleteCategory($category);
+		} catch (\Exception $e) {
+			$error = $e->getMessage();
 
 			if (request()->wantsJson()) {
 				return response()->json(['message' => $error], 422);
@@ -158,8 +173,6 @@ class CategoryController extends Controller
 
 			return redirect()->route('admin.categories.index')->with('error', $error);
 		}
-
-		$category->delete();
 
 		if (request()->wantsJson()) {
 			return response()->json([

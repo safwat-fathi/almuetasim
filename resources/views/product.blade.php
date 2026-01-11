@@ -1,190 +1,238 @@
 @php
-    use Illuminate\Support\Str;
+use Illuminate\Support\Str;
 @endphp
 
 @section('title', $product->title)
 
 @section('description', $product->description)
 
+@php
+// Generate breadcrumb structured data for product page
+$breadcrumb = \Spatie\SchemaOrg\Schema::breadcrumbList()
+	->itemListElement([
+		\Spatie\SchemaOrg\Schema::listItem()
+			->position(1)
+			->name('الرئيسية')
+			->item(url('/')),
+		\Spatie\SchemaOrg\Schema::listItem()
+			->position(2)
+			->name($product->category->name)
+			->item(route('category.show', $product->category->slug)),
+		\Spatie\SchemaOrg\Schema::listItem()
+			->position(3)
+			->name($product->title)
+			->item(url()->current())
+	]);
+@endphp
+{!! $breadcrumb->toScript() !!}
+
 <x-layouts.app>
-    <!-- Breadcrumb -->
-    <div class="container mx-auto px-4 py-4">
-        <div class="text-sm breadcrumbs">
-            <ul>
-                <li><a href="/" class="text-primary hover:underline">الرئيسية</a></li>
-                @if($product->category)
-                <li><a href="{{ route('category.show', $product->category->slug) }}"
-                        class="text-primary hover:underline">{{ $product->category->name }}</a></li>
-                @endif
-                <li>{{ $product->title }}</li>
-            </ul>
-        </div>
-    </div>
+	{{-- Structured Data --}}
+	<script type="application/ld+json">
+	        {!! $schema->toScript() !!}
+	    </script>
+	<script type="application/ld+json">
+	        {!! $breadcrumb->toScript() !!}
+	    </script>
+	<!-- Breadcrumb -->
+	<nav class="container mx-auto px-4 py-4" aria-label="breadcrumb">
+		<div class="text-sm breadcrumbs">
+			<ul>
+				<li><a href="/" class="text-primary hover:underline">الرئيسية</a></li>
+				<li><a href="{{ route('category.show', $product->category->slug) }}"
+						class="text-primary hover:underline">{{ $product->category->name }}</a></li>
+				<li>{{ $product->title }}</li>
+			</ul>
+		</div>
+	</nav>
+@php
+$images = $product->images ?? [];
+// Convert stored images to proper URLs if needed
+$processedImages = [];
+foreach ($images as $image) {
+	if (Str::startsWith($image, ['http://', 'https://', '/'])) {
+		$processedImages[] = $image;
+	} else {
+		$processedImages[] = Storage::url($image);
+	}
+}
+$mainImage = !empty($processedImages)
+	? $processedImages[0]
+	: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&h=600&fit=crop&crop=center';
+@endphp
 
-    @php
-        $images = $product->images ?? [];
-        // Convert stored images to proper URLs if needed
-        $processedImages = [];
-        foreach ($images as $image) {
-            if (Str::startsWith($image, ['http://', 'https://', '/'])) {
-                $processedImages[] = $image;
-            } else {
-                $processedImages[] = Storage::url($image);
-            }
-        }
-        $mainImage = !empty($processedImages)
-            ? $processedImages[0]
-            : 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&h=600&fit=crop&crop=center';
-    @endphp
+<!-- Product Details -->
+<article class="container mx-auto px-4 py-8" itemscope itemtype="https://schema.org/Product">
+	<div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+		<!-- Product Images -->
+		<div class="space-y-4" x-data="productGallery({{ json_encode($processedImages) }})">
+			<div class="relative overflow-hidden rounded-lg bg-base-200 aspect-square select-none" @mouseenter="zoomed = true"
+				@mouseleave="zoomed = false" @mousemove="onMove($event)">
+				<img :src="activeImage" alt="{{ $product->title }}" :style="zoomStyle"
+					:class="zoomed ? 'cursor-zoom-out' : 'cursor-zoom-in'" loading="eager" decoding="async" itemprop="image"
+					class="w-full h-full object-cover transition-transform duration-200 ease-out" />
+				@if (!empty($product->discount) && $product->discount > 0)
+					<div class="badge badge-secondary absolute top-4 left-4">
+						{{ $product->discount }}% OFF
+					</div>
+				@endif
+			</div>
 
-    <!-- Product Details -->
-    <div class="container mx-auto px-4 py-8">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            <!-- Product Images -->
-            <div class="space-y-4" x-data="productGallery({{ json_encode($processedImages) }})">
-                <div class="relative overflow-hidden rounded-lg bg-base-200 aspect-square select-none"
-                     @mouseenter="zoomed = true" @mouseleave="zoomed = false"
-                     @mousemove="onMove($event)">
-                    <img :src="activeImage" alt="{{ $product->title }}"
-                        :style="zoomStyle"
-                        :class="zoomed ? 'cursor-zoom-out' : 'cursor-zoom-in'"
-                        class="w-full h-full object-cover transition-transform duration-200 ease-out" />
-                    @if (!empty($product->discount) && $product->discount > 0)
-                        <div class="badge badge-secondary absolute top-4 left-4">
-                            {{ $product->discount }}% OFF
-                        </div>
-                    @endif
-                </div>
+			<!-- Thumbnail Images -->
+			@if (count($processedImages) > 1)
+				<div class="grid grid-cols-4 gap-2" role="group" aria-label="صور المنتج المصغرة">
+					@foreach ($processedImages as $index => $image)
+						<button type="button" :class="activeIndex === {{ $index }} ? 'ring-2 ring-primary' : ''"
+							class="aspect-square rounded-lg overflow-hidden cursor-pointer focus:outline-none" @click="setActive({{ $index }})">
+							<img src="{{ $image }}" alt="View {{ $index + 1 }}" class="w-full h-full object-cover" loading="lazy"
+								decoding="async" />
+						</button>
+					@endforeach
+				</div>
+			@endif
+				</div>
+				
+				<!-- Product Info -->
+				<div class="space-y-6">
+					<div>
+						<h1 class="text-3xl lg:text-4xl font-bold mb-2" itemprop="name">{{ $product->title }}</h1>
+						<p class="text-base-content/70 mb-4" itemprop="description">{{ $product->description }}</p>
 
-                <!-- Thumbnail Images -->
-                @if (count($processedImages) > 1)
-                    <div class="grid grid-cols-4 gap-2">
-                        @foreach ($processedImages as $index => $image)
-                            <button type="button"
-                                    :class="activeIndex === {{ $index }} ? 'ring-2 ring-primary' : ''"
-                                    class="aspect-square rounded-lg overflow-hidden cursor-pointer focus:outline-none"
-                                    @click="setActive({{ $index }})">
-                                <img src="{{ $image }}" alt="View {{ $index + 1 }}" class="w-full h-full object-cover" />
-                            </button>
-                        @endforeach
-                    </div>
-                @endif
-            </div>
+				<!-- Rating -->
+				<div class="flex items-center gap-2 mb-4">
+					<div class="rating rating-sm">
+						<input type="radio" class="mask mask-star-2 bg-orange-400" checked disabled />
+						<input type="radio" class="mask mask-star-2 bg-orange-400" checked disabled />
+						<input type="radio" class="mask mask-star-2 bg-orange-400" checked disabled />
+						<input type="radio" class="mask mask-star-2 bg-orange-400" checked disabled />
+						<input type="radio" class="mask mask-star-2 bg-orange-400" checked disabled />
+					</div>
+					{{-- <span class="text-sm text-base-content/70">4.8 (247 reviews)</span> --}}
+					@if ($product->stock > 0)
+						<span class="text-success text-sm font-medium">✓ متوفر</span>
+					@else
+						<span class="text-error text-sm font-medium">غير متوفر</span>
+					@endif
+				</div>
 
-            <!-- Product Info -->
-            <div class="space-y-6">
-                <div>
-                    <h1 class="text-3xl lg:text-4xl font-bold mb-2">{{ $product->title }}</h1>
-                    <p class="text-base-content/70 mb-4">{{ $product->description }}</p>
+				<!-- Price -->
+				@php
+$discount = (int) ($product->discount ?? 0);
+$finalPrice = $discount > 0 ? round(($product->price * (100 - $discount)) / 100, 2) : $product->price;
+				@endphp
+				<div class="flex items-center gap-3 mb-6">
+					<span class="text-3xl font-bold text-primary">@money($finalPrice)</span>
+					@if ($discount > 0)
+						<span class="text-xl line-through text-base-content/50">@money($product->price)</span>
+						<span class="badge badge-secondary">خصم {{ $discount }}%</span>
+					@endif
+				</div>
+			</div>
 
-                    <!-- Rating -->
-                    <div class="flex items-center gap-2 mb-4">
-                        <div class="rating rating-sm">
-                            <input type="radio" class="mask mask-star-2 bg-orange-400" checked disabled />
-                            <input type="radio" class="mask mask-star-2 bg-orange-400" checked disabled />
-                            <input type="radio" class="mask mask-star-2 bg-orange-400" checked disabled />
-                            <input type="radio" class="mask mask-star-2 bg-orange-400" checked disabled />
-                            <input type="radio" class="mask mask-star-2 bg-orange-400" checked disabled />
-                        </div>
-                        {{-- <span class="text-sm text-base-content/70">4.8 (247 reviews)</span> --}}
-                        @if ($product->stock > 0)
-                            <span class="text-success text-sm font-medium">✓ متوفر</span>
-                        @else
-                            <span class="text-error text-sm font-medium">غير متوفر</span>
-                        @endif
-                    </div>
+			<!-- Quantity -->
+			{{-- <div>
+				<h3 class="font-semibold mb-3">Quantity</h3>
+				<div class="flex items-center gap-3">
+					<div class="join">
+						<button class="btn join-item btn-sm" onclick="decreaseQty()">-</button>
+						<input type="number" id="quantity" value="1" min="1"
+							class="input input-bordered join-item w-16 text-center input-sm" />
+						<button class="btn join-item btn-sm" onclick="increaseQty()">+</button>
+					</div>
+					@if ($product->stock > 0)
+					<span class="text-sm text-base-content/70">Only {{ $product->stock }} left in stock!</span>
+					@endif
+				</div>
+			</div> --}}
 
-                    <!-- Price -->
-                    @php
-                        $discount = (int) ($product->discount ?? 0);
-                        $finalPrice = $discount > 0 ? round(($product->price * (100 - $discount)) / 100, 2) : $product->price;
-                    @endphp
-                    <div class="flex items-center gap-3 mb-6">
-                        <span class="text-3xl font-bold text-primary">@money($finalPrice)</span>
-                        @if ($discount > 0)
-                            <span class="text-xl line-through text-base-content/50">@money($product->price)</span>
-                            <span class="badge badge-secondary">خصم {{ $discount }}%</span>
-                        @endif
-                    </div>
-                </div>
+			<!-- Buttons -->
+			<div class="space-y-3" x-data="{ 
+		                    wishlistLoading: false,
+		                    shareLoading: false,
+		                    inWishlist: {{ $inWishlist ? 'true' : 'false' }},
+		                    showToast(message, type = 'info') {
+		                        const toast = document.createElement('div');
+		                        toast.className = 'toast toast-bottom toast-start z-50';
+		
+		                        toast.innerHTML = `
+		                            <div class='alert alert-${type}'>
+		                                <span>${message}</span>
+		                            </div>
+		                        `;
+		                        document.body.appendChild(toast);
+		                        
+		                        setTimeout(() => {
+		                            toast.remove();
+		                        }, 3000);
+		                    },
+		                    toggleWishlist() {
+		                        this.wishlistLoading = true;
+		                        const url = this.inWishlist 
+		                            ? '{{ route('wishlist.remove', $product->id) }}' 
+		                            : '{{ route('wishlist.add', $product->id) }}';
+		                            
+		                        fetch(url, { 
+		                            method: 'POST', 
+		                            headers: { 
+		                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+		                                'Content-Type': 'application/json',
+		                                'Accept': 'application/json'
+		                            } 
+		                        })
+		                        .then(response => response.json())
+		                        .then(data => { 
+		                            this.wishlistLoading = false; 
+		                            if (data.success) {
+		                                this.inWishlist = !this.inWishlist;
+		                                
+		                                // Dispatch custom event to update navbar with count AND HTML
+		                                document.dispatchEvent(new CustomEvent('wishlistUpdated', { 
+		                                    detail: { 
+		                                        count: data.count,
+		                                        dropdownHtml: data.dropdownHtml
+		                                    } 
+		                                }));
+		                                
+		                                this.showToast(
+		                                    this.inWishlist ? 'تمت الإضافة إلى المفضلة!' : 'تمت الإزالة من المفضلة!', 
+		                                    'success'
+		                                );
+		                            }
+		                        })
+		                        .catch(error => { 
+		                            this.wishlistLoading = false; 
+		                            this.showToast('حدث خطأ ما', 'error');
+		                            console.error(error);
+		                        });
+		                    }
+		                }">
 
-                <!-- Quantity -->
-                {{-- <div>
-                    <h3 class="font-semibold mb-3">Quantity</h3>
-                    <div class="flex items-center gap-3">
-                        <div class="join">
-                            <button class="btn join-item btn-sm" onclick="decreaseQty()">-</button>
-                            <input type="number" id="quantity" value="1" min="1"
-                                class="input input-bordered join-item w-16 text-center input-sm" />
-                            <button class="btn join-item btn-sm" onclick="increaseQty()">+</button>
-                        </div>
-                        @if ($product->stock > 0)
-                            <span class="text-sm text-base-content/70">Only {{ $product->stock }} left in stock!</span>
-                        @endif
-                    </div>
-                </div> --}}
+				{{-- <button class="btn btn-primary btn-lg w-full"
+					onclick="addToCart({{ $product->id }}, '{{ $product->title }}', {{ $product->price }}, '{{ $mainImage }}')">
+					<i data-lucide="shopping-cart" class="w-5 h-5"></i>
+					Add to Cart
+				</button> --}}
 
-                <!-- Buttons -->
-                <div class="space-y-3" x-data="{ 
-                    wishlistLoading: false,
-                    shareLoading: false,
-                    inWishlist: {{ $inWishlist ? 'true' : 'false' }},
-                    showToast(message, type = 'info') {
-                        const toast = document.createElement('div');
-                        toast.className = 'toast toast-bottom toast-start z-50';
+				<div class="grid grid-cols-2 gap-3">
+					<button class="btn btn-outline btn-lg"
+						:class="{ 'loading': wishlistLoading, 'btn-error text-white': inWishlist, 'btn-outline': !inWishlist }"
+						x-on:click="toggleWishlist()">
+						<i data-lucide="heart" class="w-5 h-5" :class="{ 'fill-current': inWishlist }"></i>
+						<span x-text="inWishlist ? 'إزالة من المفضلة' : 'إضافة للمفضلة'"></span>
+					</button>
 
-                        toast.innerHTML = `
-                            <div class='alert alert-${type}'>
-                                <span>${message}</span>
-                            </div>
-                        `;
-                        document.body.appendChild(toast);
-                        
-                        setTimeout(() => {
-                            toast.remove();
-                        }, 3000);
-                    },
-                    toggleWishlist() {
-                        this.wishlistLoading = true;
-                        const url = this.inWishlist 
-                            ? '{{ route('wishlist.remove', $product->id) }}' 
-                            : '{{ route('wishlist.add', $product->id) }}';
-                            
-                        fetch(url, { 
-                            method: 'POST', 
-                            headers: { 
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                'Content-Type': 'application/json',
-                                'Accept': 'application/json'
-                            } 
-                        })
-                        .then(response => response.json())
-                        .then(data => { 
-                            this.wishlistLoading = false; 
-                            if (data.success) {
-                                this.inWishlist = !this.inWishlist;
-                                
-                                // Dispatch custom event to update navbar with count AND HTML
-                                document.dispatchEvent(new CustomEvent('wishlistUpdated', { 
-                                    detail: { 
-                                        count: data.count,
-                                        dropdownHtml: data.dropdownHtml
-                                    } 
-                                }));
-                                
-                                this.showToast(
-                                    this.inWishlist ? 'تمت الإضافة إلى المفضلة!' : 'تمت الإزالة من المفضلة!', 
-                                    'success'
-                                );
-                            }
-                        })
-                        .catch(error => { 
-                            this.wishlistLoading = false; 
-                            this.showToast('حدث خطأ ما', 'error');
-                            console.error(error);
-                        });
-                    }
-                }">
+					<button class="btn btn-outline btn-lg" :class="{ 'loading': shareLoading }" x-on:click="shareLoading = true; navigator.clipboard.writeText(window.location.href).then(() => { 
+		                                shareLoading = false; 
+		                                showToast('تم نسخ الرابط!', 'success');
+		                            }).catch(err => { 
+		                                shareLoading = false; 
+		                                showToast('Failed to copy URL', 'error');
+		                            });">
+						<i data-lucide="share-2" class="w-5 h-5"></i>
+						شارك
+					</button>
+				</div>
+			</div>
 
                     <button class="btn btn-primary btn-lg w-full add-to-cart-btn"
                         data-product-id="{{ $product->id }}">
@@ -494,68 +542,60 @@
             </div>
         </div>
 
-            <!-- Related Products -->
-            <div class="mt-16">
-                <h2 class="text-2xl font-bold mb-8">منتجات ذات صلة</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    @if($relatedProducts && $relatedProducts->count() > 0)
-                        @foreach($relatedProducts as $relatedProduct)
-                            @php
-                                $relatedProductImage = null;
-                                if (isset($relatedProduct->images[0])) {
-                                    $image = $relatedProduct->images[0];
-                                    if (Str::startsWith($image, ['http://', 'https://', '/'])) {
-                                        $relatedProductImage = $image;
-                                    } else {
-                                        $relatedProductImage = Storage::url($image);
-                                    }
-                                } else {
-                                    $relatedProductImage = 'https://placehold.co/300x300';
-                                }
-                            @endphp
-                            <x-product-card 
-                                :id="$relatedProduct->id" 
-                                :slug="$relatedProduct->slug"
-                                :image="$relatedProductImage"
-                                :title="$relatedProduct->title" 
-                                :price="$relatedProduct->price"
-                                :discount="$relatedProduct->discount ?? 0"
-                                :category="$relatedProduct->category->name ?? 'Uncategorized'"
-                                :type="$relatedProduct->type ?? 'product'"
-                                :on-sale="$relatedProduct->discount > 0"
-																:type="$relatedProduct->type"
-																 />
-                        @endforeach
-                    @else
-                        <p class="text-center col-span-full text-base-content/70 mb-4">لا يوجد منتجات مرتبطة بهذا المنتج.</p>
-                    @endif
-                </div>
-            </div>
-</x-layouts.app>
+	<!-- Related Products -->
+	<div class="mt-16">
+		<h2 class="text-2xl font-bold mb-8">منتجات ذات صلة</h2>
+		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+			@if($relatedProducts && $relatedProducts->count() > 0)
+				@foreach($relatedProducts as $relatedProduct)
+					@php
+		$relatedProductImage = null;
+		if (isset($relatedProduct->images[0])) {
+			$image = $relatedProduct->images[0];
+			if (Str::startsWith($image, ['http://', 'https://', '/'])) {
+				$relatedProductImage = $image;
+			} else {
+				$relatedProductImage = Storage::url($image);
+			}
+		} else {
+			$relatedProductImage = 'https://placehold.co/300x300';
+		}
+					@endphp
+					<x-product-card :id="$relatedProduct->id" :slug="$relatedProduct->slug" :image="$relatedProductImage"
+						:title="$relatedProduct->title" :price="$relatedProduct->price" :discount="$relatedProduct->discount ?? 0"
+						:category="$relatedProduct->category->name ?? 'Uncategorized'" :type="$relatedProduct->type ?? 'product'"
+						:on-sale="$relatedProduct->discount > 0" :type="$relatedProduct->type" />
+				@endforeach
+			@else
+				<p class="text-center col-span-full text-base-content/70 mb-4">لا يوجد منتجات مرتبطة بهذا المنتج.</p>
+			@endif
+		</div>
+	</div>
+	</x-layouts.app>
 
-<script>
-    function productGallery(images) {
-        return {
-            images: Array.isArray(images) && images.length ? images : ['{{ $mainImage }}'],
-            activeIndex: 0,
-            zoomed: false,
-            originX: 50,
-            originY: 50,
-            get activeImage() { return this.images[this.activeIndex] || this.images[0]; },
-            setActive(i) { this.activeIndex = i; },
-            onMove(e) {
-                if (!this.zoomed) return;
-                const rect = e.currentTarget.getBoundingClientRect();
-                const x = ((e.clientX - rect.left) / rect.width) * 100;
-                const y = ((e.clientY - rect.top) / rect.height) * 100;
-                this.originX = Math.max(0, Math.min(100, x));
-                this.originY = Math.max(0, Math.min(100, y));
-            },
-            get zoomStyle() {
-                return this.zoomed
-                    ? `transform: scale(2); transform-origin: ${this.originX}% ${this.originY}%;`
-                    : 'transform: scale(1); transform-origin: center center;';
-            }
-        };
-    }
-</script>
+	<script>
+		function productGallery(images) {
+			return {
+				images: Array.isArray(images) && images.length ? images : ['{{ $mainImage }}'],
+				activeIndex: 0,
+				zoomed: false,
+				originX: 50,
+				originY: 50,
+				get activeImage() { return this.images[this.activeIndex] || this.images[0]; },
+				setActive(i) { this.activeIndex = i; },
+				onMove(e) {
+					if (!this.zoomed) return;
+					const rect = e.currentTarget.getBoundingClientRect();
+					const x = ((e.clientX - rect.left) / rect.width) * 100;
+					const y = ((e.clientY - rect.top) / rect.height) * 100;
+					this.originX = Math.max(0, Math.min(100, x));
+					this.originY = Math.max(0, Math.min(100, y));
+				},
+				get zoomStyle() {
+					return this.zoomed
+						? `transform: scale(2); transform-origin: ${this.originX}% ${this.originY}%;`
+						: 'transform: scale(1); transform-origin: center center;';
+				}
+			};
+		}
+	</script>

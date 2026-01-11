@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Product;
+use App\Services\SettingsCacheService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class HomeController extends Controller
 {
@@ -14,16 +14,16 @@ class HomeController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function index()
+    public function index(SettingsCacheService $settingsCache)
     {
-        // Fetch featured categories (you might want to add a 'featured' flag to categories)
-        $categories = Category::limit(4)->get();
+        // Fetch featured categories with optimized query (only necessary columns)
+        $categories = Category::optimized()->limit(4)->get();
         
-        // Fetch featured products (you might want to add a 'featured' flag to products)
-        $products = Product::with('category')->limit(8)->get();
+        // Fetch featured products with optimized eager loading
+        $products = Product::optimized()->withOptimizedCategory()->limit(8)->get();
 
-        // Fetch settings from the database
-        $settings = DB::table('settings')->pluck('value', 'key')->all();
+        // Fetch settings from cache (eliminates database query on cached requests)
+        $settings = $settingsCache->all();
 
         return view('home', compact('categories', 'products', 'settings'));
     }

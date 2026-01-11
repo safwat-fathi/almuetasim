@@ -17,9 +17,9 @@
     $slug = $prod['slug'] ?? '#';
 @endphp
 
-<div class="flex items-center gap-3 p-2 rounded hover:bg-base-200" data-product-id="{{ $productId }}">
+<div class="flex items-center gap-3 p-2 rounded hover:bg-base-200" data-product-id="{{ $productId }}" role="listitem">
     <a href="{{ route('product.show', $slug) }}" class="flex items-center gap-3 flex-1">
-        <img src="{{ $imageUrl }}" alt="{{ $title }}" class="w-12 h-12 object-cover rounded" />
+        <img src="{{ $imageUrl }}" alt="{{ $title }}" loading="lazy" decoding="async" class="w-12 h-12 object-cover rounded" />
         <div class="flex-1 min-w-0">
             <div class="text-sm font-semibold truncate">{{ $title }}</div>
             <div class="text-xs text-base-content/70 flex items-center gap-1">

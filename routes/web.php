@@ -10,6 +10,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MessagesController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\WishlistController;
 use Illuminate\Support\Facades\Route;
 
@@ -18,6 +19,9 @@ use Illuminate\Support\Facades\Route;
 // });
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+
+// Sitemap
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 
 Route::get('/about', [AboutController::class, 'index'])->name('about');
 
@@ -40,6 +44,7 @@ Route::get('/wishlist/check/{productId}', [WishlistController::class, 'check'])-
 // Return dropdown HTML and count for navbar (AJAX)
 Route::get('/wishlist/dropdown', [WishlistController::class, 'dropdown'])->name('wishlist.dropdown');
 Route::get('/wishlist/count', [WishlistController::class, 'count'])->name('wishlist.count');
+Route::get('/wishlist/dropdown', [WishlistController::class, 'getDropdown'])->name('wishlist.dropdown');
 
 // Cart routes
 Route::post('/cart/add/{productId}', [CartController::class, 'add'])->name('cart.add');

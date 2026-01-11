@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\SettingsCacheService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class SettingController extends Controller
 {
-    public function index()
+    public function index(SettingsCacheService $settingsCache)
     {
-        $settings = DB::table('settings')->pluck('value', 'key')->all();
+        $settings = $settingsCache->all();
         
         // Define default values for settings that don't exist in the database
         $defaultSettings = [
@@ -34,7 +35,7 @@ class SettingController extends Controller
         return view('admin.settings.index', compact('settings'));
     }
 
-    public function store(Request $request)
+    public function store(Request $request, SettingsCacheService $settingsCache)
     {
         $settingKeys = [
             'social_facebook' => 'nullable|url',
@@ -67,6 +68,9 @@ class SettingController extends Controller
                 ['value' => $value, 'created_at' => now(), 'updated_at' => now()]
             );
         }
+
+        // Invalidate settings cache after update
+        $settingsCache->flush();
 
         return redirect()->route('admin.settings.index')->with('success', 'تم تحديث الإعدادات بنجاح.');
     }

@@ -8,30 +8,28 @@
     $isCategoryRoute = request()->routeIs('category.show');
     $navLinkBase = 'group flex items-center gap-2 px-4 py-2 rounded-md transition-colors duration-150';
     
-    // Get wishlist count and top products
+    // Get wishlist count only (lightweight)
     $wishlistCount = 0;
-    $wishlistTopProducts = [];
     if (session()->has('wishlist')) {
         $wishlistCount = count(session()->get('wishlist', []));
-        $wishlistTopProducts = WishlistController::getTopProducts();
     }
 
     // Get cart items for navbar dropdown
     $cartItems = session()->get('cart', []);
 @endphp
 
-<nav class="navbar shadow-lg sticky top-0 z-50" style="background-color: #f8fafc;">
+<nav class="navbar shadow-lg sticky top-0 z-50" style="background-color: #f8fafc;" role="navigation" aria-label="التنقل الرئيسي">
     <div class="navbar-start">
         <div class="dropdown">
-            <div tabindex="0" role="button" class="btn btn-ghost lg:hidden">
+            <div tabindex="0" role="button" class="btn btn-ghost lg:hidden" aria-label="قائمة التنقل">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg">
+                    xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8m-8 6h16">
                     </path>
                 </svg>
             </div>
-            <ul tabindex="0" class="dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-56 p-3 shadow space-y-1">
-                <li>
+            <ul tabindex="0" class="dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-56 p-3 shadow space-y-1" role="menu">
+                <li role="none">
                     {{-- <a href="{{ route('home') }}" @class([
                         $navLinkBase,
                         'bg-[#2d3b61]' => request()->routeIs('home'),
@@ -40,16 +38,16 @@
                         'text-base-content' => !request()->routeIs('home'),
                         'hover:bg-[#2d3b61]' => true,
                         'hover:text-white' => true,
-                    ])>
+                    ]) role="menuitem">
                         <i data-lucide="home" @class([
                             'w-4 h-4',
                             'group-hover:text-white' => true,
                             'text-white' => request()->routeIs('home'),
-                        ])></i>
+                        ]) aria-hidden="true"></i>
                         الرئيسية
                     </a> --}}
                 </li>
-                <li>
+                <li role="none">
                     {{-- <a href="{{ route('about') }}" @class([
                         $navLinkBase,
                         'bg-[#2d3b61]' => request()->routeIs('about'),
@@ -58,17 +56,17 @@
                         'text-base-content' => !request()->routeIs('about'),
                         'hover:bg-[#2d3b61]' => true,
                         'hover:text-white' => true,
-                    ])>
+                    ]) role="menuitem">
                         <i data-lucide="info" @class([
                             'w-4 h-4',
                             'group-hover:text-white' => true,
                             'text-white' => request()->routeIs('about'),
-                        ])></i>
+                        ]) aria-hidden="true"></i>
                         من نحن
                     </a> --}}
                 </li>
                 @foreach ($categories as $category)
-                    <li>
+                    <li role="none">
                         <a href="{{ route('category.show', $category) }}" @class([
                             $navLinkBase,
                             'bg-[#2d3b61]' => $currentCategorySlug === $category->slug,
@@ -77,27 +75,27 @@
                             'text-base-content' => $currentCategorySlug !== $category->slug,
                             'hover:bg-[#2d3b61]' => true,
                             'hover:text-white' => true,
-                        ])>
+                        ]) role="menuitem" aria-label="الانتقال إلى قسم {{ $category->name }}">
                             <i data-lucide="{{ $category->icon ?? 'box' }}"
                                 @class([
                                     'w-4 h-4',
                                     'group-hover:text-white' => true,
                                     'text-white' => $currentCategorySlug === $category->slug,
-                                ])></i>
+                                ]) aria-hidden="true"></i>
                             {{ $category->name }}
                         </a>
                     </li>
                 @endforeach
             </ul>
         </div>
-        <a href="{{ url('/') }}">
-            <img src="{{ asset('images/ALMUETASIM-150x106.png') }}" class="w-16 h-14" alt="Logo">
+        <a href="{{ url('/') }}" aria-label="العودة إلى الصفحة الرئيسية">
+            <img src="{{ asset('images/ALMUETASIM-150x106.png') }}" loading="eager" decoding="async" class="w-16 h-14" alt="شعار متجر المعتصم لفلاتر ومحطات المياه">
         </a>
     </div>
 
     <div class="navbar-center hidden lg:flex">
-        <ul class="menu menu-horizontal px-1 gap-1 items-center">
-            <li>
+        <ul class="menu menu-horizontal px-1 gap-1 items-center" role="menubar">
+            <li role="none">
                 {{-- <a href="{{ route('home') }}" @class([
                     $navLinkBase,
                     'bg-[#2d3b61]' => request()->routeIs('home'),
@@ -106,17 +104,17 @@
                     'text-base-content' => !request()->routeIs('home'),
                     'hover:bg-[#2d3b61]' => true,
                     'hover:text-white' => true,
-                ])>
+                    ]) role="menuitem">
                     <i data-lucide="home" @class([
                         'w-4 h-4',
                         'group-hover:text-white' => true,
                         'text-white' => request()->routeIs('home'),
-                    ])></i>
+                    ]) aria-hidden="true"></i>
                     الرئيسية
                 </a> --}}
             </li>
             @foreach ($categories as $category)
-                <li>
+                <li role="none">
                     <a href="{{ route('category.show', $category) }}" @class([
                         $navLinkBase,
                         'group/item',
@@ -126,18 +124,18 @@
                         'text-base-content' => $currentCategorySlug !== $category->slug,
                         'hover:bg-[#2d3b61]' => true,
                         'hover:text-white' => true,
-                    ])>
+                    ]) role="menuitem" aria-label="الانتقال إلى قسم {{ $category->name }}">
                         <i data-lucide="{{ $category->icon ?? 'box' }}" @class([
                             'w-4 h-4',
                             'group-hover/item:text-white' => true,
                             'text-white' => $currentCategorySlug === $category->slug,
                             'text-base-content' => $currentCategorySlug !== $category->slug,
-                        ])></i>
+                        ]) aria-hidden="true"></i>
                         {{ $category->name }}
                     </a>
                 </li>
             @endforeach
-						<li>
+						<li role="none">
                 {{-- <a href="{{ route('about') }}" @class([
                     $navLinkBase,
                     'bg-[#2d3b61]' => request()->routeIs('about'),
@@ -146,12 +144,12 @@
                     'text-base-content' => !request()->routeIs('about'),
                     'hover:bg-[#2d3b61]' => true,
                     'hover:text-white' => true,
-                ])>
+                    ]) role="menuitem">
                     <i data-lucide="info" @class([
                         'w-4 h-4',
                         'group-hover:text-white' => true,
                         'text-white' => request()->routeIs('about'),
-                    ])></i>
+                    ]) aria-hidden="true"></i>
                     من نحن
                 </a> --}}
             </li>
@@ -163,22 +161,25 @@
         <div class="relative" id="global-search-wrapper">
             <div class="form-control">
                 <div class="input-group hidden lg:flex">
-                    <input id="global-search-input" type="text" placeholder="ابحث عن منتج..."
-                        class="input input-bordered w-80" autocomplete="off" />
+                    <input id="global-search-input" type="search" placeholder="ابحث عن منتج..."
+                        class="input input-bordered w-80" autocomplete="off"
+                        aria-label="البحث عن منتج" role="search" />
 
                 </div>
             </div>
 
             <!-- Dropdown suggestions -->
             <div id="global-search-dropdown"
-                class="absolute right-0 mt-2 w-96 bg-base-100 shadow-lg rounded-box p-2 hidden z-[60]">
-                <div id="global-search-results" class="space-y-2">
+                class="absolute right-0 mt-2 w-96 bg-base-100 shadow-lg rounded-box p-2 hidden z-[60]"
+                role="listbox" aria-label="نتائج البحث">
+                <div id="global-search-results" class="space-y-2" role="group">
                     <!-- Populated dynamically with up to 4 items -->
                 </div>
                 <div class="mt-2 text-right">
                     <a id="global-search-see-all" href="#"
-                        class="text-sm text-primary flex items-center gap-1 justify-start">
-                        <i data-lucide="arrow-left" class="w-3 h-3"></i>
+                        class="text-sm text-primary flex items-center gap-1 justify-start"
+                        aria-label="عرض كل نتائج البحث">
+                        <i data-lucide="arrow-left" class="w-3 h-3" aria-hidden="true"></i>
                         عرض كل النتائج </a>
                 </div>
             </div>
@@ -188,13 +189,13 @@
         <div class="dropdown dropdown-end">
             <div tabindex="0" role="button" id="wishlist-button" class="btn btn-ghost btn-circle" aria-haspopup="true" aria-expanded="false" data-wishlist-dropdown-url="{{ route('wishlist.dropdown') }}">
                 <div class="indicator">
-                    <i data-lucide="heart"></i>
+                    <i data-lucide="heart" aria-hidden="true"></i>
                     @if($wishlistCount > 0)
                         <span class="badge badge-sm indicator-item text-white" id="wishlist-count"
-                            style="background-color: #2d3b61;">{{ $wishlistCount }}</span>
+                            style="background-color: #2d3b61;" aria-label="{{ $wishlistCount }} عناصر في المفضلة">{{ $wishlistCount }}</span>
                     @else
                         <span class="badge badge-sm indicator-item text-white hidden" id="wishlist-count"
-                            style="background-color: #2d3b61;">0</span>
+                            style="background-color: #2d3b61;" aria-label="0 عناصر في المفضلة">0</span>
                     @endif
                 </div>
             </div>
@@ -236,37 +237,26 @@
 
             <div tabindex="0" class="card card-compact dropdown-content bg-base-100 z-[1] mt-3 w-80 shadow-xl">
                 <div class="card-body">
-                    <span class="text-lg font-bold">المفضلة</span>
+                    <h3 class="text-lg font-bold" id="wishlist-title">المفضلة</h3>
 
-                    <div id="wishlist-items" class="space-y-2 max-h-64 overflow-y-auto">
-                        @if(count($wishlistTopProducts) > 0)
-                            @foreach($wishlistTopProducts as $product)
-                                @php
-                                    $images = $product['images'] ?? [];
-                                    $mainImage = null;
-                                    if (!empty($images)) {
-                                        $image = $images[0];
-                                        if (Str::startsWith($image, ['http://', 'https://', '/'])) {
-                                            $mainImage = $image;
-                                        } else {
-                                            $mainImage = Storage::url($image);
-                                        }
-                                    } else {
-                                        $mainImage = 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200&h=150&fit=crop&crop=center';
-                                    }
-                                    $discount = (int) ($product['discount'] ?? 0);
-                                    $finalPrice = $discount > 0 ? round(($product['price'] * (100 - $discount)) / 100, 2) : $product['price'];
-                                @endphp
-                                <x-product.wishlist-inline :product="$product" :mainImage="$mainImage" :finalPrice="$finalPrice" />
-                            @endforeach
-                        @else
-                            <p class="text-base-content/70 text-sm">قائمة الأمنيات فارغة</p>
-                        @endif
+                    <div id="wishlist-items" class="space-y-2 max-h-64 overflow-y-auto min-h-[50px]" role="list" aria-labelledby="wishlist-title">
+                        <!-- Loading skeleton -->
+                        <div class="flex flex-col gap-2 p-2 animate-pulse" aria-hidden="true">
+                            @for($i = 0; $i < 3; $i++)
+                                <div class="flex items-center gap-3">
+                                    <div class="w-12 h-12 bg-base-300 rounded shrink-0"></div>
+                                    <div class="flex-1 space-y-2">
+                                        <div class="h-3 bg-base-300 rounded w-3/4"></div>
+                                        <div class="h-2 bg-base-300 rounded w-1/2"></div>
+                                    </div>
+                                </div>
+                            @endfor
+                        </div>
                     </div>
                     <div class="card-actions">
                         <a href="{{ route('wishlist.index') }}" class="btn btn-block text-white"
-                            style="background-color: #2d3b61; border-color: #2d3b61;">
-                            <i data-lucide="heart" class="w-4 h-4"></i>
+                            style="background-color: #2d3b61; border-color: #2d3b61;" aria-label="عرض كل عناصر المفضلة">
+                            <i data-lucide="heart" class="w-4 h-4" aria-hidden="true"></i>
                             عرض المفضلة
 
                         </a>
@@ -291,7 +281,7 @@
                     @endif
                 </div>
             </div>
-            <div tabindex="0" class="card card-compact dropdown-content bg-base-100 z-[1] mt-3 w-80 shadow-xl">
+            <div tabindex="0" class="card card-compact dropdown-content bg-base-100 z-[1] mt-3 w-80 shadow-xl" role="dialog" aria-label="محتوى سلة التسوق">
                 <div class="card-body">
                     <span class="text-lg font-bold">عناصر السلة</span>
                     <div id="cart-items" class="space-y-2 max-h-64 overflow-y-auto">
@@ -336,7 +326,7 @@
 <!-- Client-side wishlist template used by JS if needed -->
 <script type="text/template" id="product-wishlist-template">
     <a href="/product/__SLUG__" class="flex items-center gap-3 p-2 rounded hover:bg-base-200">
-        <img src="__IMAGE__" alt="__TITLE__" class="w-12 h-12 object-cover rounded" />
+        <img src="__IMAGE__" alt="__TITLE__" loading="lazy" decoding="async" class="w-12 h-12 object-cover rounded" />
         <div class="flex-1 min-w-0">
             <div class="text-sm font-semibold truncate">__TITLE__</div>
             <div class="text-xs text-base-content/70 flex items-center gap-1">
@@ -570,7 +560,7 @@
                 <div class="card bg-base-100 shadow-xl card-hover">
                     <a href="/product/${encodeURIComponent(slug)}">
                         <figure class="relative overflow-hidden h-48">
-                            <img src="${image}" alt="${title}" class="w-full h-full object-cover transition-transform duration-300 hover:scale-110" />
+                            <img src="${image}" alt="${title}" loading="lazy" decoding="async" class="w-full h-full object-cover transition-transform duration-300 hover:scale-110" />
                         </figure>
                         <div class="card-body">
                             <h3 class="card-title text-sm">${title}</h3>
@@ -622,7 +612,7 @@
             const slug = p.slug || '#';
             return `
                 <a href="/product/${encodeURIComponent(slug)}" class="flex items-center gap-3 p-2 rounded hover:bg-base-200">
-                    <img src="${image}" alt="${title}" class="w-12 h-10 object-cover rounded" />
+                    <img src="${image}" alt="${title}" loading="lazy" decoding="async" class="w-12 h-10 object-cover rounded" />
                     <div class="flex-1">
                         <div class="text-sm font-semibold">${title}</div>
                         <div class="text-xs text-base-content/70 flex items-center gap-1">
@@ -722,11 +712,40 @@
             }
         }
 
-        // Function to refresh wishlist dropdown (reload page to get updated products)
-        function refreshWishlistDropdown() {
-            // Reload the page to get updated wishlist items
-            // This is simpler than dynamically updating the dropdown
-            // The dropdown will be updated on next open
+        // Lazy load wishlist dropdown
+        let wishlistLoaded = false;
+        const wishlistBtn = document.getElementById('wishlist-btn');
+        const wishlistItems = document.getElementById('wishlist-items');
+
+        async function loadWishlistDropdown() {
+            if (wishlistLoaded) return;
+            
+            try {
+                const response = await fetch('{{ route("wishlist.dropdown") }}');
+                if (response.ok) {
+                    const html = await response.text();
+                    if (wishlistItems) {
+                        wishlistItems.innerHTML = html;
+                        wishlistLoaded = true;
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to load wishlist dropdown:', error);
+            }
+        }
+
+        // Load on hover or click
+        if (wishlistBtn) {
+            wishlistBtn.addEventListener('mouseenter', loadWishlistDropdown);
+            wishlistBtn.addEventListener('focus', loadWishlistDropdown);
+            wishlistBtn.addEventListener('click', loadWishlistDropdown);
+            
+            // Also load after a short delay to ensure it's ready if user clicks quickly
+            // But only if we have items
+            const countEl = document.getElementById('wishlist-count');
+            if (countEl && parseInt(countEl.textContent) > 0) {
+                 setTimeout(loadWishlistDropdown, 2000); // Load after 2 seconds idle
+            }
         }
 
         // Listen for custom events from other pages
@@ -736,9 +755,9 @@
                     updateWishlistCount(e.detail.count);
                 }
                 if (e.detail.dropdownHtml) {
-                    const wishlistItems = document.getElementById('wishlist-items');
                     if (wishlistItems) {
                         wishlistItems.innerHTML = e.detail.dropdownHtml;
+                        wishlistLoaded = true; // Mark as loaded since we have content
                     }
                 }
             }
@@ -753,6 +772,8 @@
                     .then(response => response.json())
                     .then(data => {
                         updateWishlistCount(data.count);
+                        // Invalidate loaded state so next hover reloads
+                        wishlistLoaded = false; 
                     });
             }
         });

@@ -69,7 +69,7 @@
                                                     <div class="avatar">
                                                         <div class="mask mask-squircle w-12 h-12">
                                                             <img src="{{ $product->images ? (Storage::url($product->images[0]) ?? asset('storage/' . $product->images[0])) : 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=100&h=100&fit=crop' }}"
-                                                                alt="{{ $product->title }}" />
+                                                                alt="{{ $product->title }}" loading="lazy" decoding="async" />
                                                         </div>
                                                     </div>
                                                     <div>

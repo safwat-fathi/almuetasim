@@ -16,41 +16,48 @@ if ($imageUrl) {
 	$imageUrl = 'https://placehold.co/400x400';
 }
 @endphp
-<div class="card bg-base-100 shadow-xl card-hover">
-    <a href="{{ route('product.show', $slug) }}">
+<article class="card bg-base-100 shadow-xl card-hover" itemscope itemtype="https://schema.org/Product" role="listitem">
+    <a href="{{ route('product.show', $slug) }}" aria-label="عرض تفاصيل المنتج {{ $title }}">
         <figure class="relative overflow-hidden h-48">
             <img src="{{ $imageUrl }}" alt="{{ $title }}"
+                loading="lazy"
+                decoding="async"
+                itemprop="image"
                 class="w-full h-full object-cover transition-transform duration-300 hover:scale-110" />
             @if ($hasDiscount)
-                <div class="badge badge-secondary absolute top-2 left-2">{{ $discountValue }}% OFF</div>
+                <div class="badge badge-secondary absolute top-2 left-2" aria-label="خصم {{ $discountValue }}%">{{ $discountValue }}% OFF</div>
             @elseif ($onSale ?? false)
-                <div class="badge badge-secondary absolute top-2 left-2">تخفيض</div>
+                <div class="badge badge-secondary absolute top-2 left-2" aria-label="موجود تخفيض">تخفيض</div>
             @endif
             @if(isset($type))
                 <div class="absolute top-2 right-2">
                     @if($type === 'service')
-                        <div class="badge badge-info">خدمة</div>
+                        <div class="badge badge-info" aria-label="نوع الخدمة">خدمة</div>
                     @else
-                        <div class="badge badge-success">منتج</div>
+                        <div class="badge badge-success" aria-label="نوع المنتج">منتج</div>
                     @endif
                 </div>
             @endif
         </figure>
         <div class="card-body">
-            <h3 class="card-title text-sm">{{ $title }}</h3>
+            <h3 class="card-title text-sm" itemprop="name">{{ $title }}</h3>
             <div class="price-actions mb-4">
                 <div class="price">
-                    <span class="text-lg font-bold text-primary">@money($finalPrice)</span>
+                    <span class="text-lg font-bold text-primary" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
+                        <meta itemprop="price" content="{{ $finalPrice }}">
+                        <meta itemprop="priceCurrency" content="EGP">
+                        <span aria-label="السعر: {{ number_format($finalPrice, 2) }} جنيه مصري">@money($finalPrice)</span>
+                    </span>
                 </div>
                 @if ($hasDiscount)
-                    <div class="original-price text-sm line-through text-base-content/50">@money($basePrice)</div>
+                    <div class="original-price text-sm line-through text-base-content/50" aria-label="السعر الأصلي: {{ number_format($basePrice, 2) }} جنيه مصري">@money($basePrice)</div>
                 @elseif ($onSale ?? false)
                     @php $displayOriginalPrice = $originalPrice ?? ($basePrice * 1.2); @endphp
-                    <div class="original-price text-sm line-through text-base-content/50">@money($displayOriginalPrice)</div>
+                    <div class="original-price text-sm line-through text-base-content/50" aria-label="السعر الأصلي: {{ number_format($displayOriginalPrice, 2) }} جنيه مصري">@money($displayOriginalPrice)</div>
                 @endif
             </div>
             @if(isset($category))
-                <div class="text-xs text-base-content/70">{{ $category }}</div>
+                <div class="text-xs text-base-content/70" aria-label="التصنيف: {{ $category }}">{{ $category }}</div>
             @endif
 				</div>
 				</a>

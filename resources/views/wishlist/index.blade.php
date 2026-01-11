@@ -9,14 +9,16 @@
     <div class="min-h-screen bg-base-200 py-8">
         <div class="container mx-auto px-4">
             <!-- Page Header -->
-            <div class="text-center mb-12">
+            <header class="text-center mb-12">
                 <h1 class="text-4xl font-bold text-primary mb-4">المفضلة</h1>
                 <p class="text-lg text-base-content/70">المنتجات التي أضفتها إلى المفضلة</p>
-            </div>
+            </header>
 
             <!-- Products Grid -->
+            <section aria-labelledby="wishlist-heading">
             @if($products->count() > 0)
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8" id="wishlist-grid">
+                <h2 id="wishlist-heading" class="sr-only">قائمة المفضلة</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8" id="wishlist-grid" role="list">
                     @foreach($products as $product)
                         @php
                             $images = $product->images ?? [];
@@ -50,6 +52,7 @@
                     </a>
                 </div>
             @endif
+            </section>
         </div>
     </div>
 </x-layouts.app>

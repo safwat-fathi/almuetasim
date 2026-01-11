@@ -4,6 +4,7 @@ use App\Http\Controllers\AboutController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MessagesController;
@@ -47,6 +48,11 @@ Route::post('/cart/update/{productId}', [CartController::class, 'update'])->name
 Route::get('/cart/count', [CartController::class, 'count'])->name('cart.count');
 Route::get('/cart/items', [CartController::class, 'items'])->name('cart.items');
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+
+// Checkout routes
+Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store')->middleware('throttle:5,10');
+Route::get('/checkout/success/{order}', [CheckoutController::class, 'success'])->name('checkout.success');
 
 // Contact form route
 Route::post('/contact', [MessagesController::class, 'store'])->name('contact.store');
@@ -97,4 +103,11 @@ Route::middleware(['auth'])->group(function () {
 Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::get('/settings', [SettingController::class, 'index'])->name('admin.settings.index');
     Route::post('/settings', [SettingController::class, 'store'])->name('admin.settings.store');
+});
+
+// Admin Orders Routes
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+	Route::get('/orders', [\App\Http\Controllers\AdminOrderController::class, 'index'])->name('orders.index');
+	Route::get('/orders/{id}', [\App\Http\Controllers\AdminOrderController::class, 'show'])->name('orders.show');
+	Route::patch('/orders/{id}/status', [\App\Http\Controllers\AdminOrderController::class, 'updateStatus'])->name('orders.update-status');
 });

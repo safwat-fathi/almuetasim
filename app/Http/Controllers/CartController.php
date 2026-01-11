@@ -94,7 +94,8 @@ class CartController extends Controller
                 'success' => true,
                 'message' => 'Cart updated',
                 'count' => $this->getCartCount(),
-                'items' => $this->getCartItems()
+				'items' => $this->getCartItems(),
+				'formatted_total' => $this->formatMoney($this->getCartTotal())
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -124,9 +125,10 @@ class CartController extends Controller
         $cart = session()->get('cart', []);
         
         return response()->json([
-            'items' => array_values($cart),
+			'items' => $this->getCartItems(),
             'count' => $this->getCartCount(),
-            'total' => $this->getCartTotal()
+			'total' => $this->getCartTotal(),
+			'formatted_total' => $this->formatMoney($this->getCartTotal())
         ]);
     }
 
@@ -198,6 +200,25 @@ class CartController extends Controller
     private function getCartItems(): array
     {
         $cart = session()->get('cart', []);
-        return array_values($cart);
+
+		return array_map(function ($item) {
+			$item['formatted_price'] = $this->formatMoney($item['price']);
+			$item['formatted_total_price'] = $this->formatMoney($item['price'] * $item['quantity']);
+			return $item;
+		}, array_values($cart));
+	}
+
+	/**
+	 * Format money consistently with @money directive
+	 */
+	private function formatMoney($amount): string
+	{
+		$amount = (float) $amount;
+		if (class_exists('NumberFormatter')) {
+			$fmt = new \NumberFormatter('ar_EG', \NumberFormatter::CURRENCY);
+			return $fmt->formatCurrency($amount, 'EGP');
+		}
+
+		return number_format($amount, 2) . ' ج.م';
     }
 }

@@ -70,52 +70,52 @@
 
             <!-- Products Grid -->
             @if($products->count() > 0)
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
-                    @foreach($products as $product)
-                        <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow duration-300">
-                            <figure class="relative">
-                                @if($product->images && count($product->images) > 0)
-                                    <img src="{{ asset('storage/' . $product->images[0]) }}" 
-                                         alt="{{ $product->title }}" 
-                                         class="w-full h-48 object-cover" />
-                                @else
-                                    <img src="{{ asset('storage/uploads/default-product.jpg') }}" 
-                                         alt="{{ $product->title }}" 
-                                         class="w-full h-48 object-cover" />
-                                @endif
-                                @if($product->is_part)
-                                    <div class="absolute top-2 right-2 badge badge-warning badge-outline"> spare part </div>
-                                @endif
-                            </figure>
-                            <div class="card-body">
-                                <h2 class="card-title text-lg">{{ $product->title }}</h2>
-                                <p class="text-gray-600 text-sm line-clamp-2">{{ $product->description }}</p>
-                                <div class="mt-2">
-                                    <span class="text-lg font-bold text-primary">@money($product->price)</span>
-                                </div>
-                                <div class="card-actions justify-end mt-4 gap-2">
-                                    <a href="{{ route('product.show', $product->slug) }}" class="btn btn-outline btn-sm">
-                                        عرض التفاصيل
-                                    </a>
-                                    <button
-                                        type="button"
-                                        class="btn btn-primary btn-sm add-to-cart-btn"
-                                        data-product-id="{{ $product->id }}"
-                                        onclick="event.stopPropagation();">
-                                        <i class="fas fa-shopping-cart text-xs mr-1"></i>
-                                        إضافة للسلة
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
+							<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
+									@foreach($products as $product)
+										<div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow duration-300">
+												<figure class="relative">
+														@if($product->images && count($product->images) > 0)
+																<img src="{{ asset('storage/' . $product->images[0]) }}" 
+																		 alt="{{ $product->title }}" 
+																		 class="w-full h-48 object-cover" />
+														@else
+																<img src="{{ asset('storage/uploads/default-product.jpg') }}" 
+																		 alt="{{ $product->title }}" 
+																		 class="w-full h-48 object-cover" />
+														@endif
+														@if($product->is_part)
+																<div class="absolute top-2 right-2 badge badge-warning badge-outline"> spare part </div>
+														@endif
+												</figure>
+												<div class="card-body">
+														<h2 class="card-title text-lg">{{ $product->title }}</h2>
+														<p class="text-gray-600 text-sm line-clamp-2">{{ $product->description }}</p>
+														<div class="mt-2">
+																<span class="text-lg font-bold text-primary">@money($product->price)</span>
+														</div>
+														<div class="card-actions justify-end mt-4 gap-2">
+																<a href="{{ route('product.show', $product->slug) }}" class="btn btn-outline btn-sm">
+																		عرض التفاصيل
+																</a>
+																<button
+																		type="button"
+																		class="btn btn-primary btn-sm add-to-cart-btn"
+																		data-product-id="{{ $product->id }}"
+																		onclick="addToCartGeneric({{ $product->id }}); event.stopPropagation();">
+																		<i class="fas fa-shopping-cart text-xs mr-1"></i>
+																		إضافة للسلة
+																</button>
+														</div>
+												</div>
+										</div>
+									@endforeach
+							</div>
 
-                <!-- Pagination -->
-                <div class="flex justify-center mt-8">
-                    {{ $products->appends(request()->query())->links() }}
-                </div>
-            @else
+							<!-- Pagination -->
+							<div class="flex justify-center mt-8">
+									{{ $products->appends(request()->query())->links() }}
+							</div>
+						@else
                 <div class="text-center py-12">
                     <i data-lucide="box" class="w-16 h-16 mx-auto text-gray-400 mb-4"></i>
                     <h3 class="text-xl font-semibold mb-2">لا توجد منتجات</h3>

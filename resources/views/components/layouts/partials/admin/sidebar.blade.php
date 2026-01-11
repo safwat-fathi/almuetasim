@@ -23,13 +23,16 @@
                     <span class="badge badge-primary">{{ \App\Models\Product::count() }}</span>
                 </a>
             </li>
-            {{-- <li>
-                <a>
+						<li>
+							<a href="{{ route('admin.orders.index') }}" @if (request()->routeIs('admin.orders.*')) class="active" @endif>
                     <i data-lucide="shopping-cart" class="w-5 h-5"></i>
-                    Orders
+										الطلبات
+										@if(\App\Models\Order::where('status', 'pending')->count() > 0)
+											<span class="badge badge-secondary">{{ \App\Models\Order::where('status', 'pending')->count() }}</span>
+										@endif
                 </a>
             </li>
-            <li>
+						{{-- <li>
                 <a>
                     <i data-lucide="users" class="w-5 h-5"></i>
                     Customers

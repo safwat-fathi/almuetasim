@@ -64,7 +64,7 @@
                     </div>
                 </div>
                 <div class="card-actions mt-4">
-                    <button class="btn btn-primary btn-block checkout-btn" type="button">الدفع الآن</button>
+                    <a href="{{ route('checkout.index') }}" class="btn btn-primary btn-block checkout-btn">الدفع الآن</a>
                     <a href="{{ route('products.public.list') }}" class="btn btn-ghost btn-block">متابعة التسوق</a>
                 </div>
             </div>
@@ -112,13 +112,7 @@
                 }
             });
 
-            // Checkout button event (placeholder for future implementation)
-            document.getElementById('cart-container').addEventListener('click', function(e) {
-                if (e.target.classList.contains('checkout-btn')) {
-                    alert('تم الانتقال إلى صفحة الدفع - سيتم تنفيذها لاحقاً');
-                    // Future implementation: redirect to checkout page
-                }
-            });
+
         });
 
         // Load cart items from server
@@ -160,12 +154,7 @@
                         imgElement.alt = item.name;
                         
                         template.querySelector('#item-name').textContent = item.name;
-                        template.querySelector('#item-price').textContent = new Intl.NumberFormat('ar-EG', {
-                                style: 'currency',
-                                currency: 'EGP',
-                                currencyDisplay: 'narrowSymbol',
-                                minimumFractionDigits: 2
-                            }).format(item.price * item.quantity); // Total price for this item line
+											template.querySelector('#item-price').textContent = item.formatted_total_price; // Total price for this item line
                         template.querySelector('#item-quantity').value = item.quantity;
 
                         cartContainer.appendChild(template);
@@ -174,19 +163,9 @@
                     // Add cart summary
                     const summaryTemplate = document.getElementById('cart-summary-template').content.cloneNode(true);
                     
-                    summaryTemplate.querySelector('#summary-total').textContent = new Intl.NumberFormat('ar-EG', {
-                        style: 'currency',
-                        currency: 'EGP',
-                        currencyDisplay: 'narrowSymbol',
-                        minimumFractionDigits: 2
-                    }).format(data.total);
+									summaryTemplate.querySelector('#summary-total').textContent = data.formatted_total;
                     
-                    summaryTemplate.querySelector('#final-total').textContent = new Intl.NumberFormat('ar-EG', {
-                        style: 'currency',
-                        currency: 'EGP',
-                        currencyDisplay: 'narrowSymbol',
-                        minimumFractionDigits: 2
-                    }).format(data.total);
+									summaryTemplate.querySelector('#final-total').textContent = data.formatted_total;
                     
                     cartContainer.appendChild(summaryTemplate);
 
@@ -208,7 +187,7 @@
             if (isManualInput) {
                 newQuantity = change; // change parameter is the new quantity when manual input
             } else {
-                const itemElement = document.querySelector(`[data-product-id="${productId}"]`);
+							const itemElement = document.querySelector(`#cart-container [data-product-id="${productId}"]`);
                 const qtyInput = itemElement.querySelector('.qty-input');
                 const currentQty = parseInt(qtyInput.value);
                 
@@ -222,7 +201,7 @@
             }
             
             // Update the input field with new quantity
-            const itemElement = document.querySelector(`[data-product-id="${productId}"]`);
+					const itemElement = document.querySelector(`#cart-container [data-product-id="${productId}"]`);
             const qtyInput = itemElement.querySelector('.qty-input');
             qtyInput.value = newQuantity;
 
@@ -257,30 +236,8 @@
         }
 
         // Remove item from cart
-        function removeItemFromCart(productId) {
-            if (confirm('هل أنت متأكد من رغبتك في إزالة هذا المنتج من السلة؟')) {
-                fetch(`{{ route("cart.remove", ":id") }}`.replace(':id', productId), {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Reload cart to reflect changes
-                        loadCart();
-                    } else {
-                        alert('خطأ في إزالة المنتج: ' + data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error removing item:', error);
-                    alert('حدث خطأ أثناء إزالة المنتج');
-                });
-            }
-        }
+        // Remove item from cart - Delegated to new implementation below using modal
+        // function removeItemFromCart(productId) { ... }
 
         // Update cart count in header (assuming there's a global cart counter)
         function updateCartCount(count) {
@@ -302,4 +259,53 @@
             window.lucide.createIcons();
         }
     </script>
+<x-confirm-modal id="remove-item-modal" title="إزالة المنتج"
+	message="هل أنت متأكد من رغبتك في إزالة هذا المنتج من السلة؟" confirmText="نعم، قم بالإزالة" />
+
+<script>
+	let itemToRemoveId = null;
+
+	document.addEventListener('DOMContentLoaded', function () {
+		// Setup confirmation modal listener
+		const confirmBtn = document.getElementById('remove-item-modal-confirm-btn');
+		if (confirmBtn) {
+			confirmBtn.addEventListener('click', function () {
+				if (itemToRemoveId) {
+					performRemoveItem(itemToRemoveId);
+					itemToRemoveId = null;
+					document.getElementById('remove-item-modal').close();
+				}
+			});
+		}
+	});
+
+	// Original removeItemFromCart updated to show modal
+		function removeItemFromCart(productId) {
+				itemToRemoveId = productId;
+				document.getElementById('remove-item-modal').showModal();
+			}
+
+			// Extracted logic to perform the actual fetch request
+			function performRemoveItem(productId) {
+				fetch(`{{ route("cart.remove", ":id") }}`.replace(':id', productId), {
+					method: 'POST',
+					headers: {
+						'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+						'Accept': 'application/json'
+					}
+				})
+					.then(response => response.json())
+					.then(data => {
+						if (data.success) {
+					loadCart();
+				} else {
+					alert('خطأ في إزالة المنتج: ' + data.message);
+				}
+			})
+			.catch(error => {
+				console.error('Error removing item:', error);
+				alert('حدث خطأ أثناء إزالة المنتج');
+			});
+	}
+</script>
 </x-layouts.app>

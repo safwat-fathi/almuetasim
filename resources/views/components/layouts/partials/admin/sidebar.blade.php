@@ -32,19 +32,13 @@
 										@endif
                 </a>
             </li>
-						{{-- <li>
-                <a>
+						<li>
+							<a href="{{ route('admin.visits') }}" @if (request()->routeIs('admin.visits')) class="active" @endif>
                     <i data-lucide="users" class="w-5 h-5"></i>
-                    Customers
+										الزيارات
                 </a>
             </li>
-            <li>
-                <a>
-                    <i data-lucide="bar-chart-3" class="w-5 h-5"></i>
-                    Analytics
-                </a>
-            </li> --}}
-            <li>
+						<li>
                 <a href="{{ route('admin.categories.index') }}" @if (request()->routeIs('admin.categories.*')) class="active" @endif>
                     <i data-lucide="tag" class="w-5 h-5"></i>
                     الفئات

@@ -68,6 +68,7 @@ Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 Route::get('/admin/dashboard', [DashboardController::class, 'index'])->middleware(['auth'])->name('dashboard');
+Route::get('/admin/visits', [DashboardController::class, 'visits'])->middleware(['auth'])->name('admin.visits');
 Route::get('/admin/dashboard/search-products', [DashboardController::class, 'searchProducts'])->middleware(['auth'])->name('dashboard.search-products');
 
 // Admin products management routes

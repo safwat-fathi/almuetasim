@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\Message;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -18,6 +19,8 @@ class DashboardController extends Controller
             'inactiveProducts' => Product::where('stock', 0)->count(),
             'newMessages' => Message::where('read', false)->count(),
             'totalMessages' => Message::count(),
+			'totalVisits' => DB::table('visits')->count(),
+			'todaysVisits' => DB::table('visits')->where('visited_at', now()->toDateString())->count(),
         ];
 
         // Fetch categories for the filter dropdown
@@ -112,4 +115,28 @@ class DashboardController extends Controller
             ]
         ]);
     }
+
+	public function visits()
+	{
+		$days = 30;
+		$range = collect(range($days - 1, 0))->map(function ($day) {
+			return now()->subDays($day)->format('Y-m-d');
+		});
+
+		$visits = DB::table('visits')
+			->select('visited_at', DB::raw('count(*) as count'))
+			->where('visited_at', '>=', now()->subDays($days)->toDateString())
+			->groupBy('visited_at')
+			->pluck('count', 'visited_at');
+
+		// Convert dates to strings for comparison if needed, and prepare chart data
+		$labels = $range->map(function ($date) {
+			return \Carbon\Carbon::parse($date)->format('d-m');
+		})->values();
+		$data = $range->map(function ($date) use ($visits) {
+			return $visits->get($date, 0);
+		});
+
+		return view('admin.visits', compact('labels', 'data'));
+	}
 }

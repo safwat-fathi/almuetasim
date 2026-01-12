@@ -17,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Configure the default middleware groups
         $middleware->web(append: [
             \App\Http\Middleware\AddCacheHeaders::class,
+			\App\Http\Middleware\TrackVisits::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

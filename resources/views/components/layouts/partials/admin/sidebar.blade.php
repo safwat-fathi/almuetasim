@@ -23,6 +23,13 @@
                     <span class="badge badge-primary">{{ \App\Models\Product::count() }}</span>
                 </a>
             </li>
+            <li>
+                <a href="{{ route('admin.gallery.index') }}" @if (request()->routeIs('admin.gallery.*')) class="active" @endif>
+                    <i data-lucide="images" class="w-5 h-5"></i>
+                    معرض الأعمال
+                    <span class="badge badge-primary">{{ \App\Models\GalleryItem::count() }}</span>
+                </a>
+            </li>
 						<li>
 							<a href="{{ route('admin.orders.index') }}" @if (request()->routeIs('admin.orders.*')) class="active" @endif>
                     <i data-lucide="shopping-cart" class="w-5 h-5"></i>

@@ -61,14 +61,77 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="products-grid" role="list" aria-label="قائمة المنتجات">
             <!-- Sample Products -->
             @foreach ($products as $product)
-                <x-product-card id="{{ $product->id }}"
-                    image="{{ $product->images ? $product->images[0] : 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop&crop=center' }}"
-                    slug="{{ $product->slug }}" title="{{ $product->title }}" price="{{ $product->price }}"
-                    type="{{ $product->type }}"
-                    original-price="{{ $product->price  * (100 - $product->discount) / 100 }}" on-sale="{{ $product->discount > 0 }}" />
-            @endforeach
-        </div>
-    </section>
+							<x-product-card id="{{ $product->id }}"
+								image="{{ $product->images ? $product->images[0] : 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop&crop=center' }}"
+								slug="{{ $product->slug }}" title="{{ $product->title }}" price="{{ $product->price }}" type="{{ $product->type }}"
+								original-price="{{ $product->price * (100 - $product->discount) / 100 }}" on-sale="{{ $product->discount > 0 }}" />
+						@endforeach
+							</div>
+							</section>
+							
+							<section class="relative overflow-hidden py-16 md:py-20" aria-labelledby="home-gallery-heading" role="region">
+								<div
+									class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(30,64,175,0.14),_transparent_45%),radial-gradient(circle_at_bottom_left,_rgba(14,165,233,0.12),_transparent_42%)]">
+								</div>
+								<div class="absolute inset-0 bg-gradient-to-b from-base-100/95 via-base-200/30 to-base-100"></div>
+							
+								<div class="container mx-auto px-4 relative">
+									<div class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between mb-10">
+										<div>
+											<p class="inline-flex items-center gap-2 text-sm font-semibold tracking-wider text-primary/80">
+												<span class="inline-block h-2 w-2 rounded-full bg-primary"></span>
+												مشاريعنا على أرض الواقع
+											</p>
+											<h2 id="home-gallery-heading" class="text-4xl font-bold text-[#2d3b61] mt-2">معرض أعمالنا</h2>
+											<p class="text-base-content/70 mt-3 max-w-2xl">
+												لقطات حقيقية من أعمالنا الأخيرة في التركيب والصيانة بجودة تنفيذ عالية.
+											</p>
+										</div>
+										<a href="{{ route('gallery.index') }}" class="btn btn-primary">
+											استعرض كل الأعمال
+										</a>
+									</div>
+							
+									@if ($galleryItems->isEmpty())
+										<div class="card bg-base-100 border border-dashed border-base-300 shadow-sm">
+											<div class="card-body text-center py-14">
+												<h3 class="text-2xl font-bold text-[#2d3b61]">المعرض قيد التحديث</h3>
+												<p class="text-base-content/70 mt-2">
+													سيتم إضافة صور أعمالنا قريبًا. تابعنا للاطلاع على أحدث المشاريع.
+												</p>
+											</div>
+										</div>
+									@else
+																		@php
+
+
+
+
+																		@endphp
+
+																		<div class="gallery-preview-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5" role="list"
+																			aria-label="أحدث أعمالنا">
+																			@foreach ($galleryItems as $galleryItem)
+																				@php
+		$galleryCaption = filled($galleryItem->caption) ? $galleryItem->caption : 'بدون وصف';
+																				@endphp
+																				<a href="{{ route('gallery.index') }}#gallery-item-{{ $galleryItem->id }}"
+																					class="gallery-card group relative block overflow-hidden rounded-3xl border border-slate-300/30 bg-white/95 shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+																					aria-label="الانتقال إلى صورة {{ $galleryCaption }}">
+																					<img src="{{ asset('storage/' . $galleryItem->image_path) }}" alt="{{ $galleryCaption }}" loading="lazy"
+																						decoding="async"
+																						class="gallery-media aspect-[16/10] h-auto w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+																					<div class="absolute inset-0 bg-gradient-to-t from-black/50 via-black/15 to-transparent"></div>
+																					<div
+																						class="absolute inset-x-4 bottom-4 z-20 gallery-caption-backdrop rounded-xl border border-white/20 bg-black/55 p-3 shadow-xl backdrop-blur-md">
+																						<p class="text-sm font-semibold text-white leading-6 drop-shadow-md">{{ $galleryCaption }}</p>
+																					</div>
+																				</a>
+																			@endforeach
+																		</div>
+									@endif
+									</div>
+									</section>
 
     <!-- Contact Form -->
     <x-contact-form />

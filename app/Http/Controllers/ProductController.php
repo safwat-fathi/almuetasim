@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
 use App\Models\Category;
+use App\Models\GalleryItem;
 use App\Models\Product;
 use App\Services\ImageOptimizationService;
+use App\Services\SettingsCacheService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -299,9 +301,14 @@ class ProductController extends Controller
         }
 
         $categories = (new \App\Services\CacheService())->getAllCategories()->take(4);
+        $galleryItems = GalleryItem::query()->latest()->limit(4)->get();
+        $settings = (new SettingsCacheService())->all();
+
         return view('home', [
             'products' => $products,
             'categories' => $categories,
+            'galleryItems' => $galleryItems,
+            'settings' => $settings,
         ]);
     }
 

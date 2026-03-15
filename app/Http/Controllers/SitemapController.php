@@ -38,6 +38,13 @@ class SitemapController extends Controller
         ];
 
         $urls[] = [
+            'loc' => route('gallery.index'),
+            'lastmod' => now()->toAtomString(),
+            'changefreq' => 'weekly',
+            'priority' => '0.8',
+        ];
+
+        $urls[] = [
             'loc' => route('wishlist.index'),
             'lastmod' => now()->toAtomString(),
             'changefreq' => 'weekly',

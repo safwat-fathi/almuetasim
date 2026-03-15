@@ -6,6 +6,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MessagesController;
 use App\Http\Controllers\ProductController;
@@ -24,6 +25,7 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 
 Route::get('/about', [AboutController::class, 'index'])->name('about');
+Route::get('/gallery', [GalleryController::class, 'indexPublic'])->name('gallery.index');
 
 Route::get('/category/{categorySlug}', [CategoryController::class, 'showPublic'])->name('category.show');
 
@@ -79,6 +81,17 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/admin/products/{id}/edit', [ProductController::class, 'edit'])->name('admin.products.edit');
     Route::put('/admin/products/{id}', [ProductController::class, 'update'])->name('admin.products.update');
     Route::delete('/admin/products/{id}', [ProductController::class, 'destroy'])->name('admin.products.destroy');
+});
+
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/galleries', function () {
+        return redirect()->route('admin.gallery.index');
+    })->name('gallery.alias');
+    Route::get('/gallery', [GalleryController::class, 'indexAdmin'])->name('gallery.index');
+    Route::get('/gallery/{galleryItem}', [GalleryController::class, 'show'])->name('gallery.show');
+    Route::post('/gallery', [GalleryController::class, 'store'])->name('gallery.store');
+    Route::put('/gallery/{galleryItem}', [GalleryController::class, 'update'])->name('gallery.update');
+    Route::delete('/gallery/{galleryItem}', [GalleryController::class, 'destroy'])->name('gallery.destroy');
 });
 
 // Admin categories routes

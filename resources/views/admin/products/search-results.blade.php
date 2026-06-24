@@ -122,10 +122,10 @@
                                                     <li><a href="{{ route('product.show', $product->slug) }}" class="text-blue-600 hover:bg-blue-50">
                                                         <i data-lucide="eye" class="w-4 h-4 mr-2"></i> عرض المنتج
                                                     </a></li>
-                                                    <li><a onclick="editProduct({{ $product->id }})" class="text-orange-600 hover:bg-orange-50">
+                                                    <li><a href="javascript:void(0);" onclick="editProduct({{ $product->id }})" class="text-orange-600 hover:bg-orange-50">
                                                         <i data-lucide="edit" class="w-4 h-4 mr-2"></i> تعديل
                                                     </a></li>
-                                                    <li><a onclick="deleteProduct({{ $product->id }})" class="text-red-600 hover:bg-red-50">
+                                                    <li><a href="javascript:void(0);" onclick="deleteProduct({{ $product->id }})" class="text-red-600 hover:bg-red-50">
                                                         <i data-lucide="trash-2" class="w-4 h-4 mr-2"></i> حذف
                                                     </a></li>
                                                 </ul>
@@ -283,8 +283,8 @@
     <x-slot:scripts>
         <script>
             // Alpine.js data and functions (same as before)
-            document.addEventListener('alpine:init', () => {
-                Alpine.data('productModal', () => ({
+            function productModal() {
+                return {
                     isOpen: false,
                     isSubmitting: false,
                     isEditing: false,
@@ -492,9 +492,11 @@
                         document.body.appendChild(toastContainer);
                         setTimeout(() => { if (toastContainer.parentNode) toastContainer.parentNode.removeChild(toastContainer); }, 5000);
                     }
-                }));
+                };
+            }
 
-                Alpine.data('deleteModal', () => ({
+            function deleteModal() {
+                return {
                     isOpen: false,
                     productId: null,
                     openModal(id) {
@@ -510,8 +512,8 @@
                         await deleteProductConfirmed(this.productId);
                         this.closeModal();
                     }
-                }));
-            });
+                };
+            }
 
             // Handle Enter key press in search input
             function handleSearchKeyPress(event) {

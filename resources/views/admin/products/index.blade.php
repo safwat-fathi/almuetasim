@@ -106,8 +106,8 @@
                                                     <ul tabindex="0"
                                                         class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
                                                         <li><a href="{{ route('product.show', $product->slug) }}"><i data-lucide="eye" class="w-4 h-4 mr-2"></i> عرض</a></li>
-                                                        <li><a onclick="editProduct({{ $product->id }})"><i data-lucide="edit" class="w-4 h-4 mr-2"></i> تعديل</a></li>
-                                                        <li><a onclick="deleteProduct({{ $product->id }})" class="text-error"><i data-lucide="trash-2" class="w-4 h-4 mr-2"></i> حذف</a></li>
+                                                        <li><a href="javascript:void(0);" onclick="editProduct({{ $product->id }})"><i data-lucide="edit" class="w-4 h-4 mr-2"></i> تعديل</a></li>
+                                                        <li><a href="javascript:void(0);" onclick="deleteProduct({{ $product->id }})" class="text-error"><i data-lucide="trash-2" class="w-4 h-4 mr-2"></i> حذف</a></li>
                                                     </ul>
                                                 </div>
                                             </td>
@@ -260,8 +260,8 @@
     <x-slot:scripts>
         <script>
             // This script block is correct and requires no changes.
-            document.addEventListener('alpine:init', () => {
-                Alpine.data('productModal', () => ({
+            function productModal() {
+                return {
                     isOpen: false,
                     isSubmitting: false,
                     isEditing: false,
@@ -570,9 +570,11 @@
                             }
                         }, 5000);
                     }
-                }));
+                };
+            }
 
-                Alpine.data('deleteModal', () => ({
+            function deleteModal() {
+                return {
                     isOpen: false,
                     productId: null,
                     openModal(id) {
@@ -588,9 +590,8 @@
                         await deleteProductConfirmed(this.productId);
                         this.closeModal();
                     }
-                }));
-            });
-
+                };
+            }
 
 
             // Handle Enter key press in search input
@@ -726,7 +727,7 @@
                             <div class="flex items-center space-x-3">
                                 <div class="avatar">
                                     <div class="mask mask-squircle w-12 h-12">
-                                        <img src="${(product.images && product.images[0]) ? ('/storage/' + product.images[0].replace(/^\\/+/, '')) : 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=100&h=100&fit=crop'}" alt="${escapeHtml(product.title)}" />
+                                        <img src="${(product.images && product.images[0]) ? ('/storage/' + product.images[0].replace(/^\/+/, '')) : 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=100&h=100&fit=crop'}" alt="${escapeHtml(product.title)}" />
                                     </div>
                                 </div>
                                 <div>
@@ -746,8 +747,8 @@
                                 </div>
                                 <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
                                     <li><a href="/product/${encodeURIComponent(product.slug)}"><i data-lucide="eye" class="w-4 h-4 mr-2"></i> عرض</a></li>
-                                    <li><a onclick="editProduct(${product.id})"><i data-lucide="edit" class="w-4 h-4 mr-2"></i> تعديل</a></li>
-                                    <li><a onclick="deleteProduct(${product.id})" class="text-error"><i data-lucide="trash-2" class="w-4 h-4 mr-2"></i> حذف</a></li>
+                                    <li><a href="javascript:void(0);" onclick="editProduct(${product.id})"><i data-lucide="edit" class="w-4 h-4 mr-2"></i> تعديل</a></li>
+                                    <li><a href="javascript:void(0);" onclick="deleteProduct(${product.id})" class="text-error"><i data-lucide="trash-2" class="w-4 h-4 mr-2"></i> حذف</a></li>
                                 </ul>
                             </div>
                         </td>
